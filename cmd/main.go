@@ -1,20 +1,29 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
 
 	"monolith/internal/database"
 	"monolith/internal/handlers"
+	"monolith/internal/logger"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	log := logger.New(logger.Config{
+		Level: logger.GetLevel(os.Getenv("LOG_LEVEL")),
+		Env:   os.Getenv("ENV"),
+	})
+
+	slog.SetDefault(log)
+
 	db, err := database.New()
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Error("Failed to connect to database", slog.Any("error", err))
+		os.Exit(1)
 	}
 	defer db.Close()
 
@@ -39,6 +48,9 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("Server starting on port %s", port)
-	log.Fatal(e.Start(":" + port))
+	log.Info("Server starting", slog.String("port", port))
+	if err := e.Start(":" + port); err != nil {
+		log.Error("Server failed to start", slog.Any("error", err))
+		os.Exit(1)
+	}
 }
