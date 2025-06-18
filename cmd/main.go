@@ -23,8 +23,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
-
-	e.Static("/", "web/dist")
+	e.Use(middleware.Gzip())
 
 	userHandler := handlers.NewUserHandler(db)
 
