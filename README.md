@@ -1,4 +1,4 @@
-# App Template
+# Monolith App Template
 
 A simple template application built with:
 
