@@ -1,0 +1,12 @@
+# Enforce Unix newlines
+* text=auto eol=lf
+
+*.zip           binary
+*.png           binary
+*.svg           binary
+*.jpg           binary
+*.eot           binary
+*.ttf           binary
+*.woff2         binary
+*.woff          binary
+*.pdf           binary
