@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch App",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/monolith",
+      // "args": ["--config", "${workspaceFolder}/monolith.conf", "--test"]
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

@@ -18,8 +18,10 @@
 go.work
 
 # IDE-specific files
-.vscode/
-.claude/
+.vscode/*
+!.vscode/launch.json
+.claude/*
+!.claude/commands
 .idea/
 *.swp
 *.swo
@@ -36,4 +38,5 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
 .env
