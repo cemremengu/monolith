@@ -8,23 +8,32 @@
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Code coverage profiles and other test artifacts
 *.out
+coverage.*
+*.coverprofile
+profile.cov
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
 # Go workspace file
 go.work
+go.work.sum
 
 # IDE-specific files
 .vscode/*
 !.vscode/launch.json
 .claude/*
 !.claude/commands
-.idea/
+.idea
 *.swp
 *.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS-specific files
 .DS_Store
@@ -39,4 +48,5 @@ Thumbs.db
 *.tmp
 *.temp
 
+# env file
 .env
