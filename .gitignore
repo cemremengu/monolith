@@ -26,7 +26,7 @@ go.work.sum
 !.vscode/launch.json
 .claude/*
 !.claude/commands
-.idea
+.idea/
 *.swp
 *.swo
 *.suo
