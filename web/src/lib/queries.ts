@@ -8,7 +8,7 @@ export const userKeys = {
   lists: () => [...userKeys.all, 'list'] as const,
   list: (filters: string) => [...userKeys.lists(), { filters }] as const,
   details: () => [...userKeys.all, 'detail'] as const,
-  detail: (id: number) => [...userKeys.details(), id] as const,
+  detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
 // Query hooks
@@ -19,7 +19,7 @@ export const useUsers = () => {
   });
 };
 
-export const useUser = (id: number) => {
+export const useUser = (id: string) => {
   return useQuery({
     queryKey: userKeys.detail(id),
     queryFn: () => api.users.getById(id),
@@ -43,7 +43,7 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: CreateUserRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: CreateUserRequest }) =>
       api.users.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });

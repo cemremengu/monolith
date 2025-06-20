@@ -11,7 +11,7 @@ export const Route = createFileRoute('/users')({
 })
 
 function Users() {
-  const [formData, setFormData] = useState<CreateUserRequest>({ name: '', email: '' })
+  const [formData, setFormData] = useState<CreateUserRequest>({ username: '', name: '', email: '' })
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
   const { data: users = [], isLoading, error } = useUsers()
@@ -27,7 +27,7 @@ function Users() {
         { id: editingUser.id, data: formData },
         {
           onSuccess: () => {
-            setFormData({ name: '', email: '' })
+            setFormData({ username: '', name: '', email: '' })
             setEditingUser(null)
           }
         }
@@ -35,7 +35,7 @@ function Users() {
     } else {
       createUser.mutate(formData, {
         onSuccess: () => {
-          setFormData({ name: '', email: '' })
+          setFormData({ username: '', name: '', email: '' })
         }
       })
     }
@@ -43,16 +43,16 @@ function Users() {
 
   const handleEdit = (user: User) => {
     setEditingUser(user)
-    setFormData({ name: user.name, email: user.email })
+    setFormData({ username: user.username, name: user.name || '', email: user.email })
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     deleteUser.mutate(id)
   }
 
   const handleCancel = () => {
     setEditingUser(null)
-    setFormData({ name: '', email: '' })
+    setFormData({ username: '', name: '', email: '' })
   }
 
   if (isLoading) {
@@ -77,6 +77,14 @@ function Users() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Input
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  required
+                />
+              </div>
               <div>
                 <Input
                   placeholder="Name"
@@ -120,7 +128,8 @@ function Users() {
               <CardContent className="p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-semibold">{user.name}</h3>
+                    <h3 className="font-semibold">{user.name || user.username}</h3>
+                    <p className="text-sm text-muted-foreground">@{user.username}</p>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                     <p className="text-xs text-muted-foreground">
                       Created: {new Date(user.createdAt).toLocaleDateString()}

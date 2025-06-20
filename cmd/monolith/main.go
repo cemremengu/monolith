@@ -8,6 +8,7 @@ import (
 	"monolith/internal/database"
 	"monolith/internal/handlers"
 	"monolith/internal/logger"
+	customMiddleware "monolith/internal/middleware"
 	"monolith/web"
 
 	"github.com/labstack/echo/v4"
@@ -57,13 +58,23 @@ func main() {
 	}))
 
 	userHandler := handlers.NewUserHandler(db)
+	authHandler := handlers.NewAuthHandler(db)
 
 	api := e.Group("/api")
-	api.GET("/users", userHandler.GetUsers)
-	api.GET("/users/:id", userHandler.GetUser)
-	api.POST("/users", userHandler.CreateUser)
-	api.PUT("/users/:id", userHandler.UpdateUser)
-	api.DELETE("/users/:id", userHandler.DeleteUser)
+
+	// Public auth routes
+	api.POST("/auth/register", authHandler.Register)
+	api.POST("/auth/login", authHandler.Login)
+
+	// Protected routes
+	protected := api.Group("", customMiddleware.JWTAuth())
+	protected.GET("/auth/me", authHandler.Me)
+	protected.POST("/auth/logout", authHandler.Logout)
+	protected.GET("/users", userHandler.GetUsers)
+	protected.GET("/users/:id", userHandler.GetUser)
+	protected.POST("/users", userHandler.CreateUser)
+	protected.PUT("/users/:id", userHandler.UpdateUser)
+	protected.DELETE("/users/:id", userHandler.DeleteUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {

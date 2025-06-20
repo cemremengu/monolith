@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"net/http"
-	"strconv"
 
 	"monolith/internal/database"
 	"monolith/internal/models"
@@ -23,8 +22,10 @@ func NewUserHandler(db *database.DB) *UserHandler {
 func (h *UserHandler) GetUsers(c echo.Context) error {
 	var users []models.User
 	err := pgxscan.Select(context.Background(), h.db.Pool, &users, `
-		SELECT id, name, email, created_at, updated_at 
-		FROM users 
+		SELECT id, username, email, name, is_admin, language, theme, timezone, 
+		       last_seen_at, is_disabled, created_at, updated_at 
+		FROM account 
+		WHERE is_disabled = FALSE
 		ORDER BY created_at DESC
 	`)
 	if err != nil {
@@ -35,16 +36,14 @@ func (h *UserHandler) GetUsers(c echo.Context) error {
 }
 
 func (h *UserHandler) GetUser(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
-	}
+	id := c.Param("id")
 
 	var user models.User
-	err = pgxscan.Get(context.Background(), h.db.Pool, &user, `
-		SELECT id, name, email, created_at, updated_at 
-		FROM users 
-		WHERE id = $1
+	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
+		SELECT id, username, email, name, is_admin, language, theme, timezone, 
+		       last_seen_at, is_disabled, created_at, updated_at 
+		FROM account 
+		WHERE id = $1 AND is_disabled = FALSE
 	`, id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
@@ -54,8 +53,9 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 }
 
 type CreateUserRequest struct {
-	Name  string `json:"name" validate:"required"`
-	Email string `json:"email" validate:"required,email"`
+	Username string `json:"username" validate:"required"`
+	Name     string `json:"name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {
@@ -66,10 +66,11 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 
 	var user models.User
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
-		INSERT INTO users (name, email) 
-		VALUES ($1, $2) 
-		RETURNING id, name, email, created_at, updated_at
-	`, req.Name, req.Email)
+		INSERT INTO account (username, name, email, created_at, updated_at) 
+		VALUES ($1, $2, $3, NOW(), NOW()) 
+		RETURNING id, username, email, name, is_admin, language, theme, timezone, 
+		          last_seen_at, is_disabled, created_at, updated_at
+	`, req.Username, req.Name, req.Email)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
 	}
@@ -78,10 +79,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 }
 
 func (h *UserHandler) UpdateUser(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
-	}
+	id := c.Param("id")
 
 	var req CreateUserRequest
 	if err := c.Bind(&req); err != nil {
@@ -89,12 +87,13 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	}
 
 	var user models.User
-	err = pgxscan.Get(context.Background(), h.db.Pool, &user, `
-		UPDATE users 
-		SET name = $1, email = $2, updated_at = NOW() 
-		WHERE id = $3 
-		RETURNING id, name, email, created_at, updated_at
-	`, req.Name, req.Email, id)
+	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
+		UPDATE account 
+		SET username = $1, name = $2, email = $3, updated_at = NOW() 
+		WHERE id = $4 AND is_disabled = FALSE
+		RETURNING id, username, email, name, is_admin, language, theme, timezone, 
+		          last_seen_at, is_disabled, created_at, updated_at
+	`, req.Username, req.Name, req.Email, id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}
@@ -103,12 +102,11 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 }
 
 func (h *UserHandler) DeleteUser(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
-	}
+	id := c.Param("id")
 
-	_, err = h.db.Pool.Exec(context.Background(), `DELETE FROM users WHERE id = $1`, id)
+	_, err := h.db.Pool.Exec(context.Background(), `
+		UPDATE account SET is_disabled = TRUE, updated_at = NOW() WHERE id = $1
+	`, id)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}
