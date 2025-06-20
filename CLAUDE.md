@@ -25,10 +25,14 @@
 
 ## Frontend Standarts
 
-- Use **shadcn-ui** for core components.
-- Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**.
+- Use **shadcn-ui** for core components
+- Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
 
 ### Core Components
+
+Here are the components available in **shadcn/ui**. More docs at `https://ui.shadcn.com/docs/components`.
+
+First check `components/ui` directory to see if a component exists before adding it. Do not overwrite.
 
 - npx shadcn@latest add accordion
 - npx shadcn@latest add alert
