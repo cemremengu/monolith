@@ -25,6 +25,7 @@
 
 ## Frontend Standarts
 
+- Check `package.json` for what libs to use.
 - Use **shadcn-ui** for core components
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
 
