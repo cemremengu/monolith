@@ -11,11 +11,16 @@ import (
 	customMiddleware "monolith/internal/middleware"
 	"monolith/web"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		slog.Debug("No .env file found or error loading .env file", slog.Any("error", err))
+	}
+
 	log := logger.New(logger.Config{
 		Level: logger.GetLevel(os.Getenv("LOG_LEVEL")),
 		Env:   os.Getenv("ENV"),
