@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
   id: string;
   username: string;
   email: string;
@@ -12,22 +12,22 @@ export interface User {
   isDisabled: boolean;
   createdAt: string;
   updatedAt: string;
-}
+};
 
-export interface CreateUserRequest {
+export type CreateUserRequest = {
   username: string;
   name: string;
   email: string;
-}
+};
 
-export interface LoginRequest {
+export type LoginRequest = {
   login: string;
   password: string;
-}
+};
 
-export interface RegisterRequest {
+export type RegisterRequest = {
   username: string;
   email: string;
   password: string;
   name: string;
-}
+};
