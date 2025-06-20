@@ -6,6 +6,7 @@ CREATE TABLE account
     email        TEXT UNIQUE                            NOT NULL,
     name         TEXT,
     password     TEXT,
+    avatar       TEXT,
     salt         TEXT,
     rands        TEXT,
     is_admin     BOOLEAN                  DEFAULT FALSE,

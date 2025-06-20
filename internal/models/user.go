@@ -10,6 +10,7 @@ type User struct {
 	Email      string     `json:"email" db:"email"`
 	Name       *string    `json:"name" db:"name"`
 	Password   string     `json:"-" db:"password"`
+	Avatar     *string    `json:"avatar,omitempty" db:"avatar"`
 	Salt       *string    `json:"-" db:"salt"`
 	Rands      *string    `json:"-" db:"rands"`
 	IsAdmin    bool       `json:"isAdmin" db:"is_admin"`

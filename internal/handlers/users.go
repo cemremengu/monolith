@@ -40,7 +40,7 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 
 	var user models.User
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
-		SELECT id, username, email, name, is_admin, language, theme, timezone, 
+		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
 		FROM account 
 		WHERE id = $1 AND is_disabled = FALSE
