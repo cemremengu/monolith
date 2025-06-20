@@ -9,8 +9,10 @@ import (
 	"monolith/internal/handlers"
 	"monolith/internal/logger"
 	customMiddleware "monolith/internal/middleware"
+	"monolith/migrations"
 	"monolith/web"
 
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -34,6 +36,8 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+
+	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
 	e := echo.New()
 	e.HideBanner = true
