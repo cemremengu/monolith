@@ -23,8 +23,8 @@ type User struct {
 }
 
 type LoginRequest struct {
-	Identifier string `json:"identifier" validate:"required"`
-	Password   string `json:"password" validate:"required"`
+	Login    string `json:"login" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type RegisterRequest struct {

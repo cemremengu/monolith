@@ -20,7 +20,7 @@ export interface CreateUserRequest {
 }
 
 export interface LoginRequest {
-  identifier: string;
+  login: string;
   password: string;
 }
 

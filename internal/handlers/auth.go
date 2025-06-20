@@ -93,7 +93,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		       last_seen_at, is_disabled, created_at, updated_at
 		FROM account 
 		WHERE (email = $1 OR username = $1) AND is_disabled = FALSE
-	`, req.Identifier)
+	`, req.Login)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid credentials"})
 	}

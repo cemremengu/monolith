@@ -46,17 +46,17 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="identifier">Username or Email</Label>
+            <Label htmlFor="login">Username or Email</Label>
             <Input
-              id="identifier"
+              id="login"
               type="text"
               placeholder="Enter your username or email"
-              {...register("identifier", {
+              {...register("login", {
                 required: "Username or email is required",
               })}
             />
-            {errors.identifier && (
-              <p className="text-sm text-red-500">{errors.identifier.message}</p>
+            {errors.login && (
+              <p className="text-sm text-red-500">{errors.login.message}</p>
             )}
           </div>
 
