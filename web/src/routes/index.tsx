@@ -21,17 +21,21 @@ function Index() {
       <Card className="max-w-md mx-auto">
         <CardHeader>
           <CardTitle>
-            {isAuthenticated ? `Welcome back, ${user?.name || user?.username}!` : "Welcome to Monolith"}
+            {isAuthenticated
+              ? `Welcome back, ${user?.name || user?.username}!`
+              : "Welcome to Monolith"}
           </CardTitle>
           <CardDescription>
-            A full-stack application with JWT authentication, built with Go, Echo, PostgreSQL, React, and shadcn/ui.
+            A full-stack application with JWT authentication, built with Go,
+            Echo, PostgreSQL, React, and shadcn/ui.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isAuthenticated ? (
             <>
               <p className="text-sm text-muted-foreground">
-                You are successfully logged in! Explore the features available to you.
+                You are successfully logged in! Explore the features available
+                to you.
               </p>
               <div className="flex gap-2">
                 <Link to="/users">

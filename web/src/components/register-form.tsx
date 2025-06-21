@@ -31,7 +31,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       const response = await api.auth.register(data);
       login(response.user);
       onSuccess();
-    } catch (err) {
+    } catch {
       setError("Registration failed. Please check your details.");
     } finally {
       setIsLoading(false);
