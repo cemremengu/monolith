@@ -80,6 +80,9 @@ npm run build
 1. Make sure PostgreSQL is running and migrations are applied
 2. Start the Go server: `go run cmd/main.go`
 3. Open your browser to `http://localhost:8080`
+4. Initial credentials for the admin user are:
+   - Username: `admin`
+   - Password: `admin123`
 
 The application will serve the React frontend and provide API endpoints for user management.
 

@@ -5,10 +5,8 @@ CREATE TABLE account
     username     TEXT                                   NOT NULL,
     email        TEXT UNIQUE                            NOT NULL,
     name         TEXT,
-    password     TEXT,
     avatar       TEXT,
-    salt         TEXT,
-    rands        TEXT,
+    password     TEXT,
     is_admin     BOOLEAN                  DEFAULT FALSE,
     language     TEXT,
     theme        TEXT,
@@ -20,7 +18,7 @@ CREATE TABLE account
 );
 
 -- +goose StatementBegin
-INSERT INTO public.account (id, username, email, name, password, salt, rands, is_admin, language, theme, timezone, last_seen_at, is_disabled, created_at, updated_at) VALUES ('61856bb8-f32c-44da-bf51-216047be674c', 'admin', 'admin@ttgint.com', null, '2ddd92fabc31d83403793e700321ff5310680ee4cce275b76d516d650a49072caf3f1237955400e40f29febf818290fd0e36', 'BeFyGJvd3l', null, TRUE, null, null, null, NOW(), FALSE, NOW(), NOW());
+INSERT INTO public.account (id, username, email, name, avatar, password, is_admin, language, theme, timezone, last_seen_at, is_disabled, created_at, updated_at) VALUES ('4645fd03-84ac-44ac-b26b-9178fd67de17', 'admin', 'admin@localhost.com', 'System Admin', null, '$2a$12$CLuzlNmP7Bww91df6972OeKof.cFsCmKHYzfdkbExAMiAviv/PI5C', true, null, null, null, now(), false, now(), now());
 -- +goose StatementEnd
 
 -- +goose Down
