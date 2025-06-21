@@ -1,6 +1,5 @@
 import {
   createRootRoute,
-  Link,
   Outlet,
   useLocation,
   useNavigate,
@@ -30,6 +29,9 @@ function Root() {
     if (!isLoading) {
       if (location.pathname === "/" && !isAuthenticated) {
         navigate({ to: "/login" });
+      }
+      if (location.pathname === "/" && isAuthenticated) {
+        navigate({ to: "/dashboard" });
       }
       if (location.pathname === "/login" && isAuthenticated) {
         navigate({ to: "/dashboard" });
