@@ -1,0 +1,46 @@
+version: "3"
+
+tasks:
+  run:
+    cmds:
+      - go run ./cmd/monolith
+  run:watch:
+    cmds:
+      - wgo run ./cmd/monolith
+  run:web:
+    cmds:
+      - cd web && npm run dev
+  test:
+    cmds:
+      - go test -v ./...
+  build:web:
+    cmds:
+      - cd web && npm run build
+  build:win:
+    cmds:
+      - cd web && npm run build
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-w -s" ./cmd/monolith
+  build:linux:
+    cmds:
+      - cd web && npm run build
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" ./cmd/monolith
+  build:docker:
+    cmds:
+      - docker build -t monolith:latest .
+  migration:create:
+    dir: migrations
+    cmds:
+      - goose create {{.CLI_ARGS}} sql
+  fmt:
+    cmds:
+      - cmd: gofumpt -l -w .
+        ignore_error: true
+      - cmd: betteralign -apply ./...
+        ignore_error: true
+  update:
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+  lint:
+    cmds:
+      - golangci-lint run
