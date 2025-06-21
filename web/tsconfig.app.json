@@ -29,5 +29,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "prettier.config.cjs"]
+  "include": ["src", "prettier.config.js"]
 }

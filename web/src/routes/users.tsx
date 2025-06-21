@@ -45,7 +45,7 @@ function Users() {
             setFormData({ username: "", name: "", email: "" });
             setEditingUser(null);
           },
-        }
+        },
       );
     } else {
       createUser.mutate(formData, {
