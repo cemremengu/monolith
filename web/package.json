@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "format": "prettier --write .",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "router:generate": "tsr generate"
   },
