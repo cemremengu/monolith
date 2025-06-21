@@ -1,4 +1,10 @@
-import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  Link,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -12,18 +18,39 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 function Root() {
-  const { user, isAuthenticated, logout, checkAuth } = useAuth();
+  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      if (location.pathname === "/" && !isAuthenticated) {
+        navigate({ to: "/login" });
+      }
+      if (location.pathname === "/login" && isAuthenticated) {
+        navigate({ to: "/dashboard" });
+      }
+    }
+  }, [location.pathname, isAuthenticated, isLoading, navigate]);
+
   const handleLogout = async () => {
     await logout();
   };
 
-  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-sm text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/register";
 
   if (isAuthenticated && !isAuthPage) {
     return (
