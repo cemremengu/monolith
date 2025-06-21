@@ -31,7 +31,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       const response = await api.auth.login(data);
       login(response.user);
       onSuccess();
-    } catch (err) {
+    } catch {
       setError("Invalid username/email or password");
     } finally {
       setIsLoading(false);
@@ -68,10 +68,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               placeholder="Enter your password"
               {...register("password", {
                 required: "Password is required",
-                minLength: {
-                  value: 8,
-                  message: "Password must be at least 8 characters",
-                },
               })}
             />
             {errors.password && (
