@@ -27,13 +27,14 @@ function Root() {
 
   useEffect(() => {
     if (!isLoading) {
-      if (location.pathname === "/" && !isAuthenticated) {
+      const isAuthPage =
+        location.pathname === "/login" || location.pathname === "/register";
+
+      if (!isAuthenticated && !isAuthPage) {
         navigate({ to: "/login" });
-      }
-      if (location.pathname === "/" && isAuthenticated) {
+      } else if (isAuthenticated && location.pathname === "/") {
         navigate({ to: "/dashboard" });
-      }
-      if (location.pathname === "/login" && isAuthenticated) {
+      } else if (isAuthenticated && isAuthPage) {
         navigate({ to: "/dashboard" });
       }
     }
@@ -79,7 +80,7 @@ function Root() {
             <Outlet />
           </div>
         </SidebarInset>
-        <TanStackRouterDevtools />
+        {/* <TanStackRouterDevtools /> */}
       </SidebarProvider>
     );
   }
