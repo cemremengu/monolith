@@ -21,7 +21,7 @@ export const useAuth = create<AuthState>()((set) => ({
   logout: async () => {
     try {
       await api.auth.logout();
-    } catch (error) {
+    } catch {
       // Ignore logout API errors, clear state anyway
     } finally {
       set({ user: null, isAuthenticated: false });
@@ -32,7 +32,7 @@ export const useAuth = create<AuthState>()((set) => ({
     try {
       const user = await api.auth.me();
       set({ user, isAuthenticated: true });
-    } catch (error) {
+    } catch {
       set({ user: null, isAuthenticated: false });
     }
   },
