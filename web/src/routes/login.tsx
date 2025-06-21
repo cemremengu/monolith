@@ -9,7 +9,7 @@ function LoginPage() {
   const navigate = Route.useNavigate();
 
   const handleLoginSuccess = () => {
-    navigate({ to: "/" });
+    navigate({ to: "/dashboard" });
   };
 
   return (
