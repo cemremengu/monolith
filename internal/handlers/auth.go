@@ -40,7 +40,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusConflict, map[string]string{"error": "User already exists"})
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12) // recommended cost factor
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
 	}
