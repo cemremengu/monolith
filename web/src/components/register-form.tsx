@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { api } from "@/lib/api";
+import { authApi } from "@/api/auth";
+import type { RegisterRequest } from "@/api/auth/types";
 import { useAuth } from "@/lib/auth";
-import type { RegisterRequest } from "@/types";
 
 interface RegisterFormProps {
   onSuccess: () => void;
@@ -28,7 +28,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     setError(null);
 
     try {
-      const response = await api.auth.register(data);
+      const response = await authApi.register(data);
       login(response.user);
       onSuccess();
     } catch {

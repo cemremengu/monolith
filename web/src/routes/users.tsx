@@ -5,8 +5,8 @@ import {
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
-} from "@/lib/queries";
-import type { User, CreateUserRequest } from "@/types";
+} from "@/api/users/queries";
+import type { User, CreateUserRequest } from "@/api/users/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

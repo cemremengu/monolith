@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { User } from "@/types";
-import { api } from "./api";
+import { authApi } from "@/api/auth";
+import type { User } from "@/api/users/types";
 
 interface AuthState {
   user: User | null;
@@ -22,7 +22,7 @@ export const useAuth = create<AuthState>()((set) => ({
 
   logout: async () => {
     try {
-      await api.auth.logout();
+      await authApi.logout();
     } catch {
       // Ignore logout API errors, clear state anyway
     } finally {
@@ -33,7 +33,7 @@ export const useAuth = create<AuthState>()((set) => ({
   checkAuth: async () => {
     set({ isLoading: true });
     try {
-      const user = await api.auth.me();
+      const user = await authApi.me();
       set({ user, isAuthenticated: true, isLoading: false });
     } catch {
       set({ user: null, isAuthenticated: false, isLoading: false });
