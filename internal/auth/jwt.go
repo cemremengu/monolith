@@ -23,7 +23,7 @@ type Claims struct {
 }
 
 func getJWTSecret() []byte {
-	secret := os.Getenv("JWT_SECRET")
+	secret := os.Getenv("SECRET_KEY")
 	if secret == "" {
 		secret = "your-256-bit-secret"
 	}
@@ -67,7 +67,6 @@ func ValidateToken(tokenString string) (*Claims, error) {
 		}
 		return getJWTSecret(), nil
 	})
-
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenMalformed) {
 			return nil, ErrTokenMalformed
