@@ -25,6 +25,7 @@
 
 - Always use camelCase for JSON struct tags
 - Prefer composition over inheritance
+- Always use `any` instead of `interface{}`
 
 ## Frontend Standarts
 

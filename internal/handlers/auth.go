@@ -503,7 +503,7 @@ func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
 		}
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	return c.JSON(http.StatusOK, map[string]any{
 		"message":      "Other sessions revoked successfully",
 		"revokedCount": revokedCount,
 	})
