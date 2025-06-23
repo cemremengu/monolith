@@ -2,7 +2,6 @@ package config
 
 import (
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -31,8 +30,8 @@ func getEnvOrDefault(key, defaultValue string) string {
 
 func parseDurationOrDefault(key string, defaultValue time.Duration) time.Duration {
 	if value := os.Getenv(key); value != "" {
-		if hours, err := strconv.Atoi(value); err == nil {
-			return time.Duration(hours) * time.Hour
+		if duration, err := time.ParseDuration(value); err == nil {
+			return duration
 		}
 	}
 	return defaultValue
