@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"monolith/internal/auth"
+	"monolith/internal/config"
 	"monolith/internal/database"
 	"monolith/internal/models"
 	"monolith/internal/repository"
@@ -23,6 +24,7 @@ type AuthHandler struct {
 	tokenService           *auth.TokenService
 	refreshTokenRepository *repository.RefreshTokenRepository
 	sessionRepository      *repository.SessionRepository
+	jwtConfig              *config.JWTConfig
 }
 
 func NewAuthHandler(db *database.DB) *AuthHandler {
@@ -31,6 +33,7 @@ func NewAuthHandler(db *database.DB) *AuthHandler {
 		tokenService:           auth.NewTokenService(),
 		refreshTokenRepository: repository.NewRefreshTokenRepository(db),
 		sessionRepository:      repository.NewSessionRepository(db),
+		jwtConfig:              config.NewJWTConfig(),
 	}
 }
 
@@ -293,11 +296,11 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid refresh token"})
 	}
 
-	// Check if session exists and refresh token matches
+	// Check if session exists, refresh token matches, and session hasn't timed out
 	refreshTokenHash := auth.HashToken(refreshTokenCookie.Value)
-	session, err := h.sessionRepository.GetSessionByToken(c.Request().Context(), refreshTokenHash)
+	session, err := h.sessionRepository.GetSessionByTokenWithTimeout(c.Request().Context(), refreshTokenHash, h.jwtConfig.SessionTimeout)
 	if err != nil || session == nil || session.SessionID != sessionCookie.Value {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid session or refresh token"})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session expired or invalid"})
 	}
 
 	// Get user information

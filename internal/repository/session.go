@@ -74,6 +74,46 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 	return &session, nil
 }
 
+func (r *SessionRepository) GetSessionByTokenWithTimeout(ctx context.Context, tokenHash string, sessionTimeout time.Duration) (*Session, error) {
+	var query string
+	var args []interface{}
+	
+	if sessionTimeout > 0 {
+		query = `
+			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+			FROM session
+			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW() AND last_used_at > $2
+		`
+		timeoutThreshold := time.Now().Add(-sessionTimeout)
+		args = []interface{}{tokenHash, timeoutThreshold}
+	} else {
+		query = `
+			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+			FROM session
+			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW()
+		`
+		args = []interface{}{tokenHash}
+	}
+	
+	var session Session
+	err := r.db.Pool.QueryRow(ctx, query, args...).Scan(
+		&session.ID,
+		&session.SessionID,
+		&session.TokenHash,
+		&session.AccountID,
+		&session.DeviceInfo,
+		&session.IPAddress,
+		&session.ExpiresAt,
+		&session.CreatedAt,
+		&session.LastUsedAt,
+		&session.RevokedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &session, nil
+}
+
 func (r *SessionRepository) UpdateSessionToken(ctx context.Context, sessionID, newTokenHash string, expiresAt time.Time) error {
 	query := `
 		UPDATE session
