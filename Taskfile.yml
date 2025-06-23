@@ -3,7 +3,7 @@ version: "3"
 tasks:
   run:server:
     cmds:
-      - go tool wgo run ./cmd/monolith
+      - wgo run ./cmd/monolith
   run:web:
     cmds:
       - cd web && npm run dev
@@ -24,15 +24,9 @@ tasks:
   build:docker:
     cmds:
       - docker build -t monolith:latest .
-  migration:create:
-    dir: migrations
-    cmds:
-      - goose create {{.CLI_ARGS}} sql
   fmt:
     cmds:
       - cmd: go fmt ./...
-        ignore_error: true
-      - cmd: betteralign -apply ./...
         ignore_error: true
   update:
     cmds:

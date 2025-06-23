@@ -85,9 +85,15 @@ npm run build
 
 ## Development
 
+For development you can use the provided `Taskfile` to run tasks easily. Besure to have the following dependecies installed:
+
+- [Task](https://taskfile.dev/installation/)
+- [wgo](https://github.com/bokwoon95/wgo)
+- [golangci-lint](https://golangci-lint.run/usage/install/) (optional, for linting)
+
 For development, you can run the frontend and backend separately:
 
-1. Backend: `go tool task run:server`
-2. Frontend: `go tool task run:web`
+1. Backend: `task run:server`
+2. Frontend: `task run:web`
 
 This allows hot reloading for the frontend while developing.
