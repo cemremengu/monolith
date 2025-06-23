@@ -89,7 +89,7 @@ For development you can use the provided `Taskfile` to run tasks easily. Besure 
 
 - [Task](https://taskfile.dev/installation/)
 - [wgo](https://github.com/bokwoon95/wgo)
-- [golangci-lint](https://golangci-lint.run/usage/install/) (optional, for linting)
+- [golangci-lint](https://golangci-lint.run/welcome/install/) (optional, for linting)
 
 For development, you can run the frontend and backend separately:
 
