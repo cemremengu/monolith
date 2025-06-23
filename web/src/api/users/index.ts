@@ -1,53 +1,25 @@
 import type { User, CreateUserRequest } from "./types";
-import { API_BASE, getHeaders } from "../config";
+import { API_BASE } from "../config";
+import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {
   getAll: async (): Promise<User[]> => {
-    const response = await fetch(`${API_BASE}/users`, {
-      headers: getHeaders(),
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error("Failed to fetch users");
-    return response.json();
+    return httpClient.get(`${API_BASE}/users`);
   },
 
   getById: async (id: string): Promise<User> => {
-    const response = await fetch(`${API_BASE}/users/${id}`, {
-      headers: getHeaders(),
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error("Failed to fetch user");
-    return response.json();
+    return httpClient.get(`${API_BASE}/users/${id}`);
   },
 
   create: async (data: CreateUserRequest): Promise<User> => {
-    const response = await fetch(`${API_BASE}/users`, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error("Failed to create user");
-    return response.json();
+    return httpClient.post(`${API_BASE}/users`, data);
   },
 
   update: async (id: string, data: CreateUserRequest): Promise<User> => {
-    const response = await fetch(`${API_BASE}/users/${id}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error("Failed to update user");
-    return response.json();
+    return httpClient.put(`${API_BASE}/users/${id}`, data);
   },
 
   delete: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_BASE}/users/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-      credentials: "include",
-    });
-    if (!response.ok) throw new Error("Failed to delete user");
+    return httpClient.delete(`${API_BASE}/users/${id}`);
   },
 };

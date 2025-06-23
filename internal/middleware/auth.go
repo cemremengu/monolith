@@ -9,14 +9,15 @@ import (
 )
 
 func JWTAuth() echo.MiddlewareFunc {
+	tokenService := auth.NewTokenService()
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cookie, err := c.Cookie("auth_token")
+			cookie, err := c.Cookie("access_token")
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Authentication required"})
 			}
 
-			claims, err := auth.ValidateToken(cookie.Value)
+			claims, err := tokenService.ValidateToken(cookie.Value)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid token"})
 			}

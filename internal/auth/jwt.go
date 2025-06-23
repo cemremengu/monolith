@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
-	"os"
 	"time"
+
+	"monolith/internal/config"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -22,21 +25,37 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func getJWTSecret() []byte {
-	secret := os.Getenv("SECRET_KEY")
-	if secret == "" {
-		secret = "your-256-bit-secret"
-	}
-	return []byte(secret)
+type RefreshTokenClaims struct {
+	UserID string `json:"userId"`
+	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID, email string, isAdmin bool) (string, error) {
+type TokenService struct {
+	config *config.JWTConfig
+}
+
+func NewTokenService() *TokenService {
+	return &TokenService{
+		config: config.NewJWTConfig(),
+	}
+}
+
+func (ts *TokenService) getJWTSecret() []byte {
+	return []byte(ts.config.Secret)
+}
+
+func HashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
+}
+
+func (ts *TokenService) GenerateAccessToken(userID, email string, isAdmin bool) (string, error) {
 	claims := Claims{
 		UserID:  userID,
 		Email:   email,
 		IsAdmin: isAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.config.AccessTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "monolith",
@@ -44,28 +63,30 @@ func GenerateAccessToken(userID, email string, isAdmin bool) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(getJWTSecret())
+	return token.SignedString(ts.getJWTSecret())
 }
 
-func GenerateRefreshToken(userID string) (string, error) {
-	claims := jwt.RegisteredClaims{
-		Subject:   userID,
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		NotBefore: jwt.NewNumericDate(time.Now()),
-		Issuer:    "monolith",
+func (ts *TokenService) GenerateRefreshToken(userID string) (string, error) {
+	claims := RefreshTokenClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.config.RefreshTokenDuration)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "monolith",
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(getJWTSecret())
+	return token.SignedString(ts.getJWTSecret())
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+func (ts *TokenService) ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrTokenInvalid
 		}
-		return getJWTSecret(), nil
+		return ts.getJWTSecret(), nil
 	})
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenMalformed) {
@@ -83,4 +104,37 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	}
 
 	return nil, ErrTokenInvalid
+}
+
+func (ts *TokenService) ValidateRefreshToken(tokenString string) (*RefreshTokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &RefreshTokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, ErrTokenInvalid
+		}
+		return ts.getJWTSecret(), nil
+	})
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenMalformed) {
+			return nil, ErrTokenMalformed
+		} else if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrTokenExpired
+		} else if errors.Is(err, jwt.ErrTokenNotValidYet) {
+			return nil, ErrTokenNotValidYet
+		}
+		return nil, ErrTokenInvalid
+	}
+
+	if claims, ok := token.Claims.(*RefreshTokenClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, ErrTokenInvalid
+}
+
+func (ts *TokenService) AccessTokenDuration() time.Duration {
+	return ts.config.AccessTokenDuration
+}
+
+func (ts *TokenService) RefreshTokenDuration() time.Duration {
+	return ts.config.RefreshTokenDuration
 }

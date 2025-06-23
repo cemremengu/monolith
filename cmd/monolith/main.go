@@ -74,11 +74,15 @@ func main() {
 	// Public auth routes
 	api.POST("/auth/register", authHandler.Register)
 	api.POST("/auth/login", authHandler.Login)
+	api.POST("/auth/refresh", authHandler.RefreshToken)
 
 	// Protected routes
 	protected := api.Group("", customMiddleware.JWTAuth())
 	protected.GET("/auth/me", authHandler.Me)
 	protected.POST("/auth/logout", authHandler.Logout)
+	protected.GET("/auth/sessions", authHandler.GetSessions)
+	protected.DELETE("/auth/sessions/:sessionId", authHandler.RevokeSession)
+	protected.POST("/auth/sessions/revoke-others", authHandler.RevokeAllOtherSessions)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)
 	protected.POST("/users", userHandler.CreateUser)
