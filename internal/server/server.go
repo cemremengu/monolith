@@ -33,7 +33,7 @@ func New(db *database.DB, log *slog.Logger) *Server {
 // Setup configures the server with middleware and routes
 func (s *Server) Setup() {
 	e := s.echo
-	
+
 	e.HideBanner = true
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -41,14 +41,13 @@ func (s *Server) Setup() {
 	// the order of the middleware is important in most cases
 
 	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
-		StackSize: 1 << 10,
 		LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
 			slog.Error("[PANIC RECOVER]", "error", err, "stack", string(stack))
 			return err
 		},
 	}))
 
-	e.Use(middleware.Logger())
+	e.Use(customMiddleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
