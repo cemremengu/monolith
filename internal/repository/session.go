@@ -94,7 +94,7 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(
 		query = `
 			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
 			FROM session
-			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW() AND last_used_at > $2
+			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW() AND created_at > $2
 		`
 		timeoutThreshold := time.Now().Add(-sessionTimeout)
 		args = []interface{}{tokenHash, timeoutThreshold}
