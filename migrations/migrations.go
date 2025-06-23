@@ -11,23 +11,21 @@ import (
 var embedMigrations embed.FS
 
 func Up(db *sql.DB) {
+	goose.SetBaseFS(embedMigrations)
 	if err := goose.Up(db, "."); err != nil {
 		panic(err)
 	}
 }
 
 func Down(db *sql.DB) {
+	goose.SetBaseFS(embedMigrations)
 	if err := goose.Down(db, "."); err != nil {
 		panic(err)
 	}
 }
 
 // SetDialect sets the dialect for the migrations
-// default is postgres
+// default is postgres.
 func SetDialect(dialect string) error {
 	return goose.SetDialect(dialect)
-}
-
-func init() {
-	goose.SetBaseFS(embedMigrations)
 }

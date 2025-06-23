@@ -17,11 +17,26 @@ func Logger() echo.MiddlewareFunc {
 		LogError:        true,
 		LogMethod:       true,
 		LogResponseSize: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
 			if v.Error != nil {
-				slog.Error("http request", "error", v.Error, "remote_ip", v.RemoteIP, "method", v.Method, "URI", v.URI, "status", v.Status, "latency", v.Latency, "size", v.ResponseSize)
+				slog.Error("http request",
+					"error", v.Error,
+					"remote_ip", v.RemoteIP,
+					"method", v.Method,
+					"URI", v.URI,
+					"status", v.Status,
+					"latency", v.Latency,
+					"size", v.ResponseSize,
+				)
 			} else {
-				slog.Info("http request", "remote_ip", v.RemoteIP, "method", v.Method, "URI", v.URI, "status", v.Status, "latency", v.Latency, "size", v.ResponseSize)
+				slog.Info("http request",
+					"remote_ip", v.RemoteIP,
+					"method", v.Method,
+					"URI", v.URI,
+					"status", v.Status,
+					"latency", v.Latency,
+					"size", v.ResponseSize,
+				)
 			}
 
 			return nil

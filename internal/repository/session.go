@@ -11,6 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const sessionIDLength = 32
+
 type Session struct {
 	ID         int64      `db:"id"`
 	SessionID  string     `db:"session_id"`
@@ -33,14 +35,20 @@ func NewSessionRepository(db *database.DB) *SessionRepository {
 }
 
 func (r *SessionRepository) GenerateSessionID() (string, error) {
-	bytes := make([]byte, 32)
+	bytes := make([]byte, sessionIDLength)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(bytes), nil
 }
 
-func (r *SessionRepository) CreateSession(ctx context.Context, sessionID, tokenHash string, accountID uuid.UUID, deviceInfo, ipAddress string, expiresAt time.Time) error {
+func (r *SessionRepository) CreateSession(
+	ctx context.Context,
+	sessionID, tokenHash string,
+	accountID uuid.UUID,
+	deviceInfo, ipAddress string,
+	expiresAt time.Time,
+) error {
 	query := `
 		INSERT INTO session (session_id, token_hash, account_id, device_info, ip_address, expires_at, last_used_at)
 		VALUES ($1, $2, $3, $4, $5, $6, NOW())
@@ -74,7 +82,11 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 	return &session, nil
 }
 
-func (r *SessionRepository) GetSessionByTokenWithTimeout(ctx context.Context, tokenHash string, sessionTimeout time.Duration) (*Session, error) {
+func (r *SessionRepository) GetSessionByTokenWithTimeout(
+	ctx context.Context,
+	tokenHash string,
+	sessionTimeout time.Duration,
+) (*Session, error) {
 	var query string
 	var args []interface{}
 
@@ -114,7 +126,11 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(ctx context.Context, to
 	return &session, nil
 }
 
-func (r *SessionRepository) UpdateSessionToken(ctx context.Context, sessionID, newTokenHash string, expiresAt time.Time) error {
+func (r *SessionRepository) UpdateSessionToken(
+	ctx context.Context,
+	sessionID, newTokenHash string,
+	expiresAt time.Time,
+) error {
 	query := `
 		UPDATE session
 		SET token_hash = $1, expires_at = $2, last_used_at = NOW()
@@ -160,7 +176,7 @@ func (r *SessionRepository) GetUserSessions(ctx context.Context, accountID uuid.
 	var sessions []Session
 	for rows.Next() {
 		var session Session
-		err := rows.Scan(
+		scanErr := rows.Scan(
 			&session.ID,
 			&session.SessionID,
 			&session.TokenHash,
@@ -172,8 +188,8 @@ func (r *SessionRepository) GetUserSessions(ctx context.Context, accountID uuid.
 			&session.LastUsedAt,
 			&session.RevokedAt,
 		)
-		if err != nil {
-			return nil, err
+		if scanErr != nil {
+			return nil, scanErr
 		}
 		sessions = append(sessions, session)
 	}

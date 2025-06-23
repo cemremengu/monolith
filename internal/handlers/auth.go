@@ -19,6 +19,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const productionEnv = "production"
+
 type AuthHandler struct {
 	db                     *database.DB
 	tokenService           *auth.TokenService
@@ -44,21 +46,22 @@ func (h *AuthHandler) getDeviceInfo(c echo.Context) string {
 	}
 
 	// Simple device detection - you could use a library like ua-parser for more sophisticated detection
-	if strings.Contains(userAgent, "Mobile") || strings.Contains(userAgent, "Android") || strings.Contains(userAgent, "iPhone") {
-		if strings.Contains(userAgent, "iPhone") {
-			return "iPhone"
-		} else if strings.Contains(userAgent, "Android") {
-			return "Android Device"
-		}
+	switch {
+	case strings.Contains(userAgent, "iPhone"):
+		return "iPhone"
+	case strings.Contains(userAgent, "Android"):
+		return "Android Device"
+	case strings.Contains(userAgent, "Mobile"):
 		return "Mobile Device"
-	} else if strings.Contains(userAgent, "Chrome") {
+	case strings.Contains(userAgent, "Chrome"):
 		return "Chrome Browser"
-	} else if strings.Contains(userAgent, "Firefox") {
+	case strings.Contains(userAgent, "Firefox"):
 		return "Firefox Browser"
-	} else if strings.Contains(userAgent, "Safari") {
+	case strings.Contains(userAgent, "Safari"):
 		return "Safari Browser"
+	default:
+		return "Desktop Browser"
 	}
-	return "Desktop Browser"
 }
 
 func (h *AuthHandler) getClientIP(c echo.Context) string {
@@ -106,7 +109,15 @@ func (h *AuthHandler) generateAndSetTokens(c echo.Context, userID, email string,
 	ipAddress := h.getClientIP(c)
 	expiresAt := time.Now().Add(h.tokenService.RefreshTokenDuration())
 
-	err = h.sessionRepository.CreateSession(c.Request().Context(), sessionID, refreshTokenHash, accountID, deviceInfo, ipAddress, expiresAt)
+	err = h.sessionRepository.CreateSession(
+		c.Request().Context(),
+		sessionID,
+		refreshTokenHash,
+		accountID,
+		deviceInfo,
+		ipAddress,
+		expiresAt,
+	)
 	if err != nil {
 		return err
 	}
@@ -116,7 +127,7 @@ func (h *AuthHandler) generateAndSetTokens(c echo.Context, userID, email string,
 		Name:     "access_token",
 		Value:    accessToken,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(h.tokenService.AccessTokenDuration().Seconds()),
 		Path:     "/",
@@ -127,7 +138,7 @@ func (h *AuthHandler) generateAndSetTokens(c echo.Context, userID, email string,
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(h.tokenService.RefreshTokenDuration().Seconds()),
 		Path:     "/",
@@ -139,7 +150,7 @@ func (h *AuthHandler) generateAndSetTokens(c echo.Context, userID, email string,
 		Name:     "session_id",
 		Value:    sessionID,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(h.tokenService.RefreshTokenDuration().Seconds()),
 		Path:     "/",
@@ -167,7 +178,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusConflict, map[string]string{"error": "User already exists"})
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12) // recommended cost factor
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
 	}
@@ -183,7 +194,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
 	}
 
-	if err := h.generateAndSetTokens(c, user.ID, user.Email, user.IsAdmin); err != nil {
+	if tokenErr := h.generateAndSetTokens(c, user.ID, user.Email, user.IsAdmin); tokenErr != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
 	}
 
@@ -225,7 +236,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update last seen"})
 	}
 
-	if err := h.generateAndSetTokens(c, user.ID, user.Email, user.IsAdmin); err != nil {
+	if tokenErr := h.generateAndSetTokens(c, user.ID, user.Email, user.IsAdmin); tokenErr != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
 	}
 
@@ -239,7 +250,10 @@ func (h *AuthHandler) Login(c echo.Context) error {
 }
 
 func (h *AuthHandler) Me(c echo.Context) error {
-	userID := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
 
 	var user models.User
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
@@ -257,7 +271,7 @@ func (h *AuthHandler) Me(c echo.Context) error {
 
 func (h *AuthHandler) Logout(c echo.Context) error {
 	// Revoke session if it exists
-	if sessionCookie, err := c.Cookie("session_id"); err == nil {
+	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
 		_ = h.sessionRepository.RevokeSession(c.Request().Context(), sessionCookie.Value)
 	}
 
@@ -268,7 +282,7 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 			Name:     cookieName,
 			Value:    "",
 			HttpOnly: true,
-			Secure:   os.Getenv("ENV") == "production",
+			Secure:   os.Getenv("ENV") == productionEnv,
 			SameSite: http.SameSiteStrictMode,
 			MaxAge:   -1, // Delete cookie
 			Path:     "/",
@@ -298,7 +312,11 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 
 	// Check if session exists, refresh token matches, and session hasn't timed out
 	refreshTokenHash := auth.HashToken(refreshTokenCookie.Value)
-	session, err := h.sessionRepository.GetSessionByTokenWithTimeout(c.Request().Context(), refreshTokenHash, h.jwtConfig.SessionTimeout)
+	session, err := h.sessionRepository.GetSessionByTokenWithTimeout(
+		c.Request().Context(),
+		refreshTokenHash,
+		h.jwtConfig.SessionTimeout,
+	)
 	if err != nil || session == nil || session.SessionID != sessionCookie.Value {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session expired or invalid"})
 	}
@@ -329,7 +347,12 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	// Update session with new refresh token (instead of creating a new session)
 	newRefreshTokenHash := auth.HashToken(newRefreshToken)
 	newExpiresAt := time.Now().Add(h.tokenService.RefreshTokenDuration())
-	err = h.sessionRepository.UpdateSessionToken(c.Request().Context(), session.SessionID, newRefreshTokenHash, newExpiresAt)
+	err = h.sessionRepository.UpdateSessionToken(
+		c.Request().Context(),
+		session.SessionID,
+		newRefreshTokenHash,
+		newExpiresAt,
+	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update session"})
 	}
@@ -339,7 +362,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		Name:     "access_token",
 		Value:    newAccessToken,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(h.tokenService.AccessTokenDuration().Seconds()),
 		Path:     "/",
@@ -350,7 +373,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		Name:     "refresh_token",
 		Value:    newRefreshToken,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == "production",
+		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(h.tokenService.RefreshTokenDuration().Seconds()),
 		Path:     "/",
@@ -361,7 +384,10 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 }
 
 func (h *AuthHandler) GetSessions(c echo.Context) error {
-	userID := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
@@ -374,7 +400,7 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 
 	// Get current session ID to mark it
 	var currentSessionID string
-	if sessionCookie, err := c.Cookie("session_id"); err == nil {
+	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
 		currentSessionID = sessionCookie.Value
 	}
 
@@ -403,7 +429,10 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 }
 
 func (h *AuthHandler) RevokeSession(c echo.Context) error {
-	userID := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
 	sessionID := c.Param("sessionId")
 
 	if sessionID == "" {
@@ -442,7 +471,10 @@ func (h *AuthHandler) RevokeSession(c echo.Context) error {
 }
 
 func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
-	userID := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
@@ -450,7 +482,7 @@ func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
 
 	// Get current session ID to preserve it
 	currentSessionID := ""
-	if sessionCookie, err := c.Cookie("session_id"); err == nil {
+	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
 		currentSessionID = sessionCookie.Value
 	}
 

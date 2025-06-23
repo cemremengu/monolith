@@ -23,8 +23,8 @@ func New() (*DB, error) {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}
 
-	if err := pool.Ping(context.Background()); err != nil {
-		return nil, fmt.Errorf("failed to ping database: %w", err)
+	if pingErr := pool.Ping(context.Background()); pingErr != nil {
+		return nil, fmt.Errorf("failed to ping database: %w", pingErr)
 	}
 
 	return &DB{Pool: pool}, nil

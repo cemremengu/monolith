@@ -14,14 +14,14 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// Server wraps the Echo server and provides methods for setup and startup
+// Server wraps the Echo server and provides methods for setup and startup.
 type Server struct {
 	echo *echo.Echo
 	db   *database.DB
 	log  *slog.Logger
 }
 
-// New creates a new server instance with the given database and logger
+// New creates a new server instance with the given database and logger.
 func New(db *database.DB, log *slog.Logger) *Server {
 	return &Server{
 		echo: echo.New(),
@@ -30,7 +30,7 @@ func New(db *database.DB, log *slog.Logger) *Server {
 	}
 }
 
-// Setup configures the server with middleware and routes
+// Setup configures the server with middleware and routes.
 func (s *Server) Setup() {
 	e := s.echo
 
@@ -41,7 +41,7 @@ func (s *Server) Setup() {
 	// the order of the middleware is important in most cases
 
 	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
-		LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
+		LogErrorFunc: func(_ echo.Context, err error, stack []byte) error {
 			slog.Error("[PANIC RECOVER]", "error", err, "stack", string(stack))
 			return err
 		},
@@ -61,7 +61,7 @@ func (s *Server) Setup() {
 	s.setupRoutes()
 }
 
-// setupRoutes configures all the application routes
+// setupRoutes configures all the application routes.
 func (s *Server) setupRoutes() {
 	userHandler := handlers.NewUserHandler(s.db)
 	authHandler := handlers.NewAuthHandler(s.db)
@@ -87,7 +87,7 @@ func (s *Server) setupRoutes() {
 	protected.DELETE("/users/:id", userHandler.DeleteUser)
 }
 
-// Start starts the server on the specified port
+// Start starts the server on the specified port.
 func (s *Server) Start() error {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -98,7 +98,7 @@ func (s *Server) Start() error {
 	return s.echo.Start(":" + port)
 }
 
-// Echo returns the underlying Echo instance for advanced configuration if needed
+// Echo returns the underlying Echo instance for advanced configuration if needed.
 func (s *Server) Echo() *echo.Echo {
 	return s.echo
 }

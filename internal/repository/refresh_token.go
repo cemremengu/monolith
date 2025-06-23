@@ -11,6 +11,8 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+var ErrTokenNotFound = errors.New("refresh token not found")
+
 type RefreshToken struct {
 	ID        int64      `db:"id"`
 	TokenHash string     `db:"token_hash"`
@@ -28,7 +30,12 @@ func NewRefreshTokenRepository(db *database.DB) *RefreshTokenRepository {
 	return &RefreshTokenRepository{db: db}
 }
 
-func (r *RefreshTokenRepository) CreateRefreshToken(ctx context.Context, tokenHash string, accountID uuid.UUID, expiresAt time.Time) error {
+func (r *RefreshTokenRepository) CreateRefreshToken(
+	ctx context.Context,
+	tokenHash string,
+	accountID uuid.UUID,
+	expiresAt time.Time,
+) error {
 	query := `
 		INSERT INTO refresh_token (token_hash, account_id, expires_at)
 		VALUES ($1, $2, $3)
@@ -54,7 +61,7 @@ func (r *RefreshTokenRepository) GetRefreshToken(ctx context.Context, tokenHash 
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
+			return nil, ErrTokenNotFound
 		}
 		return nil, err
 	}

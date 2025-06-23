@@ -54,8 +54,8 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 
 type CreateUserRequest struct {
 	Username string `json:"username" validate:"required"`
-	Name     string `json:"name" validate:"required"`
-	Email    string `json:"email" validate:"required,email"`
+	Name     string `json:"name"     validate:"required"`
+	Email    string `json:"email"    validate:"required,email"`
 }
 
 func (h *UserHandler) CreateUser(c echo.Context) error {

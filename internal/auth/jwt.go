@@ -89,14 +89,16 @@ func (ts *TokenService) ValidateToken(tokenString string) (*Claims, error) {
 		return ts.getJWTSecret(), nil
 	})
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenMalformed) {
+		switch {
+		case errors.Is(err, jwt.ErrTokenMalformed):
 			return nil, ErrTokenMalformed
-		} else if errors.Is(err, jwt.ErrTokenExpired) {
+		case errors.Is(err, jwt.ErrTokenExpired):
 			return nil, ErrTokenExpired
-		} else if errors.Is(err, jwt.ErrTokenNotValidYet) {
+		case errors.Is(err, jwt.ErrTokenNotValidYet):
 			return nil, ErrTokenNotValidYet
+		default:
+			return nil, ErrTokenInvalid
 		}
-		return nil, ErrTokenInvalid
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
@@ -114,14 +116,16 @@ func (ts *TokenService) ValidateRefreshToken(tokenString string) (*RefreshTokenC
 		return ts.getJWTSecret(), nil
 	})
 	if err != nil {
-		if errors.Is(err, jwt.ErrTokenMalformed) {
+		switch {
+		case errors.Is(err, jwt.ErrTokenMalformed):
 			return nil, ErrTokenMalformed
-		} else if errors.Is(err, jwt.ErrTokenExpired) {
+		case errors.Is(err, jwt.ErrTokenExpired):
 			return nil, ErrTokenExpired
-		} else if errors.Is(err, jwt.ErrTokenNotValidYet) {
+		case errors.Is(err, jwt.ErrTokenNotValidYet):
 			return nil, ErrTokenNotValidYet
+		default:
+			return nil, ErrTokenInvalid
 		}
-		return nil, ErrTokenInvalid
 	}
 
 	if claims, ok := token.Claims.(*RefreshTokenClaims); ok && token.Valid {

@@ -14,21 +14,21 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		slog.Debug("No .env file found or error loading .env file", slog.Any("error", err))
-	}
-
 	log := logger.New(logger.Config{
 		Level: logger.GetLevel(os.Getenv("LOG_LEVEL")),
 		Env:   os.Getenv("ENV"),
 	})
 
+	if err := godotenv.Load(); err != nil {
+		log.Debug("No .env file found or error loading .env file", "error", err)
+	}
+
 	slog.SetDefault(log)
 
 	db, err := database.New()
 	if err != nil {
-		log.Error("Failed to connect to database", slog.Any("error", err))
-		os.Exit(1)
+		log.Error("Failed to connect to database", "error", err)
+		panic("Database connection error")
 	}
 	defer db.Close()
 
@@ -37,8 +37,8 @@ func main() {
 	srv := server.New(db, log)
 	srv.Setup()
 
-	if err := srv.Start(); err != nil {
-		log.Error("Server failed to start", slog.Any("error", err))
-		os.Exit(1)
+	if startErr := srv.Start(); startErr != nil {
+		log.Error("Server failed to start", "error", startErr)
+		panic("Server startup error")
 	}
 }
