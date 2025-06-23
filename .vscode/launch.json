@@ -7,7 +7,6 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/cmd/monolith",
-      // "args": ["--config", "${workspaceFolder}/monolith.conf", "--test"]
       "envFile": "${workspaceFolder}/.env"
     }
   ]
