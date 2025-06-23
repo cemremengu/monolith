@@ -17,12 +17,14 @@ A simple template application built with:
 - shadcn/ui components
 - TanStack Router for routing
 - Tailwind CSS for styling
+- Zod for schema validation
+- Zustand for state management
 
 ## Getting Started
 
 ### Prerequisites
 
-- Go 1.21+
+- Go 1.24+
 - Node.js 18+
 - PostgreSQL (or use Docker Compose)
 
@@ -34,12 +36,9 @@ A simple template application built with:
 docker-compose up -d
 ```
 
-2. Run migrations:
+2. Migrations:
 
-```bash
-go install github.com/pressly/goose/v3/cmd/goose@latest
-goose -dir migrations postgres "postgres://postgres:postgres@localhost:5432/my_db" up
-```
+Migations will applied automatically on server start.
 
 ### Backend Setup
 
@@ -79,26 +78,16 @@ npm run build
 
 1. Make sure PostgreSQL is running and migrations are applied
 2. Start the Go server: `go run cmd/main.go`
-3. Open your browser to `http://localhost:8080`
+3. Open your browser to `http://localhost:3001`
 4. Initial credentials for the admin user are:
    - Username: `admin`
    - Password: `admin123`
-
-The application will serve the React frontend and provide API endpoints for user management.
-
-## API Endpoints
-
-- `GET /api/users` - Get all users
-- `GET /api/users/:id` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/:id` - Update user
-- `DELETE /api/users/:id` - Delete user
 
 ## Development
 
 For development, you can run the frontend and backend separately:
 
-1. Backend: `go run cmd/main.go`
-2. Frontend: `cd web && npm run dev`
+1. Backend: `task run:server`
+2. Frontend: `task run:web`
 
 This allows hot reloading for the frontend while developing.
