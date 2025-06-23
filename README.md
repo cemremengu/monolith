@@ -87,7 +87,7 @@ npm run build
 
 For development, you can run the frontend and backend separately:
 
-1. Backend: `task run:server`
-2. Frontend: `task run:web`
+1. Backend: `go tool task run:server`
+2. Frontend: `go tool task run:web`
 
 This allows hot reloading for the frontend while developing.
