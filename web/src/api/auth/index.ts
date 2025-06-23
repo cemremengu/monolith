@@ -9,7 +9,9 @@ export const authApi = {
   },
 
   register: async (data: RegisterRequest): Promise<{ user: User }> => {
-    return httpClient.post(`${API_BASE}/auth/register`, data, { skipAuth: true });
+    return httpClient.post(`${API_BASE}/auth/register`, data, {
+      skipAuth: true,
+    });
   },
 
   me: async (): Promise<User> => {
@@ -17,10 +19,14 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    return httpClient.post(`${API_BASE}/auth/logout`, undefined, { skipAuth: true });
+    return httpClient.post(`${API_BASE}/auth/logout`, undefined, {
+      skipAuth: true,
+    });
   },
 
   refresh: async (): Promise<void> => {
-    return httpClient.post(`${API_BASE}/auth/refresh`, undefined, { skipAuth: true });
+    return httpClient.post(`${API_BASE}/auth/refresh`, undefined, {
+      skipAuth: true,
+    });
   },
 };

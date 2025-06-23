@@ -12,16 +12,16 @@ import (
 )
 
 type Session struct {
-	ID           int64     `db:"id"`
-	SessionID    string    `db:"session_id"`
-	TokenHash    string    `db:"token_hash"`
-	AccountID    uuid.UUID `db:"account_id"`
-	DeviceInfo   string    `db:"device_info"`
-	IPAddress    string    `db:"ip_address"`
-	ExpiresAt    time.Time `db:"expires_at"`
-	CreatedAt    time.Time `db:"created_at"`
-	LastUsedAt   time.Time `db:"last_used_at"`
-	RevokedAt    *time.Time `db:"revoked_at"`
+	ID         int64      `db:"id"`
+	SessionID  string     `db:"session_id"`
+	TokenHash  string     `db:"token_hash"`
+	AccountID  uuid.UUID  `db:"account_id"`
+	DeviceInfo string     `db:"device_info"`
+	IPAddress  string     `db:"ip_address"`
+	ExpiresAt  time.Time  `db:"expires_at"`
+	CreatedAt  time.Time  `db:"created_at"`
+	LastUsedAt time.Time  `db:"last_used_at"`
+	RevokedAt  *time.Time `db:"revoked_at"`
 }
 
 type SessionRepository struct {
@@ -77,7 +77,7 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 func (r *SessionRepository) GetSessionByTokenWithTimeout(ctx context.Context, tokenHash string, sessionTimeout time.Duration) (*Session, error) {
 	var query string
 	var args []interface{}
-	
+
 	if sessionTimeout > 0 {
 		query = `
 			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
@@ -94,7 +94,7 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(ctx context.Context, to
 		`
 		args = []interface{}{tokenHash}
 	}
-	
+
 	var session Session
 	err := r.db.Pool.QueryRow(ctx, query, args...).Scan(
 		&session.ID,

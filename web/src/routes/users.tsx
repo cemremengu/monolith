@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   useUsers,
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
 } from "@/api/users/queries";
-import type { User, CreateUserRequest } from "@/api/users/types";
+import type { User } from "@/api/users/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,41 +19,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const userSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(50, "Username must be less than 50 characters"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
+  email: z.string().email("Please enter a valid email address"),
+});
+
+type UserFormData = z.infer<typeof userSchema>;
 
 export const Route = createFileRoute("/users")({
   component: Users,
 });
 
 function Users() {
-  const [formData, setFormData] = useState<CreateUserRequest>({
-    username: "",
-    name: "",
-    email: "",
-  });
   const [editingUser, setEditingUser] = useState<User | null>(null);
+
+  const form = useForm<UserFormData>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      username: "",
+      name: "",
+      email: "",
+    },
+  });
 
   const { data: users = [], isLoading, error } = useUsers();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: UserFormData) => {
     if (editingUser) {
       updateUser.mutate(
-        { id: editingUser.id, data: formData },
+        { id: editingUser.id, data },
         {
           onSuccess: () => {
-            setFormData({ username: "", name: "", email: "" });
+            form.reset();
             setEditingUser(null);
           },
         },
       );
     } else {
-      createUser.mutate(formData, {
+      createUser.mutate(data, {
         onSuccess: () => {
-          setFormData({ username: "", name: "", email: "" });
+          form.reset();
         },
       });
     }
@@ -58,7 +85,7 @@ function Users() {
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    setFormData({
+    form.reset({
       username: user.username,
       name: user.name || "",
       email: user.email,
@@ -71,7 +98,7 @@ function Users() {
 
   const handleCancel = () => {
     setEditingUser(null);
-    setFormData({ username: "", name: "", email: "" });
+    form.reset();
   };
 
   if (isLoading) {
@@ -95,60 +122,73 @@ function Users() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Input
-                  placeholder="Username"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                  required
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Username" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div>
-                <Input
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div>
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="Email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  disabled={createUser.isPending || updateUser.isPending}
-                >
-                  {createUser.isPending || updateUser.isPending
-                    ? "Saving..."
-                    : editingUser
-                      ? "Update"
-                      : "Create"}
-                </Button>
-                {editingUser && (
+                <div className="flex gap-2">
                   <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
+                    type="submit"
+                    disabled={createUser.isPending || updateUser.isPending}
                   >
-                    Cancel
+                    {createUser.isPending || updateUser.isPending
+                      ? "Saving..."
+                      : editingUser
+                        ? "Update"
+                        : "Create"}
                   </Button>
-                )}
-              </div>
-            </form>
+                  {editingUser && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 

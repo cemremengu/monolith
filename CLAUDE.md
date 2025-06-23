@@ -29,6 +29,7 @@
 ## Frontend Standarts
 
 - Prefer TypeScript `Types` over `Interfaces`
+- Use **Zod** for schema validation
 - Check `package.json` for available packages
 - Use **shadcn-ui** for core components
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**

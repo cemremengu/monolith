@@ -42,7 +42,7 @@ func (h *AuthHandler) getDeviceInfo(c echo.Context) string {
 	if userAgent == "" {
 		return "Unknown Device"
 	}
-	
+
 	// Simple device detection - you could use a library like ua-parser for more sophisticated detection
 	if strings.Contains(userAgent, "Mobile") || strings.Contains(userAgent, "Android") || strings.Contains(userAgent, "iPhone") {
 		if strings.Contains(userAgent, "iPhone") {
@@ -69,12 +69,12 @@ func (h *AuthHandler) getClientIP(c echo.Context) string {
 			return strings.TrimSpace(ips[0])
 		}
 	}
-	
+
 	// Check for X-Real-IP header (common in nginx)
 	if xri := c.Request().Header.Get("X-Real-IP"); xri != "" {
 		return xri
 	}
-	
+
 	// Fallback to RemoteAddr
 	return c.RealIP()
 }
@@ -379,23 +379,23 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 	}
 
 	type SessionResponse struct {
-		SessionID    string    `json:"sessionId"`
-		DeviceInfo   string    `json:"deviceInfo"`
-		IPAddress    string    `json:"ipAddress"`
-		CreatedAt    time.Time `json:"createdAt"`
-		LastUsedAt   time.Time `json:"lastUsedAt"`
-		IsCurrent    bool      `json:"isCurrent"`
+		SessionID  string    `json:"sessionId"`
+		DeviceInfo string    `json:"deviceInfo"`
+		IPAddress  string    `json:"ipAddress"`
+		CreatedAt  time.Time `json:"createdAt"`
+		LastUsedAt time.Time `json:"lastUsedAt"`
+		IsCurrent  bool      `json:"isCurrent"`
 	}
 
 	var response []SessionResponse
 	for _, session := range sessions {
 		response = append(response, SessionResponse{
-			SessionID:    session.SessionID,
-			DeviceInfo:   session.DeviceInfo,
-			IPAddress:    session.IPAddress,
-			CreatedAt:    session.CreatedAt,
-			LastUsedAt:   session.LastUsedAt,
-			IsCurrent:    session.SessionID == currentSessionID,
+			SessionID:  session.SessionID,
+			DeviceInfo: session.DeviceInfo,
+			IPAddress:  session.IPAddress,
+			CreatedAt:  session.CreatedAt,
+			LastUsedAt: session.LastUsedAt,
+			IsCurrent:  session.SessionID == currentSessionID,
 		})
 	}
 
@@ -472,7 +472,7 @@ func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Other sessions revoked successfully",
+		"message":      "Other sessions revoked successfully",
 		"revokedCount": revokedCount,
 	})
 }

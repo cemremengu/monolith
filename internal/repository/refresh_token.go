@@ -12,11 +12,11 @@ import (
 )
 
 type RefreshToken struct {
-	ID        int64     `db:"id"`
-	TokenHash string    `db:"token_hash"`
-	AccountID uuid.UUID `db:"account_id"`
-	ExpiresAt time.Time `db:"expires_at"`
-	CreatedAt time.Time `db:"created_at"`
+	ID        int64      `db:"id"`
+	TokenHash string     `db:"token_hash"`
+	AccountID uuid.UUID  `db:"account_id"`
+	ExpiresAt time.Time  `db:"expires_at"`
+	CreatedAt time.Time  `db:"created_at"`
 	RevokedAt *time.Time `db:"revoked_at"`
 }
 

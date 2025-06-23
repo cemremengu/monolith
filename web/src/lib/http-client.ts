@@ -19,21 +19,23 @@ class HttpClient {
       method: "POST",
       headers: getHeaders(),
       credentials: "include",
-    }).then(async (response) => {
-      if (!response.ok) {
-        throw new Error("Failed to refresh token");
-      }
-    }).finally(() => {
-      this.isRefreshing = false;
-      this.refreshPromise = null;
-    });
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Failed to refresh token");
+        }
+      })
+      .finally(() => {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      });
 
     return this.refreshPromise;
   }
 
   async request<T>(options: RequestOptions): Promise<T> {
     const { url, skipAuth, ...fetchOptions } = options;
-    
+
     const makeRequest = async (): Promise<Response> => {
       return fetch(url, {
         headers: getHeaders(),
@@ -45,7 +47,13 @@ class HttpClient {
     let response = await makeRequest();
 
     // If we get a 401 and it's not a login/register/refresh request, try to refresh
-    if (response.status === 401 && !skipAuth && !url.includes("/auth/login") && !url.includes("/auth/register") && !url.includes("/auth/refresh")) {
+    if (
+      response.status === 401 &&
+      !skipAuth &&
+      !url.includes("/auth/login") &&
+      !url.includes("/auth/register") &&
+      !url.includes("/auth/refresh")
+    ) {
       try {
         await this.refreshToken();
         // Retry the original request
@@ -59,22 +67,31 @@ class HttpClient {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || `Request failed with status ${response.status}`);
+      throw new Error(
+        errorText || `Request failed with status ${response.status}`,
+      );
     }
 
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       return response.json();
     }
-    
+
     return response.text() as T;
   }
 
-  get<T>(url: string, options?: Omit<RequestOptions, "url" | "method">): Promise<T> {
+  get<T>(
+    url: string,
+    options?: Omit<RequestOptions, "url" | "method">,
+  ): Promise<T> {
     return this.request<T>({ url, method: "GET", ...options });
   }
 
-  post<T>(url: string, data?: any, options?: Omit<RequestOptions, "url" | "method">): Promise<T> {
+  post<T>(
+    url: string,
+    data?: unknown,
+    options?: Omit<RequestOptions, "url" | "method">,
+  ): Promise<T> {
     return this.request<T>({
       url,
       method: "POST",
@@ -83,7 +100,11 @@ class HttpClient {
     });
   }
 
-  put<T>(url: string, data?: any, options?: Omit<RequestOptions, "url" | "method">): Promise<T> {
+  put<T>(
+    url: string,
+    data?: unknown,
+    options?: Omit<RequestOptions, "url" | "method">,
+  ): Promise<T> {
     return this.request<T>({
       url,
       method: "PUT",
@@ -92,7 +113,10 @@ class HttpClient {
     });
   }
 
-  delete<T>(url: string, options?: Omit<RequestOptions, "url" | "method">): Promise<T> {
+  delete<T>(
+    url: string,
+    options?: Omit<RequestOptions, "url" | "method">,
+  ): Promise<T> {
     return this.request<T>({ url, method: "DELETE", ...options });
   }
 }
