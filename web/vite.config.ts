@@ -22,5 +22,29 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Vendor chunks
+            vendor: ["react", "react-dom"],
+            router: ["@tanstack/react-router"],
+            query: ["@tanstack/react-query"],
+            ui: [
+              "@radix-ui/react-avatar",
+              "@radix-ui/react-collapsible",
+              "@radix-ui/react-dialog",
+              "@radix-ui/react-dropdown-menu",
+              "@radix-ui/react-label",
+              "@radix-ui/react-separator",
+              "@radix-ui/react-slot",
+              "@radix-ui/react-tooltip",
+            ],
+            forms: ["react-hook-form", "@hookform/resolvers", "zod"],
+            icons: ["lucide-react"],
+          },
+        },
+      },
+    },
   };
 });
