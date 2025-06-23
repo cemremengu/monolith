@@ -48,7 +48,6 @@ func (s *Server) Setup() {
 	}))
 
 	e.Use(customMiddleware.Logger())
-	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
