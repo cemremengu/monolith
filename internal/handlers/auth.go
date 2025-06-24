@@ -22,20 +22,18 @@ import (
 const productionEnv = "production"
 
 type AuthHandler struct {
-	db                     *database.DB
-	tokenService           *auth.TokenService
-	refreshTokenRepository *repository.RefreshTokenRepository
-	sessionRepository      *repository.SessionRepository
-	jwtConfig              *config.JWTConfig
+	db                *database.DB
+	tokenService      *auth.TokenService
+	sessionRepository *repository.SessionRepository
+	jwtConfig         *config.JWTConfig
 }
 
 func NewAuthHandler(db *database.DB) *AuthHandler {
 	return &AuthHandler{
-		db:                     db,
-		tokenService:           auth.NewTokenService(),
-		refreshTokenRepository: repository.NewRefreshTokenRepository(db),
-		sessionRepository:      repository.NewSessionRepository(db),
-		jwtConfig:              config.NewJWTConfig(),
+		db:                db,
+		tokenService:      auth.NewTokenService(),
+		sessionRepository: repository.NewSessionRepository(db),
+		jwtConfig:         config.NewJWTConfig(),
 	}
 }
 
