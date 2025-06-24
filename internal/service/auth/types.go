@@ -12,8 +12,8 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	Token string           `json:"token"`
-	User  user.UserAccount `json:"user"`
+	Token string       `json:"token"`
+	User  user.Account `json:"user"`
 }
 
 type SessionResponse struct {

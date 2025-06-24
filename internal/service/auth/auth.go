@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"monolith/internal/config"
 	"monolith/internal/database"
-	"monolith/internal/service/security"
 	"monolith/internal/service/user"
 
 	"github.com/google/uuid"
@@ -18,22 +18,20 @@ import (
 const productionEnv = "production"
 
 type Service struct {
-	db              *database.DB
-	tokenService    *TokenService
-	sessionRepo     *SessionRepository
-	jwtConfig       *config.JWTConfig
-	userService     *user.Service
-	securityService *security.Service
+	db           *database.DB
+	tokenService *TokenService
+	sessionRepo  *SessionRepository
+	jwtConfig    *config.JWTConfig
+	userService  *user.Service
 }
 
 func NewService(db *database.DB) *Service {
 	return &Service{
-		db:              db,
-		tokenService:    NewTokenService(),
-		sessionRepo:     NewSessionRepository(db),
-		jwtConfig:       config.NewJWTConfig(),
-		userService:     user.NewService(db),
-		securityService: security.NewService(),
+		db:           db,
+		tokenService: NewTokenService(),
+		sessionRepo:  NewSessionRepository(db),
+		jwtConfig:    config.NewJWTConfig(),
+		userService:  user.NewService(db),
 	}
 }
 
@@ -59,8 +57,8 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	deviceInfo := s.securityService.GetDeviceInfo(c)
-	ipAddress := s.securityService.GetClientIP(c)
+	deviceInfo := s.GetDeviceInfo(c)
+	ipAddress := s.GetClientIP(c)
 	expiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 
 	err = s.sessionRepo.CreateSession(
@@ -139,7 +137,7 @@ func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionI
 	c.SetCookie(sessionCookie)
 }
 
-func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user.UserAccount, error) {
+func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user.Account, error) {
 	if req.Password == "" || len(req.Password) < 8 {
 		return nil, ErrPasswordTooShort
 	}
@@ -155,7 +153,7 @@ func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user
 	return s.userService.CreateAccount(ctx, req)
 }
 
-func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.UserAccount, error) {
+func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.Account, error) {
 	user, err := s.userService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials
@@ -174,7 +172,7 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.UserAccoun
 	return user, nil
 }
 
-func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*user.UserAccount, string, string, error) {
+func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*user.Account, string, string, error) {
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
@@ -311,4 +309,44 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSes
 	}
 
 	return revokedCount, nil
+}
+
+// GetDeviceInfo extracts device information from User-Agent header
+func (s *Service) GetDeviceInfo(c echo.Context) string {
+	userAgent := c.Request().Header.Get("User-Agent")
+	if userAgent == "" {
+		return "Unknown Device"
+	}
+
+	switch {
+	case strings.Contains(userAgent, "iPhone"):
+		return "iPhone"
+	case strings.Contains(userAgent, "Android"):
+		return "Android Device"
+	case strings.Contains(userAgent, "Mobile"):
+		return "Mobile Device"
+	case strings.Contains(userAgent, "Chrome"):
+		return "Chrome Browser"
+	case strings.Contains(userAgent, "Firefox"):
+		return "Firefox Browser"
+	case strings.Contains(userAgent, "Safari"):
+		return "Safari Browser"
+	default:
+		return "Desktop Browser"
+	}
+}
+
+// GetClientIP extracts client IP address with support for proxy headers
+func (s *Service) GetClientIP(c echo.Context) string {
+	if xff := c.Request().Header.Get("X-Forwarded-For"); xff != "" {
+		if ips := strings.Split(xff, ","); len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
+	}
+
+	if xri := c.Request().Header.Get("X-Real-IP"); xri != "" {
+		return xri
+	}
+
+	return c.RealIP()
 }
