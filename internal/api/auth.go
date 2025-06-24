@@ -6,7 +6,6 @@ import (
 	"monolith/internal/database"
 	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
-	"monolith/internal/types"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,7 +23,7 @@ func NewAuthHandler(db *database.DB) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	var req types.RegisterRequest
+	var req account.RegisterRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
@@ -46,7 +45,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	response := struct {
-		User types.UserAccount `json:"user"`
+		User account.UserAccount `json:"user"`
 	}{
 		User: *user,
 	}
@@ -55,7 +54,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var req types.LoginRequest
+	var req authService.LoginRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
@@ -73,7 +72,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	response := struct {
-		User types.UserAccount `json:"user"`
+		User account.UserAccount `json:"user"`
 	}{
 		User: *user,
 	}

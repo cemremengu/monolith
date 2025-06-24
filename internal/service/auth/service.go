@@ -10,7 +10,6 @@ import (
 	"monolith/internal/database"
 	"monolith/internal/service/account"
 	"monolith/internal/service/security"
-	"monolith/internal/types"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -140,7 +139,7 @@ func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionI
 	c.SetCookie(sessionCookie)
 }
 
-func (s *Service) Register(ctx context.Context, req types.RegisterRequest) (*types.UserAccount, error) {
+func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*account.UserAccount, error) {
 	if req.Password == "" || len(req.Password) < 8 {
 		return nil, ErrPasswordTooShort
 	}
@@ -156,7 +155,7 @@ func (s *Service) Register(ctx context.Context, req types.RegisterRequest) (*typ
 	return s.accountService.CreateAccount(ctx, req)
 }
 
-func (s *Service) Login(ctx context.Context, req types.LoginRequest) (*types.UserAccount, error) {
+func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.UserAccount, error) {
 	user, err := s.accountService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials
@@ -175,7 +174,7 @@ func (s *Service) Login(ctx context.Context, req types.LoginRequest) (*types.Use
 	return user, nil
 }
 
-func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*types.UserAccount, string, string, error) {
+func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*account.UserAccount, string, string, error) {
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
@@ -237,7 +236,7 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 	}
 }
 
-func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]types.SessionResponse, error) {
+func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]SessionResponse, error) {
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, ErrInvalidUserID
@@ -248,9 +247,9 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]types.S
 		return nil, err
 	}
 
-	var response []types.SessionResponse
+	var response []SessionResponse
 	for _, session := range sessions {
-		response = append(response, types.SessionResponse{
+		response = append(response, SessionResponse{
 			SessionID:  session.SessionID,
 			DeviceInfo: session.DeviceInfo,
 			IPAddress:  session.IPAddress,

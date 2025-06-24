@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"monolith/internal/database"
-	"monolith/internal/types"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +30,7 @@ func (s *Service) ValidatePassword(hashedPassword, password string) error {
 }
 
 func (s *Service) UserExists(ctx context.Context, email, username string) (bool, error) {
-	var existingUser types.UserAccount
+	var existingUser UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &existingUser, `
 		SELECT id FROM account WHERE email = $1 OR username = $2
 	`, email, username)
@@ -41,13 +40,13 @@ func (s *Service) UserExists(ctx context.Context, email, username string) (bool,
 	return true, nil
 }
 
-func (s *Service) CreateAccount(ctx context.Context, req types.RegisterRequest) (*types.UserAccount, error) {
+func (s *Service) CreateAccount(ctx context.Context, req RegisterRequest) (*UserAccount, error) {
 	hashedPassword, err := s.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	var user types.UserAccount
+	var user UserAccount
 	err = pgxscan.Get(ctx, s.db.Pool, &user, `
 		INSERT INTO account (username, email, name, password, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, NOW(), NOW()) 
@@ -61,8 +60,8 @@ func (s *Service) CreateAccount(ctx context.Context, req types.RegisterRequest) 
 	return &user, nil
 }
 
-func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*types.UserAccount, error) {
-	var user types.UserAccount
+func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*UserAccount, error) {
+	var user UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		SELECT id, username, email, name, password, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at
@@ -75,8 +74,8 @@ func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*types.U
 	return &user, nil
 }
 
-func (s *Service) GetAccountByID(ctx context.Context, userID string) (*types.UserAccount, error) {
-	var user types.UserAccount
+func (s *Service) GetAccountByID(ctx context.Context, userID string) (*UserAccount, error) {
+	var user UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at
