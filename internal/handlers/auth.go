@@ -10,8 +10,6 @@ import (
 	"monolith/internal/auth"
 	"monolith/internal/config"
 	"monolith/internal/database"
-	"monolith/internal/models"
-	"monolith/internal/repository"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
@@ -24,7 +22,7 @@ const productionEnv = "production"
 type AuthHandler struct {
 	db                *database.DB
 	tokenService      *auth.TokenService
-	sessionRepository *repository.SessionRepository
+	sessionRepository *auth.SessionRepository
 	jwtConfig         *config.JWTConfig
 }
 
@@ -32,7 +30,7 @@ func NewAuthHandler(db *database.DB) *AuthHandler {
 	return &AuthHandler{
 		db:                db,
 		tokenService:      auth.NewTokenService(),
-		sessionRepository: repository.NewSessionRepository(db),
+		sessionRepository: auth.NewSessionRepository(db),
 		jwtConfig:         config.NewJWTConfig(),
 	}
 }
@@ -159,7 +157,7 @@ func (h *AuthHandler) generateAndSetTokens(c echo.Context, userID, email string,
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	var req models.RegisterRequest
+	var req auth.RegisterRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
@@ -168,7 +166,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Password must be at least 8 characters"})
 	}
 
-	var existingUser models.User
+	var existingUser auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &existingUser, `
 		SELECT id FROM account WHERE email = $1 OR username = $2
 	`, req.Email, req.Username)
@@ -181,7 +179,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
 	}
 
-	var user models.User
+	var user auth.UserAccount
 	err = pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		INSERT INTO account (username, email, name, password, created_at, updated_at) 
 		VALUES ($1, $2, $3, $4, NOW(), NOW()) 
@@ -197,7 +195,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	response := struct {
-		User models.User `json:"user"`
+		User auth.UserAccount `json:"user"`
 	}{
 		User: user,
 	}
@@ -206,12 +204,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var req models.LoginRequest
+	var req auth.LoginRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
 
-	var user models.User
+	var user auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		SELECT id, username, email, name, password, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at
@@ -239,7 +237,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	response := struct {
-		User models.User `json:"user"`
+		User auth.UserAccount `json:"user"`
 	}{
 		User: user,
 	}
@@ -253,7 +251,7 @@ func (h *AuthHandler) Me(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	var user models.User
+	var user auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at
@@ -320,7 +318,7 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	}
 
 	// Get user information
-	var user models.User
+	var user auth.UserAccount
 	err = pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at

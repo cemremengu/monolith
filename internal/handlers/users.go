@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"monolith/internal/auth"
 	"monolith/internal/database"
-	"monolith/internal/models"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/labstack/echo/v4"
@@ -20,7 +20,7 @@ func NewUserHandler(db *database.DB) *UserHandler {
 }
 
 func (h *UserHandler) GetUsers(c echo.Context) error {
-	var users []models.User
+	var users []auth.UserAccount
 	err := pgxscan.Select(context.Background(), h.db.Pool, &users, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
@@ -38,7 +38,7 @@ func (h *UserHandler) GetUsers(c echo.Context) error {
 func (h *UserHandler) GetUser(c echo.Context) error {
 	id := c.Param("id")
 
-	var user models.User
+	var user auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
@@ -64,7 +64,7 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
 
-	var user models.User
+	var user auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		INSERT INTO account (username, name, email, created_at, updated_at) 
 		VALUES ($1, $2, $3, NOW(), NOW()) 
@@ -86,7 +86,7 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
 
-	var user models.User
+	var user auth.UserAccount
 	err := pgxscan.Get(context.Background(), h.db.Pool, &user, `
 		UPDATE account 
 		SET username = $1, name = $2, email = $3, updated_at = NOW() 

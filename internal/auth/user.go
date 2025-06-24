@@ -1,18 +1,16 @@
-package models
+package auth
 
 import (
 	"time"
 )
 
-type User struct {
+type UserAccount struct {
 	ID         string     `json:"id"               db:"id"`
 	Username   string     `json:"username"         db:"username"`
 	Email      string     `json:"email"            db:"email"`
 	Name       *string    `json:"name"             db:"name"`
 	Password   string     `json:"-"                db:"password"`
 	Avatar     *string    `json:"avatar,omitempty" db:"avatar"`
-	Salt       *string    `json:"-"                db:"salt"`
-	Rands      *string    `json:"-"                db:"rands"`
 	IsAdmin    bool       `json:"isAdmin"          db:"is_admin"`
 	Language   *string    `json:"language"         db:"language"`
 	Theme      *string    `json:"theme"            db:"theme"`
@@ -36,6 +34,6 @@ type RegisterRequest struct {
 }
 
 type AuthResponse struct {
-	Token string `json:"token"`
-	User  User   `json:"user"`
+	Token string      `json:"token"`
+	User  UserAccount `json:"user"`
 }
