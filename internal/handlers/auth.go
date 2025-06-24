@@ -409,7 +409,7 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 		DeviceInfo string    `json:"deviceInfo"`
 		IPAddress  string    `json:"ipAddress"`
 		CreatedAt  time.Time `json:"createdAt"`
-		LastUsedAt time.Time `json:"lastUsedAt"`
+		RotatedAt  time.Time `json:"rotatedAt"`
 		IsCurrent  bool      `json:"isCurrent"`
 	}
 
@@ -420,7 +420,7 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 			DeviceInfo: session.DeviceInfo,
 			IPAddress:  session.IPAddress,
 			CreatedAt:  session.CreatedAt,
-			LastUsedAt: session.LastUsedAt,
+			RotatedAt:  session.RotatedAt,
 			IsCurrent:  session.SessionID == currentSessionID,
 		})
 	}

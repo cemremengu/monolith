@@ -22,7 +22,7 @@ type Session struct {
 	IPAddress  string     `db:"ip_address"`
 	ExpiresAt  time.Time  `db:"expires_at"`
 	CreatedAt  time.Time  `db:"created_at"`
-	LastUsedAt time.Time  `db:"last_used_at"`
+	RotatedAt  time.Time  `db:"rotated_at"`
 	RevokedAt  *time.Time `db:"revoked_at"`
 }
 
@@ -50,7 +50,7 @@ func (r *SessionRepository) CreateSession(
 	expiresAt time.Time,
 ) error {
 	query := `
-		INSERT INTO session (session_id, token_hash, account_id, device_info, ip_address, expires_at, last_used_at)
+		INSERT INTO session (session_id, token_hash, account_id, device_info, ip_address, expires_at, rotated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, NOW())
 	`
 	_, err := r.db.Pool.Exec(ctx, query, sessionID, tokenHash, accountID, deviceInfo, ipAddress, expiresAt)
@@ -59,7 +59,7 @@ func (r *SessionRepository) CreateSession(
 
 func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash string) (*Session, error) {
 	query := `
-		SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+		SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
 		FROM session
 		WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW()
 	`
@@ -73,7 +73,7 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 		&session.IPAddress,
 		&session.ExpiresAt,
 		&session.CreatedAt,
-		&session.LastUsedAt,
+		&session.RotatedAt,
 		&session.RevokedAt,
 	)
 	if err != nil {
@@ -92,7 +92,7 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(
 
 	if sessionTimeout > 0 {
 		query = `
-			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
 			FROM session
 			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW() AND created_at > $2
 		`
@@ -100,7 +100,7 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(
 		args = []any{tokenHash, timeoutThreshold}
 	} else {
 		query = `
-			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
 			FROM session
 			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW()
 		`
@@ -117,7 +117,7 @@ func (r *SessionRepository) GetSessionByTokenWithTimeout(
 		&session.IPAddress,
 		&session.ExpiresAt,
 		&session.CreatedAt,
-		&session.LastUsedAt,
+		&session.RotatedAt,
 		&session.RevokedAt,
 	)
 	if err != nil {
@@ -133,7 +133,7 @@ func (r *SessionRepository) UpdateSessionToken(
 ) error {
 	query := `
 		UPDATE session
-		SET token_hash = $1, expires_at = $2, last_used_at = NOW()
+		SET token_hash = $1, expires_at = $2, rotated_at = NOW()
 		WHERE session_id = $3 AND revoked_at IS NULL
 	`
 	_, err := r.db.Pool.Exec(ctx, query, newTokenHash, expiresAt, sessionID)
@@ -162,10 +162,10 @@ func (r *SessionRepository) RevokeAllUserSessions(ctx context.Context, accountID
 
 func (r *SessionRepository) GetUserSessions(ctx context.Context, accountID uuid.UUID) ([]Session, error) {
 	query := `
-		SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, last_used_at, revoked_at
+		SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
 		FROM session
 		WHERE account_id = $1 AND revoked_at IS NULL AND expires_at > NOW()
-		ORDER BY last_used_at DESC
+		ORDER BY rotated_at DESC
 	`
 	rows, err := r.db.Pool.Query(ctx, query, accountID)
 	if err != nil {
@@ -185,7 +185,7 @@ func (r *SessionRepository) GetUserSessions(ctx context.Context, accountID uuid.
 			&session.IPAddress,
 			&session.ExpiresAt,
 			&session.CreatedAt,
-			&session.LastUsedAt,
+			&session.RotatedAt,
 			&session.RevokedAt,
 		)
 		if scanErr != nil {
