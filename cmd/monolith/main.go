@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"os"
 
+	"monolith/internal/api"
 	"monolith/internal/database"
 	"monolith/internal/logger"
-	"monolith/internal/server"
 	"monolith/migrations"
 
 	"github.com/jackc/pgx/v5/stdlib"
@@ -34,7 +34,7 @@ func main() {
 
 	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
-	srv := server.New(db, log)
+	srv := api.NewServer(db, log)
 	srv.Setup()
 
 	if startErr := srv.Start(); startErr != nil {

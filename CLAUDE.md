@@ -25,13 +25,14 @@
 
 - Always use camelCase for JSON struct tags
 - Always use `any` instead of `interface{}`
+- Use singular package names (e.g., `user` instead of `users`)
 
 ## Frontend Standarts
 
 - Prefer TypeScript `Types` over `Interfaces`
 - Use **Zod** for schema validation
 - Check `package.json` for available packages
-- Use **shadcn-ui** for core components
+- Use **shadcn/ui** for core components
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
 
 ### Core Components

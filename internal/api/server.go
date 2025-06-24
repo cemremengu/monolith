@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"log/slog"
@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"monolith/internal/database"
-	"monolith/internal/handlers"
 	customMiddleware "monolith/internal/middleware"
 	"monolith/web"
 
@@ -21,8 +20,8 @@ type Server struct {
 	log  *slog.Logger
 }
 
-// New creates a new server instance with the given database and logger.
-func New(db *database.DB, log *slog.Logger) *Server {
+// NewServer creates a new server instance with the given database and logger.
+func NewServer(db *database.DB, log *slog.Logger) *Server {
 	return &Server{
 		echo: echo.New(),
 		db:   db,
@@ -63,8 +62,8 @@ func (s *Server) Setup() {
 
 // setupRoutes configures all the application routes.
 func (s *Server) setupRoutes() {
-	userHandler := handlers.NewUserHandler(s.db)
-	authHandler := handlers.NewAuthHandler(s.db)
+	userHandler := NewUserHandler(s.db)
+	authHandler := NewAuthHandler(s.db)
 
 	api := s.echo.Group("/api")
 
