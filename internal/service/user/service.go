@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 
-	"monolith/internal/auth"
 	"monolith/internal/database"
+	"monolith/internal/types"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 )
@@ -23,8 +23,8 @@ type CreateUserRequest struct {
 	Email    string `json:"email"    validate:"required,email"`
 }
 
-func (s *Service) GetUsers(ctx context.Context) ([]auth.UserAccount, error) {
-	var users []auth.UserAccount
+func (s *Service) GetUsers(ctx context.Context) ([]types.UserAccount, error) {
+	var users []types.UserAccount
 	err := pgxscan.Select(ctx, s.db.Pool, &users, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
@@ -38,8 +38,8 @@ func (s *Service) GetUsers(ctx context.Context) ([]auth.UserAccount, error) {
 	return users, nil
 }
 
-func (s *Service) GetUser(ctx context.Context, id string) (*auth.UserAccount, error) {
-	var user auth.UserAccount
+func (s *Service) GetUser(ctx context.Context, id string) (*types.UserAccount, error) {
+	var user types.UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
@@ -52,8 +52,8 @@ func (s *Service) GetUser(ctx context.Context, id string) (*auth.UserAccount, er
 	return &user, nil
 }
 
-func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*auth.UserAccount, error) {
-	var user auth.UserAccount
+func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*types.UserAccount, error) {
+	var user types.UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		INSERT INTO account (username, name, email, created_at, updated_at) 
 		VALUES ($1, $2, $3, NOW(), NOW()) 
@@ -66,8 +66,8 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*auth.
 	return &user, nil
 }
 
-func (s *Service) UpdateUser(ctx context.Context, id string, req CreateUserRequest) (*auth.UserAccount, error) {
-	var user auth.UserAccount
+func (s *Service) UpdateUser(ctx context.Context, id string, req CreateUserRequest) (*types.UserAccount, error) {
+	var user types.UserAccount
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		UPDATE account 
 		SET username = $1, name = $2, email = $3, updated_at = NOW() 

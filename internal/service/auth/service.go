@@ -6,11 +6,11 @@ import (
 	"os"
 	"time"
 
-	"monolith/internal/auth"
 	"monolith/internal/config"
 	"monolith/internal/database"
 	"monolith/internal/service/account"
 	"monolith/internal/service/security"
+	"monolith/internal/types"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -20,8 +20,8 @@ const productionEnv = "production"
 
 type Service struct {
 	db              *database.DB
-	tokenService    *auth.TokenService
-	sessionRepo     *auth.SessionRepository
+	tokenService    *TokenService
+	sessionRepo     *SessionRepository
 	jwtConfig       *config.JWTConfig
 	accountService  *account.Service
 	securityService *security.Service
@@ -30,8 +30,8 @@ type Service struct {
 func NewService(db *database.DB) *Service {
 	return &Service{
 		db:              db,
-		tokenService:    auth.NewTokenService(),
-		sessionRepo:     auth.NewSessionRepository(db),
+		tokenService:    NewTokenService(),
+		sessionRepo:     NewSessionRepository(db),
 		jwtConfig:       config.NewJWTConfig(),
 		accountService:  account.NewService(db),
 		securityService: security.NewService(),
@@ -54,7 +54,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	refreshTokenHash := auth.HashToken(refreshToken)
+	refreshTokenHash := HashToken(refreshToken)
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return err
@@ -140,7 +140,7 @@ func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionI
 	c.SetCookie(sessionCookie)
 }
 
-func (s *Service) Register(ctx context.Context, req auth.RegisterRequest) (*auth.UserAccount, error) {
+func (s *Service) Register(ctx context.Context, req types.RegisterRequest) (*types.UserAccount, error) {
 	if req.Password == "" || len(req.Password) < 8 {
 		return nil, ErrPasswordTooShort
 	}
@@ -156,7 +156,7 @@ func (s *Service) Register(ctx context.Context, req auth.RegisterRequest) (*auth
 	return s.accountService.CreateAccount(ctx, req)
 }
 
-func (s *Service) Login(ctx context.Context, req auth.LoginRequest) (*auth.UserAccount, error) {
+func (s *Service) Login(ctx context.Context, req types.LoginRequest) (*types.UserAccount, error) {
 	user, err := s.accountService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials
@@ -175,13 +175,13 @@ func (s *Service) Login(ctx context.Context, req auth.LoginRequest) (*auth.UserA
 	return user, nil
 }
 
-func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*auth.UserAccount, string, string, error) {
+func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*types.UserAccount, string, string, error) {
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
 	}
 
-	refreshTokenHash := auth.HashToken(refreshToken)
+	refreshTokenHash := HashToken(refreshToken)
 	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(
 		ctx,
 		refreshTokenHash,
@@ -206,7 +206,7 @@ func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID str
 		return nil, "", "", err
 	}
 
-	newRefreshTokenHash := auth.HashToken(newRefreshToken)
+	newRefreshTokenHash := HashToken(newRefreshToken)
 	newExpiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 	err = s.sessionRepo.UpdateSessionToken(
 		ctx,
@@ -237,7 +237,7 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 	}
 }
 
-func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]SessionResponse, error) {
+func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]types.SessionResponse, error) {
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return nil, ErrInvalidUserID
@@ -248,9 +248,9 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 		return nil, err
 	}
 
-	var response []SessionResponse
+	var response []types.SessionResponse
 	for _, session := range sessions {
-		response = append(response, SessionResponse{
+		response = append(response, types.SessionResponse{
 			SessionID:  session.SessionID,
 			DeviceInfo: session.DeviceInfo,
 			IPAddress:  session.IPAddress,
@@ -312,13 +312,4 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSes
 	}
 
 	return revokedCount, nil
-}
-
-type SessionResponse struct {
-	SessionID  string    `json:"sessionId"`
-	DeviceInfo string    `json:"deviceInfo"`
-	IPAddress  string    `json:"ipAddress"`
-	CreatedAt  time.Time `json:"createdAt"`
-	RotatedAt  time.Time `json:"rotatedAt"`
-	IsCurrent  bool      `json:"isCurrent"`
 }

@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"monolith/internal/auth"
+	"monolith/internal/service/auth"
 
 	"github.com/labstack/echo/v4"
 )

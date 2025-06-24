@@ -1,4 +1,4 @@
-package auth
+package types
 
 import (
 	"time"
@@ -36,4 +36,13 @@ type RegisterRequest struct {
 type AuthResponse struct {
 	Token string      `json:"token"`
 	User  UserAccount `json:"user"`
+}
+
+type SessionResponse struct {
+	SessionID  string    `json:"sessionId"`
+	DeviceInfo string    `json:"deviceInfo"`
+	IPAddress  string    `json:"ipAddress"`
+	CreatedAt  time.Time `json:"createdAt"`
+	RotatedAt  time.Time `json:"rotatedAt"`
+	IsCurrent  bool      `json:"isCurrent"`
 }
