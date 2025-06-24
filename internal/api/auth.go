@@ -4,26 +4,26 @@ import (
 	"net/http"
 
 	"monolith/internal/database"
-	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
+	"monolith/internal/service/user"
 
 	"github.com/labstack/echo/v4"
 )
 
 type AuthHandler struct {
-	authService    *authService.Service
-	accountService *account.Service
+	authService *authService.Service
+	userService *user.Service
 }
 
 func NewAuthHandler(db *database.DB) *AuthHandler {
 	return &AuthHandler{
-		authService:    authService.NewService(db),
-		accountService: account.NewService(db),
+		authService: authService.NewService(db),
+		userService: user.NewService(db),
 	}
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
-	var req account.RegisterRequest
+	var req user.RegisterRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
@@ -44,10 +44,8 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
 	}
 
-	response := struct {
-		User account.UserAccount `json:"user"`
-	}{
-		User: *user,
+	response := map[string]any{
+		"user": user,
 	}
 
 	return c.JSON(http.StatusCreated, response)
@@ -71,10 +69,8 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
 	}
 
-	response := struct {
-		User account.UserAccount `json:"user"`
-	}{
-		User: *user,
+	response := map[string]any{
+		"user": user,
 	}
 
 	return c.JSON(http.StatusOK, response)
@@ -86,7 +82,7 @@ func (h *AuthHandler) Me(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	user, err := h.accountService.GetAccountByID(c.Request().Context(), userID)
+	user, err := h.userService.GetAccountByID(c.Request().Context(), userID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}

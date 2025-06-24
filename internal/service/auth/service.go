@@ -8,8 +8,8 @@ import (
 
 	"monolith/internal/config"
 	"monolith/internal/database"
-	"monolith/internal/service/account"
 	"monolith/internal/service/security"
+	"monolith/internal/service/user"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -22,7 +22,7 @@ type Service struct {
 	tokenService    *TokenService
 	sessionRepo     *SessionRepository
 	jwtConfig       *config.JWTConfig
-	accountService  *account.Service
+	userService     *user.Service
 	securityService *security.Service
 }
 
@@ -32,7 +32,7 @@ func NewService(db *database.DB) *Service {
 		tokenService:    NewTokenService(),
 		sessionRepo:     NewSessionRepository(db),
 		jwtConfig:       config.NewJWTConfig(),
-		accountService:  account.NewService(db),
+		userService:     user.NewService(db),
 		securityService: security.NewService(),
 	}
 }
@@ -139,12 +139,12 @@ func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionI
 	c.SetCookie(sessionCookie)
 }
 
-func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*account.UserAccount, error) {
+func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user.UserAccount, error) {
 	if req.Password == "" || len(req.Password) < 8 {
 		return nil, ErrPasswordTooShort
 	}
 
-	exists, err := s.accountService.UserExists(ctx, req.Email, req.Username)
+	exists, err := s.userService.UserExists(ctx, req.Email, req.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -152,21 +152,21 @@ func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*a
 		return nil, ErrUserAlreadyExists
 	}
 
-	return s.accountService.CreateAccount(ctx, req)
+	return s.userService.CreateAccount(ctx, req)
 }
 
-func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.UserAccount, error) {
-	user, err := s.accountService.GetAccountByLogin(ctx, req.Login)
+func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.UserAccount, error) {
+	user, err := s.userService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = s.accountService.ValidatePassword(user.Password, req.Password)
+	err = s.userService.ValidatePassword(user.Password, req.Password)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = s.accountService.UpdateLastSeen(ctx, user.ID)
+	err = s.userService.UpdateLastSeen(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.UserAcc
 	return user, nil
 }
 
-func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*account.UserAccount, string, string, error) {
+func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*user.UserAccount, string, string, error) {
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
@@ -190,7 +190,7 @@ func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID str
 		return nil, "", "", ErrSessionExpired
 	}
 
-	user, err := s.accountService.GetAccountByID(ctx, claims.UserID)
+	user, err := s.userService.GetAccountByID(ctx, claims.UserID)
 	if err != nil {
 		return nil, "", "", ErrUserNotFound
 	}
