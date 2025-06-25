@@ -52,10 +52,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "#",
         },
         {
-          title: "Profile",
-          url: "#",
-        },
-        {
           title: "Security",
           url: "#",
         },
