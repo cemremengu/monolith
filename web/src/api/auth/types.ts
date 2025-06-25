@@ -9,3 +9,9 @@ export type RegisterRequest = {
   password: string;
   name: string;
 };
+
+export type UpdatePreferencesRequest = {
+  language?: string;
+  theme?: string;
+  timezone?: string;
+};

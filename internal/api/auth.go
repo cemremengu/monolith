@@ -209,3 +209,22 @@ func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
 		"revokedCount": revokedCount,
 	})
 }
+
+func (h *AuthHandler) UpdatePreferences(c echo.Context) error {
+	userID, ok := c.Get("user_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
+	}
+
+	var req user.UpdatePreferencesRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+	}
+
+	updatedUser, err := h.userService.UpdatePreferences(c.Request().Context(), userID, req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update preferences"})
+	}
+
+	return c.JSON(http.StatusOK, updatedUser)
+}

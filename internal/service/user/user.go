@@ -159,3 +159,18 @@ func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	`, id)
 	return err
 }
+
+func (s *Service) UpdatePreferences(ctx context.Context, userID string, req UpdatePreferencesRequest) (*Account, error) {
+	var user Account
+	err := pgxscan.Get(ctx, s.db.Pool, &user, `
+		UPDATE account 
+		SET language = $1, theme = $2, timezone = $3, updated_at = NOW() 
+		WHERE id = $4 AND is_disabled = FALSE
+		RETURNING id, username, email, name, is_admin, language, theme, timezone, 
+		          last_seen_at, is_disabled, created_at, updated_at
+	`, req.Language, req.Theme, req.Timezone, userID)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

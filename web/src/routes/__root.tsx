@@ -16,15 +16,24 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { useTranslation } from "react-i18next";
 
 function Root() {
   const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Load user's language preference when authenticated
+  useEffect(() => {
+    if (isAuthenticated && user?.language && i18n.language !== user.language) {
+      i18n.changeLanguage(user.language);
+    }
+  }, [isAuthenticated, user?.language, i18n]);
 
   useEffect(() => {
     if (!isLoading) {

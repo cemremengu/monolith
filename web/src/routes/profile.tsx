@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { authApi } from "@/api/auth";
 
 const profileSchema = z.object({
   name: z
@@ -73,8 +74,25 @@ function Profile() {
   });
 
   const onSubmit = async (data: ProfileFormData) => {
-    // TODO: Implement profile update API call
-    console.log("Profile update:", data);
+    try {
+      // Update preferences (theme, language, timezone)
+      await authApi.updatePreferences({
+        language: data.language,
+        theme: data.theme,
+        timezone: data.timezone,
+      });
+
+      // TODO: Update profile data (name, email, username) - API endpoint needed
+      console.log("Profile data to update:", {
+        name: data.name,
+        email: data.email,
+        username: data.username,
+      });
+
+      console.log("Preferences updated successfully");
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
   };
 
   const getInitials = (name: string, username: string) => {
@@ -229,35 +247,71 @@ function Profile() {
                     {t("profile.preferences.title")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Globe className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          {t("profile.preferences.language")}
-                        </span>
-                      </div>
-                      <LanguageSwitcher />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Palette className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          {t("profile.preferences.theme")}
-                        </span>
-                      </div>
-                      <ThemeSwitcher />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-4 w-4" />
-                        <span>{t("profile.preferences.timezone")}</span>
-                      </div>
-                      <Input
-                        placeholder={t(
-                          "profile.preferences.timezonePlaceholder",
-                        )}
-                      />
-                    </div>
+                    <FormField
+                      control={form.control}
+                      name="language"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-2">
+                            <Globe className="h-4 w-4" />
+                            <FormLabel className="text-sm font-medium">
+                              {t("profile.preferences.language")}
+                            </FormLabel>
+                          </div>
+                          <FormControl>
+                            <LanguageSwitcher
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="theme"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-2">
+                            <Palette className="h-4 w-4" />
+                            <FormLabel className="text-sm font-medium">
+                              {t("profile.preferences.theme")}
+                            </FormLabel>
+                          </div>
+                          <FormControl>
+                            <ThemeSwitcher
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="timezone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-2">
+                            <Clock className="h-4 w-4" />
+                            <FormLabel className="text-sm font-medium">
+                              {t("profile.preferences.timezone")}
+                            </FormLabel>
+                          </div>
+                          <FormControl>
+                            <Input
+                              placeholder={t(
+                                "profile.preferences.timezonePlaceholder",
+                              )}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 

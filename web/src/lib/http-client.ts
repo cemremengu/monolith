@@ -113,6 +113,19 @@ class HttpClient {
     });
   }
 
+  patch<T>(
+    url: string,
+    data?: unknown,
+    options?: Omit<RequestOptions, "url" | "method">,
+  ): Promise<T> {
+    return this.request<T>({
+      url,
+      method: "PATCH",
+      body: JSON.stringify(data),
+      ...options,
+    });
+  }
+
   delete<T>(
     url: string,
     options?: Omit<RequestOptions, "url" | "method">,

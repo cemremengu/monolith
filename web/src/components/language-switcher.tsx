@@ -7,21 +7,44 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Globe } from "lucide-react";
+import { authApi } from "@/api/auth";
+import { useAuth } from "@/lib/auth";
 
 const languages = [
   { code: "en", name: "English", flag: "🇺🇸" },
   { code: "tr", name: "Türkçe", flag: "🇹🇷" },
 ];
 
-export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+type LanguageSwitcherProps = {
+  value?: string;
+  onChange?: (language: string) => void;
+};
 
-  const changeLanguage = (languageCode: string) => {
+export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
+  const { i18n } = useTranslation();
+  const { isAuthenticated } = useAuth();
+
+  const changeLanguage = async (languageCode: string) => {
+    if (onChange) {
+      onChange(languageCode);
+      return;
+    }
+
     i18n.changeLanguage(languageCode);
+
+    // Save to backend if authenticated
+    if (isAuthenticated) {
+      try {
+        await authApi.updatePreferences({ language: languageCode });
+      } catch (error) {
+        console.error("Failed to update language preference:", error);
+      }
+    }
   };
 
+  const currentLanguageCode = value ?? i18n.language;
   const currentLanguage =
-    languages.find((lang) => lang.code === i18n.language) || languages[0];
+    languages.find((lang) => lang.code === currentLanguageCode) || languages[0];
 
   return (
     <DropdownMenu>

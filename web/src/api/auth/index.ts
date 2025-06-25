@@ -1,5 +1,9 @@
 import type { User } from "../users/types";
-import type { LoginRequest, RegisterRequest } from "./types";
+import type {
+  LoginRequest,
+  RegisterRequest,
+  UpdatePreferencesRequest,
+} from "./types";
 import { API_BASE } from "../config";
 import { httpClient } from "@/lib/http-client";
 
@@ -28,5 +32,9 @@ export const authApi = {
     return httpClient.post(`${API_BASE}/auth/refresh`, undefined, {
       skipAuth: true,
     });
+  },
+
+  updatePreferences: async (data: UpdatePreferencesRequest): Promise<User> => {
+    return httpClient.patch(`${API_BASE}/auth/preferences`, data);
   },
 };

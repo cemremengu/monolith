@@ -8,8 +8,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "@/contexts/theme-context";
 
-export function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
+type ThemeSwitcherProps = {
+  value?: string;
+  onChange?: (theme: string) => void;
+};
+
+export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
+  const { theme: contextTheme, setTheme } = useTheme();
+  const theme = value ?? contextTheme;
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -50,15 +56,21 @@ export function ThemeSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem
+          onClick={() => (onChange ? onChange("light") : setTheme("light"))}
+        >
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem
+          onClick={() => (onChange ? onChange("dark") : setTheme("dark"))}
+        >
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem
+          onClick={() => (onChange ? onChange("system") : setTheme("system"))}
+        >
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>
         </DropdownMenuItem>
