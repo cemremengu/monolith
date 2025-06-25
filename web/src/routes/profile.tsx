@@ -95,7 +95,7 @@ function Profile() {
 
       // Refresh user data to reflect changes immediately
       await checkAuth();
-      
+
       toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -327,9 +327,15 @@ function Profile() {
 
                 <div className="flex space-x-2">
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? t("profile.actions.saving") : t("profile.actions.saveChanges")}
+                    {isSubmitting
+                      ? t("profile.actions.saving")
+                      : t("profile.actions.saveChanges")}
                   </Button>
-                  <Button type="button" variant="outline" disabled={isSubmitting}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isSubmitting}
+                  >
                     {t("profile.actions.cancel")}
                   </Button>
                 </div>
