@@ -22,7 +22,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { User, Mail, Calendar, Shield, Globe, Palette, Clock } from "lucide-react";
+import {
+  User,
+  Mail,
+  Calendar,
+  Shield,
+  Globe,
+  Palette,
+  Clock,
+} from "lucide-react";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 const profileSchema = z.object({
   name: z
@@ -100,7 +109,10 @@ function Profile() {
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
-                <AvatarImage src={user.avatar} alt={user.name || user.username} />
+                <AvatarImage
+                  src={user.avatar}
+                  alt={user.name || user.username}
+                />
                 <AvatarFallback className="text-lg">
                   {getInitials(user.name || "", user.username)}
                 </AvatarFallback>
@@ -211,22 +223,13 @@ function Profile() {
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="theme"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2">
-                            <Palette className="h-4 w-4" />
-                            <span>Theme</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input placeholder="System" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Palette className="h-4 w-4" />
+                        <span className="text-sm font-medium">Theme</span>
+                      </div>
+                      <ThemeSwitcher />
+                    </div>
                     <FormField
                       control={form.control}
                       name="timezone"
