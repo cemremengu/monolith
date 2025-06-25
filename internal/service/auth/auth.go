@@ -172,7 +172,10 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.Account, e
 	return user, nil
 }
 
-func (s *Service) RefreshTokens(ctx context.Context, refreshToken, sessionID string) (*user.Account, string, string, error) {
+func (s *Service) RefreshTokens(
+	ctx context.Context,
+	refreshToken, sessionID string,
+) (*user.Account, string, string, error) {
 	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
@@ -311,7 +314,7 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSes
 	return revokedCount, nil
 }
 
-// GetDeviceInfo extracts device information from User-Agent header
+// GetDeviceInfo extracts device information from User-Agent header.
 func (s *Service) GetDeviceInfo(c echo.Context) string {
 	userAgent := c.Request().Header.Get("User-Agent")
 	if userAgent == "" {
@@ -336,7 +339,7 @@ func (s *Service) GetDeviceInfo(c echo.Context) string {
 	}
 }
 
-// GetClientIP extracts client IP address with support for proxy headers
+// GetClientIP extracts client IP address with support for proxy headers.
 func (s *Service) GetClientIP(c echo.Context) string {
 	if xff := c.Request().Header.Get("X-Forwarded-For"); xff != "" {
 		if ips := strings.Split(xff, ","); len(ips) > 0 {

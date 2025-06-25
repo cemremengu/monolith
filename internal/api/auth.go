@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"monolith/internal/database"
@@ -30,10 +31,10 @@ func (h *AuthHandler) Register(c echo.Context) error {
 
 	user, err := h.authService.Register(c.Request().Context(), req)
 	if err != nil {
-		switch err {
-		case authService.ErrPasswordTooShort:
+		switch {
+		case errors.Is(err, authService.ErrPasswordTooShort):
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		case authService.ErrUserAlreadyExists:
+		case errors.Is(err, authService.ErrUserAlreadyExists):
 			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
 		default:
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
@@ -59,7 +60,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 	user, err := h.authService.Login(c.Request().Context(), req)
 	if err != nil {
-		if err == authService.ErrInvalidCredentials {
+		if errors.Is(err, authService.ErrInvalidCredentials) {
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to login"})
@@ -116,12 +117,12 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		sessionCookie.Value,
 	)
 	if err != nil {
-		switch err {
-		case authService.ErrInvalidRefreshToken:
+		switch {
+		case errors.Is(err, authService.ErrInvalidRefreshToken):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-		case authService.ErrSessionExpired:
+		case errors.Is(err, authService.ErrSessionExpired):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-		case authService.ErrUserNotFound:
+		case errors.Is(err, authService.ErrUserNotFound):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		default:
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to refresh tokens"})
@@ -140,7 +141,7 @@ func (h *AuthHandler) GetSessions(c echo.Context) error {
 
 	sessions, err := h.authService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
-		if err == authService.ErrInvalidUserID {
+		if errors.Is(err, authService.ErrInvalidUserID) {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch sessions"})
@@ -171,10 +172,10 @@ func (h *AuthHandler) RevokeSession(c echo.Context) error {
 
 	err := h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
-		switch err {
-		case authService.ErrInvalidUserID:
+		switch {
+		case errors.Is(err, authService.ErrInvalidUserID):
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		case authService.ErrSessionNotFound:
+		case errors.Is(err, authService.ErrSessionNotFound):
 			return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 		default:
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to revoke session"})
@@ -197,7 +198,7 @@ func (h *AuthHandler) RevokeAllOtherSessions(c echo.Context) error {
 
 	revokedCount, err := h.authService.RevokeAllOtherSessions(c.Request().Context(), userID, currentSessionID)
 	if err != nil {
-		if err == authService.ErrInvalidUserID {
+		if errors.Is(err, authService.ErrInvalidUserID) {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to revoke sessions"})

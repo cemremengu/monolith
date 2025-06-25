@@ -35,7 +35,7 @@ func (s *Service) UserExists(ctx context.Context, email, username string) (bool,
 		SELECT id FROM account WHERE email = $1 OR username = $2
 	`, email, username)
 	if err != nil {
-		return false, nil
+		return false, err
 	}
 	return true, nil
 }
