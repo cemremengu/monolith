@@ -1,0 +1,46 @@
+{
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account settings and preferences",
+    "information": {
+      "title": "Profile Information",
+      "subtitle": "Update your personal information and account details",
+      "fullName": "Full Name",
+      "username": "Username",
+      "email": "Email Address",
+      "fullNamePlaceholder": "Your full name",
+      "usernamePlaceholder": "Your username",
+      "emailPlaceholder": "your.email@example.com"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "language": "Language",
+      "theme": "Theme",
+      "timezone": "Timezone",
+      "languagePlaceholder": "English",
+      "timezonePlaceholder": "UTC"
+    },
+    "accountStatus": {
+      "title": "Account Status",
+      "subtitle": "Current account information",
+      "accountType": "Account Type",
+      "status": "Account Status",
+      "lastUpdated": "Last Updated",
+      "lastSeen": "Last Seen",
+      "administrator": "Administrator",
+      "regularUser": "Regular User",
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "actions": {
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel"
+    },
+    "joined": "Joined",
+    "loading": "Loading profile..."
+  },
+  "common": {
+    "english": "English",
+    "turkish": "Turkish"
+  }
+}

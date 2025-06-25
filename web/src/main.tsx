@@ -4,7 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
-import "./lib/i18n";
+import "./i18n";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";

@@ -40,7 +40,11 @@ export function ThemeSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full gap-2 justify-start"
+        >
           {getThemeIcon()}
           {getThemeLabel()}
         </Button>

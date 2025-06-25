@@ -1,0 +1,46 @@
+{
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Hesap ayarlarınızı ve tercihlerinizi yönetin",
+    "information": {
+      "title": "Profil Bilgileri",
+      "subtitle": "Kişisel bilgilerinizi ve hesap detaylarınızı güncelleyin",
+      "fullName": "Ad Soyad",
+      "username": "Kullanıcı Adı",
+      "email": "E-posta Adresi",
+      "fullNamePlaceholder": "Adınız ve soyadınız",
+      "usernamePlaceholder": "Kullanıcı adınız",
+      "emailPlaceholder": "eposta@ornek.com"
+    },
+    "preferences": {
+      "title": "Tercihler",
+      "language": "Dil",
+      "theme": "Tema",
+      "timezone": "Saat Dilimi",
+      "languagePlaceholder": "Türkçe",
+      "timezonePlaceholder": "UTC"
+    },
+    "accountStatus": {
+      "title": "Hesap Durumu",
+      "subtitle": "Mevcut hesap bilgileri",
+      "accountType": "Hesap Türü",
+      "status": "Hesap Durumu",
+      "lastUpdated": "Son Güncellenme",
+      "lastSeen": "Son Görülme",
+      "administrator": "Yönetici",
+      "regularUser": "Normal Kullanıcı",
+      "active": "Aktif",
+      "disabled": "Devre Dışı"
+    },
+    "actions": {
+      "saveChanges": "Değişiklikleri Kaydet",
+      "cancel": "İptal"
+    },
+    "joined": "Katılım",
+    "loading": "Profil yükleniyor..."
+  },
+  "common": {
+    "english": "English",
+    "turkish": "Türkçe"
+  }
+}

@@ -247,27 +247,17 @@ function Profile() {
                       </div>
                       <ThemeSwitcher />
                     </div>
-                    <FormField
-                      control={form.control}
-                      name="timezone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2">
-                            <Clock className="h-4 w-4" />
-                            <span>{t("profile.preferences.timezone")}</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder={t(
-                                "profile.preferences.timezonePlaceholder",
-                              )}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-4 w-4" />
+                        <span>{t("profile.preferences.timezone")}</span>
+                      </div>
+                      <Input
+                        placeholder={t(
+                          "profile.preferences.timezonePlaceholder",
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
 
