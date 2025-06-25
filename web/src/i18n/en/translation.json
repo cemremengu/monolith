@@ -37,7 +37,10 @@
       "cancel": "Cancel"
     },
     "joined": "Joined",
-    "loading": "Loading profile..."
+    "loading": "Loading profile...",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Failed to update profile",
+    "saving": "Saving..."
   },
   "common": {
     "english": "English",

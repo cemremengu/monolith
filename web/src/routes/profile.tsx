@@ -35,6 +35,8 @@ import {
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { authApi } from "@/api/auth";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const profileSchema = z.object({
   name: z
@@ -58,8 +60,9 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const { user } = useAuth();
+  const { user, checkAuth } = useAuth();
   const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -74,6 +77,7 @@ function Profile() {
   });
 
   const onSubmit = async (data: ProfileFormData) => {
+    setIsSubmitting(true);
     try {
       // Update preferences (theme, language, timezone)
       await authApi.updatePreferences({
@@ -89,9 +93,15 @@ function Profile() {
         username: data.username,
       });
 
-      console.log("Preferences updated successfully");
+      // Refresh user data to reflect changes immediately
+      await checkAuth();
+      
+      toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
       console.error("Failed to update profile:", error);
+      toast.error(t("profile.messages.updateError"));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -316,10 +326,10 @@ function Profile() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button type="submit">
-                    {t("profile.actions.saveChanges")}
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? t("profile.actions.saving") : t("profile.actions.saveChanges")}
                   </Button>
-                  <Button type="button" variant="outline">
+                  <Button type="button" variant="outline" disabled={isSubmitting}>
                     {t("profile.actions.cancel")}
                   </Button>
                 </div>

@@ -17,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { useTranslation } from "react-i18next";
+import { Toaster } from "@/components/ui/sonner";
 
 function Root() {
   const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
@@ -91,6 +92,7 @@ function Root() {
               <Outlet />
             </div>
           </SidebarInset>
+          <Toaster />
           {/* <TanStackRouterDevtools /> */}
         </SidebarProvider>
       </ThemeProvider>
@@ -100,6 +102,7 @@ function Root() {
   return (
     <ThemeProvider>
       <Outlet />
+      <Toaster />
       {/* <TanStackRouterDevtools /> */}
     </ThemeProvider>
   );

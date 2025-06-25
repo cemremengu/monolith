@@ -37,7 +37,10 @@
       "cancel": "İptal"
     },
     "joined": "Katılım",
-    "loading": "Profil yükleniyor..."
+    "loading": "Profil yükleniyor...",
+    "updateSuccess": "Profil başarıyla güncellendi",
+    "updateError": "Profil güncellenemedi",
+    "saving": "Kaydediliyor..."
   },
   "common": {
     "english": "English",
