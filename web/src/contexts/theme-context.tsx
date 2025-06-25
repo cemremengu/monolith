@@ -28,7 +28,7 @@ type ThemeProviderProps = {
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "ui-theme",
+  storageKey = "theme",
 }: ThemeProviderProps) {
   const { user, isAuthenticated } = useAuth();
   const [theme, setTheme] = useState<Theme>(() => {
@@ -41,9 +41,15 @@ export function ThemeProvider({
   // Load theme from user preferences when authenticated
   useEffect(() => {
     if (isAuthenticated && user?.theme) {
-      setTheme(user.theme as Theme);
+      const userTheme = user.theme as Theme;
+      setTheme(userTheme);
+
+      // Update localStorage when user preferences change (e.g., from profile save)
+      if (typeof window !== "undefined") {
+        localStorage.setItem(storageKey, userTheme);
+      }
     }
-  }, [isAuthenticated, user?.theme]);
+  }, [isAuthenticated, user?.theme, storageKey]);
 
   useEffect(() => {
     const root = window.document.documentElement;

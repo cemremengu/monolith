@@ -36,6 +36,9 @@
       "saveChanges": "Değişiklikleri Kaydet",
       "cancel": "İptal"
     },
+    "messages": {
+      "updateSuccess": "Profil başarıyla güncellendi"
+    },
     "joined": "Katılım",
     "loading": "Profil yükleniyor...",
     "updateSuccess": "Profil başarıyla güncellendi",

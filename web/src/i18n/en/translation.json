@@ -36,6 +36,9 @@
       "saveChanges": "Save Changes",
       "cancel": "Cancel"
     },
+    "messages": {
+      "updateSuccess": "Profile updated successfully"
+    },
     "joined": "Joined",
     "loading": "Loading profile...",
     "updateSuccess": "Profile updated successfully",
