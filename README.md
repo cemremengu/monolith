@@ -97,3 +97,16 @@ For development, you can run the frontend and backend separately:
 2. Frontend: `task run:web`
 
 This allows hot reloading for the frontend while developing.
+
+## MCP Servers
+
+## Playwright
+
+- npx playwright install chrome
+- claude mcp add playwright npx @playwright/mcp@latest
+- Ask Claude: Check to see if playwright mcp is working and use it on a page to verify
+
+## Context7
+
+- claude mcp add context7 -- npx -y @upstash/context7-mcp
+- Ask Claude: Check to see if context7 mcp is working
