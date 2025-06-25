@@ -60,7 +60,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const { user, checkAuth } = useAuth();
+  const { user } = useAuth();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -80,7 +80,7 @@ function Profile() {
     setIsSubmitting(true);
     try {
       // Update preferences (theme, language, timezone)
-      await authApi.updatePreferences({
+      const updatedUser = await authApi.updatePreferences({
         language: data.language,
         theme: data.theme,
         timezone: data.timezone,
@@ -93,8 +93,8 @@ function Profile() {
         username: data.username,
       });
 
-      // Refresh user data to reflect changes immediately
-      await checkAuth();
+      // Update user state directly with the API response to avoid loading flicker
+      useAuth.setState((state) => ({ ...state, user: updatedUser }));
 
       toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
