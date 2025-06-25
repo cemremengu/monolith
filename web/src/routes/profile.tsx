@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ import {
   Clock,
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const profileSchema = z.object({
   name: z
@@ -56,6 +58,7 @@ export const Route = createFileRoute("/profile")({
 
 function Profile() {
   const { user } = useAuth();
+  const { t } = useTranslation();
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -89,7 +92,9 @@ function Profile() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-sm text-muted-foreground">Loading profile...</div>
+        <div className="text-sm text-muted-foreground">
+          {t("profile.loading")}
+        </div>
       </div>
     );
   }
@@ -98,10 +103,8 @@ function Profile() {
     <div className="p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your account settings and preferences
-          </p>
+          <h1 className="text-3xl font-bold">{t("profile.title")}</h1>
+          <p className="text-muted-foreground">{t("profile.subtitle")}</p>
         </div>
 
         {/* Profile Header */}
@@ -126,7 +129,8 @@ function Profile() {
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-3 w-3" />
                     <span>
-                      Joined {new Date(user.createdAt).toLocaleDateString()}
+                      {t("profile.joined")}{" "}
+                      {new Date(user.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   {user.isAdmin && (
@@ -144,9 +148,9 @@ function Profile() {
         {/* Profile Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
+            <CardTitle>{t("profile.information.title")}</CardTitle>
             <CardDescription>
-              Update your personal information and account details
+              {t("profile.information.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,9 +165,16 @@ function Profile() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>
+                          {t("profile.information.fullName")}
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Your full name" {...field} />
+                          <Input
+                            placeholder={t(
+                              "profile.information.fullNamePlaceholder",
+                            )}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -174,9 +185,16 @@ function Profile() {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>
+                          {t("profile.information.username")}
+                        </FormLabel>
                         <FormControl>
-                          <Input placeholder="Your username" {...field} />
+                          <Input
+                            placeholder={t(
+                              "profile.information.usernamePlaceholder",
+                            )}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -189,11 +207,13 @@ function Profile() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>{t("profile.information.email")}</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="your.email@example.com"
+                          placeholder={t(
+                            "profile.information.emailPlaceholder",
+                          )}
                           {...field}
                         />
                       </FormControl>
@@ -205,28 +225,25 @@ function Profile() {
                 <Separator />
 
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Preferences</h3>
+                  <h3 className="text-lg font-medium">
+                    {t("profile.preferences.title")}
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="language"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center space-x-2">
-                            <Globe className="h-4 w-4" />
-                            <span>Language</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input placeholder="English" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Globe className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          {t("profile.preferences.language")}
+                        </span>
+                      </div>
+                      <LanguageSwitcher />
+                    </div>
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <Palette className="h-4 w-4" />
-                        <span className="text-sm font-medium">Theme</span>
+                        <span className="text-sm font-medium">
+                          {t("profile.preferences.theme")}
+                        </span>
                       </div>
                       <ThemeSwitcher />
                     </div>
@@ -237,10 +254,15 @@ function Profile() {
                         <FormItem>
                           <FormLabel className="flex items-center space-x-2">
                             <Clock className="h-4 w-4" />
-                            <span>Timezone</span>
+                            <span>{t("profile.preferences.timezone")}</span>
                           </FormLabel>
                           <FormControl>
-                            <Input placeholder="UTC" {...field} />
+                            <Input
+                              placeholder={t(
+                                "profile.preferences.timezonePlaceholder",
+                              )}
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -250,9 +272,11 @@ function Profile() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button type="submit">Save Changes</Button>
+                  <Button type="submit">
+                    {t("profile.actions.saveChanges")}
+                  </Button>
                   <Button type="button" variant="outline">
-                    Cancel
+                    {t("profile.actions.cancel")}
                   </Button>
                 </div>
               </form>
@@ -263,33 +287,45 @@ function Profile() {
         {/* Account Status */}
         <Card>
           <CardHeader>
-            <CardTitle>Account Status</CardTitle>
-            <CardDescription>Current account information</CardDescription>
+            <CardTitle>{t("profile.accountStatus.title")}</CardTitle>
+            <CardDescription>
+              {t("profile.accountStatus.subtitle")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Account Type</span>
+                  <span className="text-sm font-medium">
+                    {t("profile.accountStatus.accountType")}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground pl-6">
-                  {user.isAdmin ? "Administrator" : "Regular User"}
+                  {user.isAdmin
+                    ? t("profile.accountStatus.administrator")
+                    : t("profile.accountStatus.regularUser")}
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Account Status</span>
+                  <span className="text-sm font-medium">
+                    {t("profile.accountStatus.status")}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground pl-6">
-                  {user.isDisabled ? "Disabled" : "Active"}
+                  {user.isDisabled
+                    ? t("profile.accountStatus.disabled")
+                    : t("profile.accountStatus.active")}
                 </p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Last Updated</span>
+                  <span className="text-sm font-medium">
+                    {t("profile.accountStatus.lastUpdated")}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground pl-6">
                   {new Date(user.updatedAt).toLocaleDateString()}
@@ -299,7 +335,9 @@ function Profile() {
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Last Seen</span>
+                    <span className="text-sm font-medium">
+                      {t("profile.accountStatus.lastSeen")}
+                    </span>
                   </div>
                   <p className="text-sm text-muted-foreground pl-6">
                     {new Date(user.lastSeenAt).toLocaleDateString()}
