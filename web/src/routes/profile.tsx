@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { TimezoneSelector } from "@/components/timezone-selector";
 import { authApi } from "@/api/auth";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -311,11 +312,9 @@ function Profile() {
                             </FormLabel>
                           </div>
                           <FormControl>
-                            <Input
-                              placeholder={t(
-                                "profile.preferences.timezonePlaceholder",
-                              )}
-                              {...field}
+                            <TimezoneSelector
+                              value={field.value}
+                              onChange={field.onChange}
                             />
                           </FormControl>
                           <FormMessage />

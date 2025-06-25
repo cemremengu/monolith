@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
 import { authApi } from "@/api/auth";
 import { useAuth } from "@/lib/auth";
 
@@ -50,7 +49,6 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="w-full justify-start">
-          <Globe className="h-4 w-4 mr-2" />
           <span className="mr-2">{currentLanguage.flag}</span>
           {currentLanguage.name}
         </Button>
