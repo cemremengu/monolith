@@ -9,7 +9,7 @@ CREATE TABLE session
     ip_address   INET,
     expires_at   TIMESTAMPTZ                            NOT NULL,
     created_at   TIMESTAMPTZ DEFAULT NOW()              NOT NULL,
-    rotated_at TIMESTAMPTZ DEFAULT NOW()              NOT NULL,
+    rotated_at   TIMESTAMPTZ DEFAULT NOW()              NOT NULL,
     revoked_at   TIMESTAMPTZ
 );
 

@@ -1,20 +1,20 @@
 -- +goose Up
 CREATE TABLE account
 (
-    id           UUID                     DEFAULT gen_random_uuid() PRIMARY KEY,
-    username     TEXT                                   NOT NULL,
-    email        TEXT UNIQUE                            NOT NULL,
+    id           UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+    username     TEXT                      NOT NULL,
+    email        TEXT UNIQUE               NOT NULL,
     name         TEXT,
     avatar       TEXT,
     password     TEXT,
-    is_admin     BOOLEAN                  DEFAULT FALSE,
+    is_admin     BOOLEAN     DEFAULT FALSE,
     language     TEXT,
     theme        TEXT,
     timezone     TEXT,
-    last_seen_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    is_disabled  boolean                  DEFAULT FALSE not null,
-    created_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    last_seen_at TIMESTAMPTZ DEFAULT NOW(),
+    is_disabled  BOOLEAN     DEFAULT FALSE not null,
+    created_at   TIMESTAMPTZ DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- +goose StatementBegin
