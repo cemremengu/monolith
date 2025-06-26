@@ -326,9 +326,7 @@ function Profile() {
 
                 <div className="flex space-x-2">
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting
-                      ? t("profile.actions.saving")
-                      : t("profile.actions.saveChanges")}
+                    {t("profile.actions.saveChanges")}
                   </Button>
                   <Button
                     type="button"
