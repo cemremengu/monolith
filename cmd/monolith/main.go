@@ -11,17 +11,18 @@ import (
 
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Debug("No .env file found or error loading .env file", "error", err)
+	}
+
 	log := logger.New(logger.Config{
 		Level: logger.GetLevel(os.Getenv("LOG_LEVEL")),
 		Env:   os.Getenv("ENV"),
 	})
-
-	if err := godotenv.Load(); err != nil {
-		log.Debug("No .env file found or error loading .env file", "error", err)
-	}
 
 	slog.SetDefault(log)
 
