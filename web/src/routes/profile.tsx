@@ -119,7 +119,7 @@ function Profile() {
         timezone: data.timezone,
       });
 
-      // Update user state directly with the API response to avoid loading flicker
+      // Update user state directly with the API response to page refresh
       setUser(updatedUser);
 
       toast.success(t("profile.messages.updateSuccess"));
