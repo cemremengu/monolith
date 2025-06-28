@@ -2,7 +2,6 @@ import { API_BASE, getHeaders } from "@/api/config";
 
 interface RequestOptions extends RequestInit {
   url: string;
-  skipAuth?: boolean;
 }
 
 class HttpClient {
@@ -34,7 +33,7 @@ class HttpClient {
   }
 
   async request<T>(options: RequestOptions): Promise<T> {
-    const { url, skipAuth, ...fetchOptions } = options;
+    const { url, ...fetchOptions } = options;
 
     const makeRequest = async (): Promise<Response> => {
       return fetch(url, {
@@ -49,7 +48,6 @@ class HttpClient {
     // If we get a 401 and it's not a login/register/refresh request, try to refresh
     if (
       response.status === 401 &&
-      !skipAuth &&
       !url.includes("/auth/login") &&
       !url.includes("/auth/register") &&
       !url.includes("/auth/refresh")
