@@ -6,7 +6,7 @@ CREATE TABLE session
     token_hash   TEXT                                   NOT NULL UNIQUE,
     account_id   UUID                                   NOT NULL REFERENCES account (id) ON DELETE CASCADE,
     device_info  TEXT,
-    ip_address   INET,
+    ip_address   TEXT,
     expires_at   TIMESTAMPTZ                            NOT NULL,
     created_at   TIMESTAMPTZ DEFAULT NOW()              NOT NULL,
     rotated_at   TIMESTAMPTZ DEFAULT NOW()              NOT NULL,
