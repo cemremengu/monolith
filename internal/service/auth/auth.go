@@ -187,6 +187,7 @@ func (s *Service) RefreshTokens(
 		refreshTokenHash,
 		s.jwtConfig.SessionTimeout,
 	)
+
 	if err != nil || session == nil || session.SessionID != sessionID {
 		return nil, "", "", ErrSessionExpired
 	}

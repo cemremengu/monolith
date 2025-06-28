@@ -45,19 +45,13 @@ class HttpClient {
 
     let response = await makeRequest();
 
-    // If we get a 401 and it's not a login/register/refresh request, try to refresh
-    if (
-      response.status === 401 &&
-      !url.includes("/auth/login") &&
-      !url.includes("/auth/register") &&
-      !url.includes("/auth/refresh")
-    ) {
+    // If we get a 401 try to refresh
+    if (response.status === 401) {
       try {
         await this.refreshToken();
         // Retry the original request
         response = await makeRequest();
       } catch (refreshError) {
-        // Refresh failed, redirect to login or handle as needed
         console.error("Token refresh failed:", refreshError);
         throw new Error("Authentication required");
       }
