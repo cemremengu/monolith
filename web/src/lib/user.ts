@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { authApi } from "@/api/auth";
 import type { User } from "@/api/users/types";
 
@@ -11,39 +10,27 @@ type UserState = {
   clearUser: () => void;
 };
 
-export const useUser = create<UserState>()(
-  persist(
-    (set, get) => ({
-      user: null,
-      isLoading: false,
+export const useUser = create<UserState>()((set, get) => ({
+  user: null,
+  isLoading: false,
 
-      fetchUser: async () => {
-        if (get().isLoading) return;
+  fetchUser: async () => {
+    if (get().isLoading) return;
 
-        set({ isLoading: true });
-        try {
-          const user = await authApi.me();
-          set({ user, isLoading: false });
-        } catch {
-          set({ user: null, isLoading: false });
-        }
-      },
+    set({ isLoading: true });
+    try {
+      const user = await authApi.me();
+      set({ user, isLoading: false });
+    } catch {
+      set({ user: null, isLoading: false });
+    }
+  },
 
-      setUser: (user: User) => {
-        set({ user, isLoading: false });
-      },
+  setUser: (user: User) => {
+    set({ user, isLoading: false });
+  },
 
-      clearUser: () => {
-        set({ user: null, isLoading: false });
-      },
-    }),
-    {
-      name: "user-store",
-      partialize: (state) => ({
-        id: state.user?.id,
-        username: state.user?.username,
-        email: state.user?.email,
-      }),
-    },
-  ),
-);
+  clearUser: () => {
+    set({ user: null, isLoading: false });
+  },
+}));
