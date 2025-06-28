@@ -71,12 +71,12 @@ func (s *Server) setupRoutes() {
 	api.POST("/auth/register", authHandler.Register)
 	api.POST("/auth/login", authHandler.Login)
 	api.POST("/auth/refresh", authHandler.RefreshToken)
+	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
 	protected := api.Group("", customMiddleware.JWTAuth())
 	protected.GET("/auth/me", authHandler.Me)
 	protected.PATCH("/auth/preferences", authHandler.UpdatePreferences)
-	protected.POST("/auth/logout", authHandler.Logout)
 	protected.GET("/auth/sessions", authHandler.GetSessions)
 	protected.DELETE("/auth/sessions/:sessionId", authHandler.RevokeSession)
 	protected.POST("/auth/sessions/revoke-others", authHandler.RevokeAllOtherSessions)

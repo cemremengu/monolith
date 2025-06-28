@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Home, Users, Settings2, BarChart3, User } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useUser } from "@/lib/user";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   const navMain = [
     {

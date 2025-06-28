@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useAuth } from "@/lib/auth";
+import { useUser } from "@/lib/user";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -20,10 +21,18 @@ import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
 
 function Root() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const { user, fetchUser, clearUser } = useUser();
   const location = useLocation();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
+
+  // Fetch user data when authenticated but user is not loaded
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      fetchUser();
+    }
+  }, [isAuthenticated, user, fetchUser]);
 
   // Load user's language preference when authenticated
   useEffect(() => {
@@ -46,6 +55,7 @@ function Root() {
 
   const handleLogout = async () => {
     await logout();
+    clearUser();
   };
 
   const isAuthPage =

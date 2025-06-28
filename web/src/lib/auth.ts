@@ -1,13 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authApi } from "@/api/auth";
-import type { User } from "@/api/users/types";
 
 type AuthState = {
-  user: User | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (user: User) => void;
+  login: () => void;
   logout: () => Promise<void>;
   setUnauthenticated: () => void;
 };
@@ -15,12 +12,10 @@ type AuthState = {
 export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
-      user: null,
       isAuthenticated: false,
-      isLoading: false,
 
-      login: (user: User) => {
-        set({ user, isAuthenticated: true, isLoading: false });
+      login: () => {
+        set({ isAuthenticated: true });
       },
 
       logout: async () => {
@@ -29,20 +24,16 @@ export const useAuth = create<AuthState>()(
         } catch {
           // Ignore logout API errors, clear state anyway
         } finally {
-          set({ user: null, isAuthenticated: false, isLoading: false });
+          set({ isAuthenticated: false });
         }
       },
 
       setUnauthenticated: () => {
-        set({ user: null, isAuthenticated: false, isLoading: false });
+        set({ isAuthenticated: false });
       },
     }),
     {
       name: "auth-store",
-      partialize: (state) => ({
-        user: state.user,
-        isAuthenticated: state.isAuthenticated,
-      }),
     },
   ),
 );

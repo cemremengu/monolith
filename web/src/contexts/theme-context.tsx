@@ -7,6 +7,7 @@ import {
 } from "react";
 import { authApi } from "@/api/auth";
 import { useAuth } from "@/lib/auth";
+import { useUser } from "@/lib/user";
 
 type Theme = "dark" | "light" | "system";
 
@@ -30,7 +31,8 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "theme",
 }: ThemeProviderProps) {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { user } = useUser();
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
       return (localStorage.getItem(storageKey) as Theme) || defaultTheme;

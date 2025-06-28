@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/lib/auth";
+import { useUser } from "@/lib/user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,7 +37,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { TimezoneSelector } from "@/components/timezone-selector";
 import { authApi } from "@/api/auth";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const profileSchema = z.object({
   name: z
@@ -61,9 +61,27 @@ export const Route = createFileRoute("/profile")({
 });
 
 function Profile() {
-  const { user } = useAuth();
+  const { user, setUser, fetchUser } = useUser();
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Fetch fresh user data when component mounts
+  useEffect(() => {
+    const refreshUserData = async () => {
+      setIsRefreshing(true);
+      try {
+        await fetchUser();
+      } catch (error) {
+        console.error("Failed to refresh user data:", error);
+        toast.error(t("profile.messages.refreshError"));
+      } finally {
+        setIsRefreshing(false);
+      }
+    };
+
+    refreshUserData();
+  }, [fetchUser, t]);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -77,6 +95,20 @@ function Profile() {
     },
   });
 
+  // Reset form when user data changes (after fresh fetch)
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        username: user.username || "",
+        language: user.language || "en",
+        theme: user.theme || "system",
+        timezone: user.timezone || "UTC",
+      });
+    }
+  }, [user, form]);
+
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
     try {
@@ -87,15 +119,8 @@ function Profile() {
         timezone: data.timezone,
       });
 
-      // TODO: Update profile data (name, email, username) - API endpoint needed
-      console.log("Profile data to update:", {
-        name: data.name,
-        email: data.email,
-        username: data.username,
-      });
-
       // Update user state directly with the API response to avoid loading flicker
-      useAuth.setState((state) => ({ ...state, user: updatedUser }));
+      setUser(updatedUser);
 
       toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
@@ -118,11 +143,11 @@ function Profile() {
     return username.slice(0, 2).toUpperCase();
   };
 
-  if (!user) {
+  if (!user || isRefreshing) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-sm text-muted-foreground">
-          {t("profile.loading")}
+          {isRefreshing ? t("profile.refreshing") : t("profile.loading")}
         </div>
       </div>
     );
