@@ -8,7 +8,7 @@ class HttpClient {
   private isRefreshing = false;
   private refreshPromise: Promise<void> | null = null;
 
-  private async refreshToken(): Promise<void> {
+  private refreshToken(): Promise<void> {
     if (this.isRefreshing) {
       return this.refreshPromise!;
     }
@@ -19,7 +19,7 @@ class HttpClient {
       headers: getHeaders(),
       credentials: "include",
     })
-      .then(async (response) => {
+      .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to refresh token");
         }
@@ -35,7 +35,7 @@ class HttpClient {
   async request<T>(options: RequestOptions): Promise<T> {
     const { url, ...fetchOptions } = options;
 
-    const makeRequest = async (): Promise<Response> => {
+    const makeRequest = (): Promise<Response> => {
       return fetch(url, {
         headers: getHeaders(),
         credentials: "include",

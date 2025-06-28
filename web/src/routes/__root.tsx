@@ -38,8 +38,7 @@ function Root() {
 
   useEffect(() => {
     if (!isLoading) {
-      const isAuthPage =
-        location.pathname === "/login" || location.pathname === "/register";
+      const isAuthPage = location.pathname === "/login";
 
       if (!isAuthenticated && !isAuthPage) {
         navigate({ to: "/login" });

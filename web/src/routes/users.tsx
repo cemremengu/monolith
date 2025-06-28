@@ -63,7 +63,7 @@ function Users() {
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
 
-  const onSubmit = async (data: UserFormData) => {
+  const onSubmit = (data: UserFormData) => {
     if (editingUser) {
       updateUser.mutate(
         { id: editingUser.id, data },

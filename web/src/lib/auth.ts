@@ -2,14 +2,14 @@ import { create } from "zustand";
 import { authApi } from "@/api/auth";
 import type { User } from "@/api/users/types";
 
-interface AuthState {
+type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (user: User) => void;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
-}
+};
 
 export const useAuth = create<AuthState>()((set) => ({
   user: null,
