@@ -21,9 +21,8 @@ export const useAuth = create<AuthState>()(
       logout: async () => {
         try {
           await authApi.logout();
-        } catch {
-          // Ignore logout API errors, clear state anyway
         } finally {
+          // Regardless of logout success, we set the state to unauthenticated
           set({ isAuthenticated: false });
         }
       },
