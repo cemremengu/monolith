@@ -16,10 +16,6 @@ export const authApi = {
     return httpClient.post(`${API_BASE}/auth/register`, data);
   },
 
-  me: (): Promise<User> => {
-    return httpClient.get(`${API_BASE}/auth/me`);
-  },
-
   logout: (): Promise<void> => {
     return httpClient.post(`${API_BASE}/auth/logout`, undefined);
   },

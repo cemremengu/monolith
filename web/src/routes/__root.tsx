@@ -20,14 +20,10 @@ import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
 
 function Root() {
-  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
 
   // Load user's language preference when authenticated
   useEffect(() => {
@@ -37,30 +33,20 @@ function Root() {
   }, [isAuthenticated, user?.language, i18n]);
 
   useEffect(() => {
-    if (!isLoading) {
-      const isAuthPage = location.pathname === "/login";
+    const isAuthPage = location.pathname === "/login";
 
-      if (!isAuthenticated && !isAuthPage) {
-        navigate({ to: "/login" });
-      } else if (isAuthenticated && location.pathname === "/") {
-        navigate({ to: "/dashboard" });
-      } else if (isAuthenticated && isAuthPage) {
-        navigate({ to: "/dashboard" });
-      }
+    if (!isAuthenticated && !isAuthPage) {
+      navigate({ to: "/login" });
+    } else if (isAuthenticated && location.pathname === "/") {
+      navigate({ to: "/dashboard" });
+    } else if (isAuthenticated && isAuthPage) {
+      navigate({ to: "/dashboard" });
     }
-  }, [location.pathname, isAuthenticated, isLoading, navigate]);
+  }, [location.pathname, isAuthenticated, navigate]);
 
   const handleLogout = async () => {
     await logout();
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-sm text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   const isAuthPage =
     location.pathname === "/login" || location.pathname === "/register";
