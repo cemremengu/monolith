@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { ThemeProvider } from "@/context/theme-context";
+import { ThemeProvider } from "@/context/theme";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
 

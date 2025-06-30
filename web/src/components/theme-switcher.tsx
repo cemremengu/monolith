@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme } from "@/context/theme-context";
+import { useTheme } from "@/context/theme";
 
 type ThemeSwitcherProps = {
   value?: string;
