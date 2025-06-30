@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Home, Users, Settings2, BarChart3, User } from "lucide-react";
-import { useUser } from "@/lib/user";
+import { useUser } from "@/store/user";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";

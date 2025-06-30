@@ -1,5 +1,5 @@
 import { API_BASE, getHeaders } from "@/api/config";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/store/auth";
 
 interface RequestOptions extends RequestInit {
   url: string;

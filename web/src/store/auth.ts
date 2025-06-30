@@ -2,14 +2,17 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authApi } from "@/api/auth";
 
-type AuthState = {
+type State = {
   isAuthenticated: boolean;
+};
+
+type Action = {
   login: () => void;
   logout: () => Promise<void>;
   setUnauthenticated: () => void;
 };
 
-export const useAuth = create<AuthState>()(
+export const useAuth = create<State & Action>()(
   persist(
     (set) => ({
       isAuthenticated: false,

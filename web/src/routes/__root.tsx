@@ -5,8 +5,8 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { useAuth } from "@/lib/auth";
-import { useUser } from "@/lib/user";
+import { useAuth } from "@/store/auth";
+import { useUser } from "@/store/user";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -16,7 +16,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { ThemeProvider } from "@/contexts/theme-context";
+import { ThemeProvider } from "@/context/theme-context";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
 

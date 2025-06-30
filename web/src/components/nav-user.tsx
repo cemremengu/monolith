@@ -8,7 +8,7 @@ import {
   Settings,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/store/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {

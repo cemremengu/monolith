@@ -2,15 +2,18 @@ import { create } from "zustand";
 import { authApi } from "@/api/auth";
 import type { User } from "@/api/users/types";
 
-type UserState = {
+type State = {
   user: User | null;
   isLoading: boolean;
+};
+
+type Action = {
   fetchUser: () => Promise<void>;
   setUser: (user: User) => void;
   clearUser: () => void;
 };
 
-export const useUser = create<UserState>()((set, get) => ({
+export const useUser = create<State & Action>()((set, get) => ({
   user: null,
   isLoading: false,
 

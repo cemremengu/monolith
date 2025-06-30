@@ -6,8 +6,8 @@ import {
   type ReactNode,
 } from "react";
 import { authApi } from "@/api/auth";
-import { useAuth } from "@/lib/auth";
-import { useUser } from "@/lib/user";
+import { useAuth } from "@/store/auth";
+import { useUser } from "@/store/user";
 
 type Theme = "dark" | "light" | "system";
 

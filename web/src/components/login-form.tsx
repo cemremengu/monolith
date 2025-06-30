@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authApi } from "@/api/auth";
 import type { LoginRequest } from "@/api/auth/types";
-import { useAuth } from "@/lib/auth";
-import { useUser } from "@/lib/user";
+import { useAuth } from "@/store/auth";
+import { useUser } from "@/store/user";
 
 interface LoginFormProps {
   onSuccess: () => void;
