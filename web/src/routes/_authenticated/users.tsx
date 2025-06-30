@@ -1,13 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, ErrorComponent } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  useUsers,
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
+  usersQueryOptions,
 } from "@/api/users/queries";
 import type { User } from "@/api/users/types";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Spinner } from "@/components/spinner";
 
 const userSchema = z.object({
   username: z
@@ -42,11 +44,17 @@ const userSchema = z.object({
 
 type UserFormData = z.infer<typeof userSchema>;
 
-export const Route = createFileRoute("/users")({
+export const Route = createFileRoute("/_authenticated/users")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(usersQueryOptions({})),
   component: Users,
+  pendingComponent: Spinner,
+  errorComponent: ErrorComponent,
 });
 
 function Users() {
+  const { data: users } = useSuspenseQuery(usersQueryOptions({}));
+
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const form = useForm<UserFormData>({
@@ -58,7 +66,6 @@ function Users() {
     },
   });
 
-  const { data: users = [], isLoading, error } = useUsers();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
@@ -100,14 +107,6 @@ function Users() {
     setEditingUser(null);
     form.reset();
   };
-
-  if (isLoading) {
-    return <div className="p-6">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="p-6">Error loading users: {error.message}</div>;
-  }
 
   return (
     <div className="p-6">

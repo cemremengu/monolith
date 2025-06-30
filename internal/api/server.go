@@ -75,7 +75,7 @@ func (s *Server) setupRoutes() {
 
 	// Protected routes
 	protected := api.Group("", customMiddleware.JWTAuth())
-	protected.GET("/auth/me", authHandler.Me)
+	protected.GET("/auth/profile", authHandler.Me)
 	protected.PATCH("/auth/preferences", authHandler.UpdatePreferences)
 	protected.GET("/auth/sessions", authHandler.GetSessions)
 	protected.DELETE("/auth/sessions/:sessionId", authHandler.RevokeSession)

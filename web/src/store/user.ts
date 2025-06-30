@@ -22,7 +22,7 @@ export const useUser = create<State & Action>()((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const user = await authApi.me();
+      const user = await authApi.profile();
       set({ user, isLoading: false });
     } catch {
       set({ user: null, isLoading: false });

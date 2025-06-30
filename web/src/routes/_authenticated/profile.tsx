@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useUser } from "@/store/user";
+import { profileQueryOptions, useUpdatePreferences } from "@/api/auth/queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,9 +35,9 @@ import {
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { TimezoneSelector } from "@/components/timezone-selector";
-import { authApi } from "@/api/auth";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 const profileSchema = z.object({
   name: z
@@ -56,32 +56,16 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-export const Route = createFileRoute("/profile")({
+export const Route = createFileRoute("/_authenticated/profile")({
+  loader: ({ context: { queryClient } }) =>
+    queryClient.ensureQueryData(profileQueryOptions),
   component: Profile,
 });
 
 function Profile() {
-  const { user, setUser, fetchUser } = useUser();
+  const { data: user } = useSuspenseQuery(profileQueryOptions);
   const { t } = useTranslation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Fetch fresh user data when component mounts
-  useEffect(() => {
-    const refreshUserData = async () => {
-      setIsRefreshing(true);
-      try {
-        await fetchUser();
-      } catch (error) {
-        console.error("Failed to refresh user data:", error);
-        toast.error(t("profile.messages.refreshError"));
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
-
-    refreshUserData();
-  }, [fetchUser, t]);
+  const updatePreferences = useUpdatePreferences();
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -110,24 +94,18 @@ function Profile() {
   }, [user, form]);
 
   const onSubmit = async (data: ProfileFormData) => {
-    setIsSubmitting(true);
     try {
       // Update preferences (theme, language, timezone)
-      const updatedUser = await authApi.updatePreferences({
+      await updatePreferences.mutateAsync({
         language: data.language,
         theme: data.theme,
         timezone: data.timezone,
       });
 
-      // Update user state directly with the API response to page refresh
-      setUser(updatedUser);
-
       toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
       console.error("Failed to update profile:", error);
       toast.error(t("profile.messages.updateError"));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -142,16 +120,6 @@ function Profile() {
     }
     return username.slice(0, 2).toUpperCase();
   };
-
-  if (!user || isRefreshing) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-sm text-muted-foreground">
-          {isRefreshing ? t("profile.refreshing") : t("profile.loading")}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6">
@@ -350,13 +318,13 @@ function Profile() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={updatePreferences.isPending}>
                     {t("profile.actions.saveChanges")}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={isSubmitting}
+                    disabled={updatePreferences.isPending}
                   >
                     {t("profile.actions.cancel")}
                   </Button>

@@ -3,8 +3,11 @@ import { API_BASE } from "../config";
 import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {
-  getAll: (): Promise<User[]> => {
-    return httpClient.get(`${API_BASE}/users`);
+  getAll: (params: {
+    filterBy?: string;
+    sortBy?: "name" | "email";
+  }): Promise<User[]> => {
+    return httpClient.get(`${API_BASE}/users`, params);
   },
 
   getById: (id: string): Promise<User> => {

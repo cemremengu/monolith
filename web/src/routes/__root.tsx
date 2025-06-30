@@ -1,98 +1,28 @@
-import {
-  createRootRoute,
-  Outlet,
-  useLocation,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 // import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { useAuth } from "@/store/auth";
-import { useUser } from "@/store/user";
-import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { ThemeProvider } from "@/context/theme";
-import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
+import type { User } from "@/api/users/types";
+import type { QueryClient } from "@tanstack/react-query";
+
+type RouterContext = {
+  queryClient: QueryClient;
+  auth: {
+    isAuthenticated: boolean;
+    login: () => void;
+    logout: () => Promise<void>;
+    setUnauthenticated: () => void;
+  };
+  user: {
+    user: User | null;
+    isLoading: boolean;
+    fetchUser: () => Promise<void>;
+    setUser: (user: User) => void;
+    clearUser: () => void;
+  };
+};
 
 function Root() {
-  const { isAuthenticated, logout } = useAuth();
-  const { user, fetchUser, clearUser } = useUser();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { i18n } = useTranslation();
-
-  // Fetch user data when authenticated but user is not loaded
-  useEffect(() => {
-    if (isAuthenticated && !user) {
-      fetchUser();
-    }
-  }, [isAuthenticated, user, fetchUser]);
-
-  // Load user's language preference when authenticated
-  useEffect(() => {
-    if (isAuthenticated && user?.language && i18n.language !== user.language) {
-      i18n.changeLanguage(user.language);
-    }
-  }, [isAuthenticated, user?.language, i18n]);
-
-  useEffect(() => {
-    const isAuthPage = location.pathname === "/login";
-
-    if (!isAuthenticated && !isAuthPage) {
-      navigate({ to: "/login" });
-    } else if (isAuthenticated && location.pathname === "/") {
-      navigate({ to: "/dashboard" });
-    } else if (isAuthenticated && isAuthPage) {
-      navigate({ to: "/dashboard" });
-    }
-  }, [location.pathname, isAuthenticated, navigate]);
-
-  const handleLogout = async () => {
-    await logout();
-    clearUser();
-  };
-
-  const isAuthPage = location.pathname === "/login";
-
-  if (isAuthenticated && !isAuthPage) {
-    return (
-      <ThemeProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator
-                orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
-              />
-              <div className="flex-1" />
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
-                  Welcome, {user?.name || user?.username}
-                </span>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </div>
-            </header>
-            <div className="flex-1">
-              <Outlet />
-            </div>
-          </SidebarInset>
-          <Toaster />
-          {/* <TanStackRouterDevtools /> */}
-        </SidebarProvider>
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider>
       <Outlet />
@@ -102,6 +32,6 @@ function Root() {
   );
 }
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: Root,
 });

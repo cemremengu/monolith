@@ -1,8 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  queryOptions,
+} from "@tanstack/react-query";
 import { usersApi } from "./index";
 import type { CreateUserRequest } from "./types";
 
-// Query keys
 export const userKeys = {
   all: ["users"] as const,
   lists: () => [...userKeys.all, "list"] as const,
@@ -11,23 +14,22 @@ export const userKeys = {
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
-// Query hooks
-export const useUsers = () => {
-  return useQuery({
-    queryKey: userKeys.lists(),
-    queryFn: usersApi.getAll,
+export const usersQueryOptions = (opts: {
+  filterBy?: string;
+  sortBy?: "name" | "email";
+}) =>
+  queryOptions({
+    queryKey: ["users", opts],
+    queryFn: () => usersApi.getAll(opts),
   });
-};
 
-export const useUser = (id: string) => {
-  return useQuery({
-    queryKey: userKeys.detail(id),
-    queryFn: () => usersApi.getById(id),
-    enabled: !!id,
+export const userQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: ["users", userId],
+    queryFn: () => usersApi.getById(userId),
+    enabled: !!userId,
   });
-};
 
-// Mutation hooks
 export const useCreateUser = () => {
   const queryClient = useQueryClient();
 

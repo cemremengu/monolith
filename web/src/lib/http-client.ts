@@ -3,6 +3,8 @@ import { useAuth } from "@/store/auth";
 
 interface RequestOptions extends RequestInit {
   url: string;
+  params?: Record<string, string | number | boolean>;
+  formData?: FormData;
 }
 
 class HttpClient {
@@ -33,13 +35,31 @@ class HttpClient {
     return this.refreshPromise;
   }
 
+  private buildUrl(
+    url: string,
+    params?: Record<string, string | number | boolean>,
+  ): string {
+    if (!params) return url;
+
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      searchParams.append(key, String(value));
+    });
+
+    return `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
+  }
+
   async request<T>(options: RequestOptions): Promise<T> {
-    const { url, ...fetchOptions } = options;
+    const { url, params, formData, ...fetchOptions } = options;
+    const finalUrl = this.buildUrl(url, params);
 
     const makeRequest = (): Promise<Response> => {
-      return fetch(url, {
-        headers: getHeaders(),
+      const headers = formData ? {} : getHeaders();
+
+      return fetch(finalUrl, {
+        headers,
         credentials: "include",
+        body: formData || fetchOptions.body,
         ...fetchOptions,
       });
     };
@@ -77,9 +97,10 @@ class HttpClient {
 
   get<T>(
     url: string,
-    options?: Omit<RequestOptions, "url" | "method">,
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "url" | "method" | "params">,
   ): Promise<T> {
-    return this.request<T>({ url, method: "GET", ...options });
+    return this.request<T>({ url, method: "GET", params, ...options });
   }
 
   post<T>(
@@ -87,6 +108,17 @@ class HttpClient {
     data?: unknown,
     options?: Omit<RequestOptions, "url" | "method">,
   ): Promise<T> {
+    const { formData, ...restOptions } = options || {};
+
+    if (formData) {
+      return this.request<T>({
+        url,
+        method: "POST",
+        formData,
+        ...restOptions,
+      });
+    }
+
     return this.request<T>({
       url,
       method: "POST",
@@ -100,6 +132,17 @@ class HttpClient {
     data?: unknown,
     options?: Omit<RequestOptions, "url" | "method">,
   ): Promise<T> {
+    const { formData, ...restOptions } = options || {};
+
+    if (formData) {
+      return this.request<T>({
+        url,
+        method: "PUT",
+        formData,
+        ...restOptions,
+      });
+    }
+
     return this.request<T>({
       url,
       method: "PUT",
@@ -113,6 +156,17 @@ class HttpClient {
     data?: unknown,
     options?: Omit<RequestOptions, "url" | "method">,
   ): Promise<T> {
+    const { formData, ...restOptions } = options || {};
+
+    if (formData) {
+      return this.request<T>({
+        url,
+        method: "PATCH",
+        formData,
+        ...restOptions,
+      });
+    }
+
     return this.request<T>({
       url,
       method: "PATCH",
