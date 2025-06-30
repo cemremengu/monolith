@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { authApi } from "@/api/auth";
+import { accountApi } from "@/api/account";
 import { useAuth } from "@/store/auth";
 import { useUser } from "@/store/user";
 
@@ -84,7 +84,7 @@ export function ThemeProvider({
       // Save to backend if authenticated
       if (isAuthenticated) {
         try {
-          await authApi.updatePreferences({ theme: newTheme });
+          await accountApi.updatePreferences({ theme: newTheme });
         } catch (error) {
           console.error("Failed to update theme preference:", error);
         }

@@ -64,6 +64,7 @@ func (s *Server) Setup() {
 func (s *Server) setupRoutes() {
 	userHandler := NewUserHandler(s.db)
 	authHandler := NewAuthHandler(s.db)
+	accountHandler := NewAccountHandler(s.db)
 
 	api := s.echo.Group("/api")
 
@@ -75,11 +76,11 @@ func (s *Server) setupRoutes() {
 
 	// Protected routes
 	protected := api.Group("", customMiddleware.JWTAuth())
-	protected.GET("/auth/profile", authHandler.Profile)
-	protected.PATCH("/auth/preferences", authHandler.UpdatePreferences)
-	protected.GET("/auth/sessions", authHandler.GetSessions)
-	protected.DELETE("/auth/sessions/:sessionId", authHandler.RevokeSession)
-	protected.POST("/auth/sessions/revoke-others", authHandler.RevokeAllOtherSessions)
+	protected.GET("/account/profile", accountHandler.Profile)
+	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
+	protected.GET("/account/sessions", accountHandler.GetSessions)
+	protected.DELETE("/account/sessions/:sessionId", accountHandler.RevokeSession)
+	protected.POST("/account/sessions/revoke-others", accountHandler.RevokeAllOtherSessions)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)
 	protected.POST("/users", userHandler.CreateUser)

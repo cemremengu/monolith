@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authApi } from "@/api/auth";
+import { accountApi } from "@/api/account";
 import { useAuth } from "@/store/auth";
 import { languages } from "@/i18n/language";
 
@@ -30,7 +30,7 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
     // Save to backend if authenticated
     if (isAuthenticated) {
       try {
-        await authApi.updatePreferences({ language: languageCode });
+        await accountApi.updatePreferences({ language: languageCode });
       } catch (error) {
         console.error("Failed to update language preference:", error);
       }

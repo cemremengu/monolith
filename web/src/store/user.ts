@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { authApi } from "@/api/auth";
+import { accountApi } from "@/api/account";
 import type { User } from "@/api/users/types";
 
 type State = {
@@ -22,7 +22,7 @@ export const useUser = create<State & Action>()((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const user = await authApi.profile();
+      const user = await accountApi.profile();
       set({ user, isLoading: false });
     } catch {
       set({ user: null, isLoading: false });
