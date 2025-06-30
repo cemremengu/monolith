@@ -8,11 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authApi } from "@/api/auth";
 import { useAuth } from "@/lib/auth";
-
-const languages = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "tr", name: "Türkçe", flag: "🇹🇷" },
-];
+import { languages } from "@/i18n/language";
 
 type LanguageSwitcherProps = {
   value?: string;
