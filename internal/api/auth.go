@@ -77,7 +77,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *AuthHandler) Me(c echo.Context) error {
+func (h *AuthHandler) Profile(c echo.Context) error {
 	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
