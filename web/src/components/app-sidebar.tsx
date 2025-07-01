@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Home, Users, Settings2, BarChart3, User } from "lucide-react";
+import { Home, Users, BarChart3, User } from "lucide-react";
 import { useUser } from "@/store/user";
 
 import { NavMain } from "@/components/nav-main";
@@ -38,21 +38,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
         {
           title: "Reports",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Security",
           url: "#",
         },
       ],

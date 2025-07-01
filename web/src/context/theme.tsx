@@ -5,7 +5,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { accountApi } from "@/api/account";
 import { useAuth } from "@/store/auth";
 import { useUser } from "@/store/user";
 
@@ -13,7 +12,7 @@ type Theme = "dark" | "light" | "system";
 
 type ThemeProviderContextValue = {
   theme: Theme;
-  setTheme: (theme: Theme) => Promise<void>;
+  setTheme: (theme: Theme) => void;
 };
 
 const ThemeProviderContext = createContext<
@@ -34,10 +33,7 @@ export function ThemeProvider({
   const { isAuthenticated } = useAuth();
   const { user } = useUser();
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
-    }
-    return defaultTheme;
+    return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
   });
 
   // Load theme from user preferences when authenticated
@@ -47,9 +43,7 @@ export function ThemeProvider({
       setTheme(userTheme);
 
       // Update localStorage when user preferences change (e.g., from profile save)
-      if (typeof window !== "undefined") {
-        localStorage.setItem(storageKey, userTheme);
-      }
+      localStorage.setItem(storageKey, userTheme);
     }
   }, [isAuthenticated, user?.theme, storageKey]);
 
@@ -73,22 +67,11 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: async (newTheme: Theme) => {
+    setTheme: (newTheme: Theme) => {
       setTheme(newTheme);
 
       // Always save to localStorage for fallback
-      if (typeof window !== "undefined") {
-        localStorage.setItem(storageKey, newTheme);
-      }
-
-      // Save to backend if authenticated
-      if (isAuthenticated) {
-        try {
-          await accountApi.updatePreferences({ theme: newTheme });
-        } catch (error) {
-          console.error("Failed to update theme preference:", error);
-        }
-      }
+      localStorage.setItem(storageKey, newTheme);
     },
   };
 

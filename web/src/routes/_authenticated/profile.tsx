@@ -3,10 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import {
-  profileQueryOptions,
-  useUpdatePreferences,
-} from "@/api/account/queries";
+import { profileQueryOptions } from "@/api/account/queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,19 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
-import {
-  User,
-  Mail,
-  Calendar,
-  Shield,
-  Globe,
-  Palette,
-  Clock,
-} from "lucide-react";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { TimezoneSelector } from "@/components/timezone-selector";
+import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -52,9 +37,6 @@ const profileSchema = z.object({
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(50, "Username must be less than 50 characters"),
-  language: z.string().optional(),
-  theme: z.string().optional(),
-  timezone: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -68,7 +50,6 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function Profile() {
   const { data: user } = useSuspenseQuery(profileQueryOptions);
   const { t } = useTranslation();
-  const updatePreferences = useUpdatePreferences();
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -76,9 +57,6 @@ function Profile() {
       name: user?.name || "",
       email: user?.email || "",
       username: user?.username || "",
-      language: user?.language || "en",
-      theme: user?.theme || "system",
-      timezone: user?.timezone || "UTC",
     },
   });
 
@@ -89,22 +67,14 @@ function Profile() {
         name: user.name || "",
         email: user.email || "",
         username: user.username || "",
-        language: user.language || "en",
-        theme: user.theme || "system",
-        timezone: user.timezone || "UTC",
       });
     }
   }, [user, form]);
 
-  const onSubmit = async (data: ProfileFormData) => {
+  const onSubmit = (data: ProfileFormData) => {
     try {
-      // Update preferences (theme, language, timezone)
-      await updatePreferences.mutateAsync({
-        language: data.language,
-        theme: data.theme,
-        timezone: data.timezone,
-      });
-
+      // TODO: Update profile information API call
+      console.log("Profile update:", data);
       toast.success(t("profile.messages.updateSuccess"));
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -247,87 +217,14 @@ function Profile() {
                   )}
                 />
 
-                <Separator />
-
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">
-                    {t("profile.preferences.title")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="language"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center space-x-2">
-                            <Globe className="h-4 w-4" />
-                            <FormLabel className="text-sm font-medium">
-                              {t("profile.preferences.language")}
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <LanguageSwitcher
-                              value={field.value}
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="theme"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center space-x-2">
-                            <Palette className="h-4 w-4" />
-                            <FormLabel className="text-sm font-medium">
-                              {t("profile.preferences.theme")}
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <ThemeSwitcher
-                              value={field.value}
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="timezone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex items-center space-x-2">
-                            <Clock className="h-4 w-4" />
-                            <FormLabel className="text-sm font-medium">
-                              {t("profile.preferences.timezone")}
-                            </FormLabel>
-                          </div>
-                          <FormControl>
-                            <TimezoneSelector
-                              value={field.value}
-                              onChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
                 <div className="flex space-x-2">
-                  <Button type="submit" disabled={updatePreferences.isPending}>
+                  <Button type="submit">
                     {t("profile.actions.saveChanges")}
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={updatePreferences.isPending}
+                    onClick={() => form.reset()}
                   >
                     {t("profile.actions.cancel")}
                   </Button>

@@ -1,3 +1,5 @@
+You run in an environment where `ast-grep` is available; whenever a search requires syntax-aware or structural matching, default to `ast-grep -p '<pattern>' --lang go` (or set `--lang` appropriately for example use `ts` for `TypeScript`) and avoid falling back to text-only tools like `rg` or `grep` unless I explicitly request a plain-text search.
+
 # Development Standards & Best Practices
 
 ## PostgreSQL Database Design

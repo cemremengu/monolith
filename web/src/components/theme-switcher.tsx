@@ -57,19 +57,37 @@ export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          onClick={() => (onChange ? onChange("light") : setTheme("light"))}
+          onClick={() => {
+            if (onChange) {
+              onChange("light");
+            } else {
+              setTheme("light");
+            }
+          }}
         >
           <Sun className="mr-2 h-4 w-4" />
           <span>Light</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => (onChange ? onChange("dark") : setTheme("dark"))}
+          onClick={() => {
+            if (onChange) {
+              onChange("dark");
+            } else {
+              setTheme("dark");
+            }
+          }}
         >
           <Moon className="mr-2 h-4 w-4" />
           <span>Dark</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => (onChange ? onChange("system") : setTheme("system"))}
+          onClick={() => {
+            if (onChange) {
+              onChange("system");
+            } else {
+              setTheme("system");
+            }
+          }}
         >
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>

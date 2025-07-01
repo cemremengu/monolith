@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { accountApi } from "@/api/account";
 import { useAuth } from "@/store/auth";
+import { useUser } from "@/store/user";
 import { languages } from "@/i18n/language";
 
 type LanguageSwitcherProps = {
@@ -18,19 +19,26 @@ type LanguageSwitcherProps = {
 export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
   const { isAuthenticated } = useAuth();
+  const { user } = useUser();
 
   const changeLanguage = async (languageCode: string) => {
+    // Always change the language in i18n
+    i18n.changeLanguage(languageCode);
+
     if (onChange) {
+      // If controlled, let parent handle the API call
       onChange(languageCode);
       return;
     }
 
-    i18n.changeLanguage(languageCode);
-
-    // Save to backend if authenticated
-    if (isAuthenticated) {
+    // If not controlled, handle the API call ourselves with all current preferences
+    if (isAuthenticated && user) {
       try {
-        await accountApi.updatePreferences({ language: languageCode });
+        await accountApi.updatePreferences({
+          language: languageCode,
+          theme: user.theme || "system",
+          timezone: user.timezone || "UTC",
+        });
       } catch (error) {
         console.error("Failed to update language preference:", error);
       }
