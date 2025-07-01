@@ -46,6 +46,10 @@ class HttpClient {
       searchParams.append(key, String(value));
     });
 
+    if (searchParams.toString() === "") {
+      return url;
+    }
+
     return `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
   }
 
