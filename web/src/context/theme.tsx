@@ -5,8 +5,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAuth } from "@/store/auth";
-import { useUser } from "@/store/user";
 
 type Theme = "dark" | "light" | "system";
 
@@ -30,22 +28,9 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "theme",
 }: ThemeProviderProps) {
-  const { isAuthenticated } = useAuth();
-  const { user } = useUser();
   const [theme, setTheme] = useState<Theme>(() => {
     return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
   });
-
-  // Load theme from user preferences when authenticated
-  useEffect(() => {
-    if (isAuthenticated && user?.theme) {
-      const userTheme = user.theme as Theme;
-      setTheme(userTheme);
-
-      // Update localStorage when user preferences change (e.g., from profile save)
-      localStorage.setItem(storageKey, userTheme);
-    }
-  }, [isAuthenticated, user?.theme, storageKey]);
 
   useEffect(() => {
     const root = window.document.documentElement;

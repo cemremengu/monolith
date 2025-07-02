@@ -1,5 +1,5 @@
 import { API_BASE, getHeaders } from "@/api/config";
-import { useAuth } from "@/store/auth";
+import { getAuthState } from "@/context/auth";
 
 interface RequestOptions extends RequestInit {
   url: string;
@@ -79,7 +79,7 @@ class HttpClient {
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         // Mark user as unauthenticated when token refresh fails
-        useAuth.getState().setUnauthenticated();
+        getAuthState().setUnauthenticated();
         throw new Error("Authentication required");
       }
     }

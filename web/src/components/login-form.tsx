@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authApi } from "@/api/auth";
 import type { LoginRequest } from "@/api/auth/types";
-import { useAuth } from "@/store/auth";
-import { useUser } from "@/store/user";
+import { useAuth } from "@/context/auth";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -16,8 +15,7 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
-  const { setUser } = useUser();
+  const { login, setUser } = useAuth();
 
   const {
     register,
@@ -32,7 +30,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       const response = await authApi.login(data);
       login();
-      setUser(response.user);
+      setUser({
+        id: response.user.id,
+        username: response.user.username,
+        email: response.user.email,
+        avatar: response.user.avatar,
+      });
       onSuccess();
     } catch {
       setError("Invalid username/email or password");

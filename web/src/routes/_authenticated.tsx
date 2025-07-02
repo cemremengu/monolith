@@ -4,8 +4,6 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -14,6 +12,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/context/auth";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: ({ context, location }) => {
@@ -30,32 +29,11 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-  const { user, auth } = Route.useRouteContext();
-  const { i18n } = useTranslation();
   const navigate = useNavigate();
-
-  // Fetch user data when authenticated but user is not loaded
-  useEffect(() => {
-    if (auth.isAuthenticated && !user.user && !user.isLoading) {
-      user.fetchUser();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.isAuthenticated, user.user, user.isLoading]);
-
-  // Load user's language preference when authenticated
-  useEffect(() => {
-    if (
-      auth.isAuthenticated &&
-      user.user?.language &&
-      i18n.language !== user.user.language
-    ) {
-      i18n.changeLanguage(user.user.language);
-    }
-  }, [auth.isAuthenticated, user.user?.language, i18n]);
+  const auth = useAuth();
 
   const handleLogout = async () => {
     await auth.logout();
-    user.clearUser();
     navigate({ to: "/login" });
   };
 
@@ -72,7 +50,7 @@ function AuthenticatedLayout() {
           <div className="flex-1" />
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">
-              Welcome, {user.user?.name || user.user?.username}
+              Welcome, {auth.user?.username}
             </span>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               Logout

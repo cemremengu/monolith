@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Home, Users, BarChart3, User } from "lucide-react";
-import { useUser } from "@/store/user";
+import { useAuth } from "@/context/auth";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const navMain = [
     {
@@ -45,7 +45,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   ];
 
   const userData = {
-    name: user?.name || user?.username || "User",
+    name: user?.username || "User",
     email: user?.email || "user@example.com",
     avatar: user?.avatar || "",
   };
