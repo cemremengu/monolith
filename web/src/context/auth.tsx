@@ -7,23 +7,17 @@ import {
 } from "react";
 import { authApi } from "@/api/auth";
 import { accountApi } from "@/api/account";
-
-type UserInfo = {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-};
+import type { User } from "@/api/users/types";
 
 type AuthContextValue = {
   isAuthenticated: boolean;
-  user: UserInfo | null;
+  user: User | null;
   isLoading: boolean;
   login: () => void;
   logout: () => Promise<void>;
   setUnauthenticated: () => void;
   fetchUser: () => Promise<void>;
-  setUser: (user: UserInfo) => void;
+  setUser: (user: User) => void;
   clearUser: () => void;
 };
 
@@ -46,7 +40,7 @@ export function AuthProvider({
       return false;
     }
   });
-  const [user, setUserState] = useState<UserInfo | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Persist authentication state to localStorage
@@ -59,14 +53,9 @@ export function AuthProvider({
 
     setIsLoading(true);
     try {
-      const fullUser = await accountApi.profile();
-      const minimalUser: UserInfo = {
-        id: fullUser.id,
-        username: fullUser.username,
-        email: fullUser.email,
-        avatar: fullUser.avatar,
-      };
-      setUserState(minimalUser);
+      const user = await accountApi.profile();
+
+      setUserState(user);
     } catch {
       setUserState(null);
     } finally {
@@ -74,7 +63,7 @@ export function AuthProvider({
     }
   };
 
-  const setUser = (user: UserInfo) => {
+  const setUser = (user: User) => {
     setUserState(user);
     setIsLoading(false);
   };
