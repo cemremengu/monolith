@@ -69,7 +69,6 @@ func (s *Server) setupRoutes() {
 	api := s.echo.Group("/api")
 
 	// Public auth routes
-	api.POST("/auth/register", authHandler.Register)
 	api.POST("/auth/login", authHandler.Login)
 	api.POST("/auth/refresh", authHandler.RefreshToken)
 	api.POST("/auth/logout", authHandler.Logout)
@@ -77,6 +76,7 @@ func (s *Server) setupRoutes() {
 	// Protected routes
 	protected := api.Group("", customMiddleware.JWTAuth())
 	protected.GET("/account/profile", accountHandler.Profile)
+	protected.POST("/account/register", accountHandler.Register)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
 	protected.GET("/account/sessions", accountHandler.GetSessions)
 	protected.DELETE("/account/sessions/:sessionId", accountHandler.RevokeSession)

@@ -132,3 +132,28 @@ func (h *AccountHandler) RevokeAllOtherSessions(c echo.Context) error {
 		"revokedCount": revokedCount,
 	})
 }
+
+func (h *AccountHandler) Register(c echo.Context) error {
+	var req user.RegisterRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+	}
+
+	user, err := h.authService.Register(c.Request().Context(), req)
+	if err != nil {
+		switch {
+		case errors.Is(err, authService.ErrPasswordTooShort):
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		case errors.Is(err, authService.ErrUserAlreadyExists):
+			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
+		default:
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
+		}
+	}
+
+	response := map[string]any{
+		"user": user,
+	}
+
+	return c.JSON(http.StatusCreated, response)
+}

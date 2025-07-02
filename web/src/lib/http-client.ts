@@ -1,7 +1,8 @@
 import axios from "axios";
 import qs from "qs";
-import { API_BASE } from "@/api/config";
 import { getAuthState } from "@/context/auth";
+
+const API_BASE = "/api";
 
 const httpClient = axios.create({
   baseURL: API_BASE,

@@ -1,5 +1,5 @@
 import type { User } from "../users/types";
-import type { UpdatePreferencesRequest } from "./types";
+import type { RegisterRequest, UpdatePreferencesRequest } from "./types";
 import { httpClient } from "@/lib/http-client";
 
 export const accountApi = {
@@ -20,6 +20,11 @@ export const accountApi = {
 
   revokeSession: async (sessionId: string): Promise<void> => {
     await httpClient.delete(`/account/sessions/${sessionId}`);
+  },
+
+  register: async (data: RegisterRequest): Promise<{ user: User }> => {
+    const response = await httpClient.post("/auth/register", data);
+    return response.data;
   },
 
   revokeAllOtherSessions: async (): Promise<{
