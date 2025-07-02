@@ -1,190 +1,60 @@
-import { API_BASE, getHeaders } from "@/api/config";
+import axios from "axios";
+import qs from "qs";
+import { API_BASE } from "@/api/config";
 import { getAuthState } from "@/context/auth";
 
-interface RequestOptions extends RequestInit {
-  url: string;
-  params?: Record<string, string | number | boolean>;
-  formData?: FormData;
-}
+const httpClient = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+  paramsSerializer: (params) => {
+    return qs.stringify(params, { arrayFormat: "comma" });
+  },
+});
 
-class HttpClient {
-  private isRefreshing = false;
-  private refreshPromise: Promise<void> | null = null;
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
 
-  private refreshToken(): Promise<void> {
-    if (this.isRefreshing) {
-      return this.refreshPromise!;
-    }
-
-    this.isRefreshing = true;
-    this.refreshPromise = fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      headers: getHeaders(),
-      credentials: "include",
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to refresh token");
-        }
-      })
-      .finally(() => {
-        this.isRefreshing = false;
-        this.refreshPromise = null;
-      });
-
-    return this.refreshPromise;
+const refreshToken = (): Promise<void> => {
+  if (isRefreshing) {
+    return refreshPromise!;
   }
 
-  private buildUrl(
-    url: string,
-    params?: Record<string, string | number | boolean>,
-  ): string {
-    if (!params) return url;
-
-    const searchParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      searchParams.append(key, String(value));
+  isRefreshing = true;
+  refreshPromise = httpClient
+    .post("/auth/refresh")
+    .then(() => {})
+    .finally(() => {
+      isRefreshing = false;
+      refreshPromise = null;
     });
 
-    if (searchParams.toString() === "") {
-      return url;
-    }
+  return refreshPromise;
+};
 
-    return `${url}${url.includes("?") ? "&" : "?"}${searchParams.toString()}`;
-  }
+httpClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-  async request<T>(options: RequestOptions): Promise<T> {
-    const { url, params, formData, ...fetchOptions } = options;
-    const finalUrl = this.buildUrl(url, params);
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-    const makeRequest = (): Promise<Response> => {
-      const headers = formData ? {} : getHeaders();
-
-      return fetch(finalUrl, {
-        headers,
-        credentials: "include",
-        body: formData || fetchOptions.body,
-        ...fetchOptions,
-      });
-    };
-
-    let response = await makeRequest();
-
-    // If we get a 401 try to refresh
-    if (response.status === 401) {
       try {
-        await this.refreshToken();
-        // Retry the original request
-        response = await makeRequest();
+        await refreshToken();
+        return httpClient(originalRequest);
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
-        // Mark user as unauthenticated when token refresh fails
         getAuthState().setUnauthenticated();
         throw new Error("Authentication required");
       }
     }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        errorText || `Request failed with status ${response.status}`,
-      );
+    if (error.response?.data) {
+      throw new Error(error.response.data.message || error.response.data);
     }
 
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return response.json();
-    }
+    throw error;
+  },
+);
 
-    return response.text() as T;
-  }
-
-  get<T>(
-    url: string,
-    params?: Record<string, string | number | boolean>,
-    options?: Omit<RequestOptions, "url" | "method" | "params">,
-  ): Promise<T> {
-    return this.request<T>({ url, method: "GET", params, ...options });
-  }
-
-  post<T>(
-    url: string,
-    data?: unknown,
-    options?: Omit<RequestOptions, "url" | "method">,
-  ): Promise<T> {
-    const { formData, ...restOptions } = options || {};
-
-    if (formData) {
-      return this.request<T>({
-        url,
-        method: "POST",
-        formData,
-        ...restOptions,
-      });
-    }
-
-    return this.request<T>({
-      url,
-      method: "POST",
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
-
-  put<T>(
-    url: string,
-    data?: unknown,
-    options?: Omit<RequestOptions, "url" | "method">,
-  ): Promise<T> {
-    const { formData, ...restOptions } = options || {};
-
-    if (formData) {
-      return this.request<T>({
-        url,
-        method: "PUT",
-        formData,
-        ...restOptions,
-      });
-    }
-
-    return this.request<T>({
-      url,
-      method: "PUT",
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
-
-  patch<T>(
-    url: string,
-    data?: unknown,
-    options?: Omit<RequestOptions, "url" | "method">,
-  ): Promise<T> {
-    const { formData, ...restOptions } = options || {};
-
-    if (formData) {
-      return this.request<T>({
-        url,
-        method: "PATCH",
-        formData,
-        ...restOptions,
-      });
-    }
-
-    return this.request<T>({
-      url,
-      method: "PATCH",
-      body: JSON.stringify(data),
-      ...options,
-    });
-  }
-
-  delete<T>(
-    url: string,
-    options?: Omit<RequestOptions, "url" | "method">,
-  ): Promise<T> {
-    return this.request<T>({ url, method: "DELETE", ...options });
-  }
-}
-
-export const httpClient = new HttpClient();
+export { httpClient };

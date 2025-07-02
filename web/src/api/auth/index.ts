@@ -1,22 +1,23 @@
 import type { User } from "../users/types";
 import type { LoginRequest, RegisterRequest } from "./types";
-import { API_BASE } from "../config";
 import { httpClient } from "@/lib/http-client";
 
 export const authApi = {
-  login: (data: LoginRequest): Promise<{ user: User }> => {
-    return httpClient.post(`${API_BASE}/auth/login`, data);
+  login: async (data: LoginRequest): Promise<{ user: User }> => {
+    const response = await httpClient.post("/auth/login", data);
+    return response.data;
   },
 
-  register: (data: RegisterRequest): Promise<{ user: User }> => {
-    return httpClient.post(`${API_BASE}/auth/register`, data);
+  register: async (data: RegisterRequest): Promise<{ user: User }> => {
+    const response = await httpClient.post("/auth/register", data);
+    return response.data;
   },
 
-  logout: (): Promise<void> => {
-    return httpClient.post(`${API_BASE}/auth/logout`, undefined);
+  logout: async (): Promise<void> => {
+    await httpClient.post("/auth/logout");
   },
 
-  refresh: (): Promise<void> => {
-    return httpClient.post(`${API_BASE}/auth/refresh`, undefined);
+  refresh: async (): Promise<void> => {
+    await httpClient.post("/auth/refresh");
   },
 };

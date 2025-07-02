@@ -1,28 +1,31 @@
 import type { User, CreateUserRequest } from "./types";
-import { API_BASE } from "../config";
 import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {
-  getAll: (params: {
+  getAll: async (params: {
     filterBy?: string;
     sortBy?: "name" | "email";
   }): Promise<User[]> => {
-    return httpClient.get(`${API_BASE}/users`, params);
+    const response = await httpClient.get("/users", { params });
+    return response.data;
   },
 
-  getById: (id: string): Promise<User> => {
-    return httpClient.get(`${API_BASE}/users/${id}`);
+  getById: async (id: string): Promise<User> => {
+    const response = await httpClient.get(`/users/${id}`);
+    return response.data;
   },
 
-  create: (data: CreateUserRequest): Promise<User> => {
-    return httpClient.post(`${API_BASE}/users`, data);
+  create: async (data: CreateUserRequest): Promise<User> => {
+    const response = await httpClient.post("/users", data);
+    return response.data;
   },
 
-  update: (id: string, data: CreateUserRequest): Promise<User> => {
-    return httpClient.put(`${API_BASE}/users/${id}`, data);
+  update: async (id: string, data: CreateUserRequest): Promise<User> => {
+    const response = await httpClient.put(`/users/${id}`, data);
+    return response.data;
   },
 
-  delete: (id: string): Promise<void> => {
-    return httpClient.delete(`${API_BASE}/users/${id}`);
+  delete: async (id: string): Promise<void> => {
+    await httpClient.delete(`/users/${id}`);
   },
 };
