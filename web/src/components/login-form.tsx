@@ -30,12 +30,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       const response = await authApi.login(data);
       login();
-      setUser({
-        id: response.user.id,
-        username: response.user.username,
-        email: response.user.email,
-        avatar: response.user.avatar,
-      });
+      setUser(response.user);
       onSuccess();
     } catch {
       setError("Invalid username/email or password");

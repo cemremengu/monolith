@@ -1,25 +1,19 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import type { QueryClient } from "@tanstack/react-query";
-
-type MinimalUser = {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-};
+import type { User } from "@/api/users/types";
 
 type RouterContext = {
   queryClient: QueryClient;
   auth: {
     isAuthenticated: boolean;
-    user: MinimalUser | null;
+    user: User | null;
     isLoading: boolean;
     login: () => void;
     logout: () => Promise<void>;
     setUnauthenticated: () => void;
     fetchUser: () => Promise<void>;
-    setUser: (user: MinimalUser) => void;
+    setUser: (user: User) => void;
     clearUser: () => void;
   };
 };
