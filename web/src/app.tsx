@@ -4,6 +4,8 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./context/auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Spinner } from "@/components/spinner";
+import { NotFound } from "@/components/not-found";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +26,8 @@ const router = createRouter({
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
+  defaultPendingComponent: Spinner,
+  defaultNotFoundComponent: () => <NotFound />,
 });
 
 // Register the router instance for type safety
@@ -33,7 +37,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-function App() {
+function Router() {
   const auth = useAuth();
 
   return (
@@ -43,4 +47,4 @@ function App() {
   );
 }
 
-export default App;
+export default Router;

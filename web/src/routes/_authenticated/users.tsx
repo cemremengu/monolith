@@ -1,4 +1,4 @@
-import { createFileRoute, ErrorComponent } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Spinner } from "@/components/spinner";
 
 const userSchema = z.object({
   username: z
@@ -48,8 +47,6 @@ export const Route = createFileRoute("/_authenticated/users")({
   loader: ({ context: { queryClient } }) =>
     queryClient.ensureQueryData(usersQueryOptions({})),
   component: Users,
-  pendingComponent: Spinner,
-  errorComponent: ErrorComponent,
 });
 
 function Users() {
