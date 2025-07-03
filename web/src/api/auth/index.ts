@@ -3,16 +3,15 @@ import type { LoginRequest } from "./types";
 import { httpClient } from "@/lib/http-client";
 
 export const authApi = {
-  login: async (data: LoginRequest): Promise<{ user: User }> => {
-    const response = await httpClient.post("/auth/login", data);
-    return response.data;
+  login: (data: LoginRequest): Promise<{ user: User }> => {
+    return httpClient.post(`auth/login`, data);
   },
 
-  logout: async (): Promise<void> => {
-    await httpClient.post("/auth/logout");
+  logout: (): Promise<void> => {
+    return httpClient.post(`auth/logout`, undefined);
   },
 
-  refresh: async (): Promise<void> => {
-    await httpClient.post("/auth/refresh");
+  refresh: (): Promise<void> => {
+    return httpClient.post(`auth/refresh`, undefined);
   },
 };

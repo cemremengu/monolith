@@ -2,30 +2,26 @@ import type { User, CreateUserRequest } from "./types";
 import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {
-  getAll: async (params: {
+  getAll: (params: {
     filterBy?: string;
     sortBy?: "name" | "email";
   }): Promise<User[]> => {
-    const response = await httpClient.get("/users", { params });
-    return response.data;
+    return httpClient.get(`users`, params);
   },
 
-  getById: async (id: string): Promise<User> => {
-    const response = await httpClient.get(`/users/${id}`);
-    return response.data;
+  getById: (id: string): Promise<User> => {
+    return httpClient.get(`users/${id}`);
   },
 
-  create: async (data: CreateUserRequest): Promise<User> => {
-    const response = await httpClient.post("/users", data);
-    return response.data;
+  create: (data: CreateUserRequest): Promise<User> => {
+    return httpClient.post(`users`, data);
   },
 
-  update: async (id: string, data: CreateUserRequest): Promise<User> => {
-    const response = await httpClient.put(`/users/${id}`, data);
-    return response.data;
+  update: (id: string, data: CreateUserRequest): Promise<User> => {
+    return httpClient.put(`users/${id}`, data);
   },
 
-  delete: async (id: string): Promise<void> => {
-    await httpClient.delete(`/users/${id}`);
+  delete: (id: string): Promise<void> => {
+    return httpClient.delete(`users/${id}`);
   },
 };

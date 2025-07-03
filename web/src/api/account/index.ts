@@ -1,37 +1,28 @@
 import type { User } from "../users/types";
-import type { RegisterRequest, UpdatePreferencesRequest } from "./types";
+import type { UpdatePreferencesRequest } from "./types";
 import { httpClient } from "@/lib/http-client";
 
 export const accountApi = {
-  profile: async (): Promise<User> => {
-    const response = await httpClient.get("/account/profile");
-    return response.data;
+  profile: (): Promise<User> => {
+    return httpClient.get(`account/profile`);
   },
 
-  updatePreferences: async (data: UpdatePreferencesRequest): Promise<User> => {
-    const response = await httpClient.patch("/account/preferences", data);
-    return response.data;
+  updatePreferences: (data: UpdatePreferencesRequest): Promise<User> => {
+    return httpClient.patch(`account/preferences`, data);
   },
 
-  sessions: async (): Promise<unknown[]> => {
-    const response = await httpClient.get("/account/sessions");
-    return response.data;
+  sessions: (): Promise<unknown[]> => {
+    return httpClient.get(`account/sessions`);
   },
 
-  revokeSession: async (sessionId: string): Promise<void> => {
-    await httpClient.delete(`/account/sessions/${sessionId}`);
+  revokeSession: (sessionId: string): Promise<void> => {
+    return httpClient.delete(`account/sessions/${sessionId}`);
   },
 
-  register: async (data: RegisterRequest): Promise<{ user: User }> => {
-    const response = await httpClient.post("/auth/register", data);
-    return response.data;
-  },
-
-  revokeAllOtherSessions: async (): Promise<{
+  revokeAllOtherSessions: (): Promise<{
     message: string;
     revokedCount: number;
   }> => {
-    const response = await httpClient.post("/account/sessions/revoke-others");
-    return response.data;
+    return httpClient.post(`account/sessions/revoke-others`);
   },
 };

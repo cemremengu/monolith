@@ -1,61 +1,107 @@
-import axios from "axios";
-import qs from "qs";
+import ky, { type KyInstance } from "ky";
 import { getAuthState } from "@/context/auth";
 
 const API_BASE = "/api";
 
-const httpClient = axios.create({
-  baseURL: API_BASE,
-  withCredentials: true,
-  paramsSerializer: (params) => {
-    return qs.stringify(params, { arrayFormat: "comma" });
-  },
-});
+export class AuthError extends Error {
+  constructor(message: string = "Authentication required") {
+    super(message);
+    this.name = "AuthError";
+  }
+}
 
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
+class HttpClient {
+  private client: KyInstance;
+  private refreshPromise: Promise<void> | null = null;
 
-const refreshToken = (): Promise<void> => {
-  if (isRefreshing) {
-    return refreshPromise!;
+  constructor() {
+    this.client = ky.create({
+      prefixUrl: API_BASE,
+      credentials: "include",
+      hooks: {
+        beforeRequest: [
+          (request) => {
+            if (!(request.body instanceof FormData)) {
+              request.headers.set("Content-Type", "application/json");
+            }
+          },
+        ],
+        beforeRetry: [
+          async () => {
+            try {
+              await this.refreshToken();
+              return;
+            } catch (refreshError) {
+              console.error("Token refresh failed:", refreshError);
+              getAuthState().setUnauthenticated();
+              throw new AuthError();
+            }
+          },
+        ],
+      },
+      retry: {
+        limit: 1,
+        statusCodes: [401],
+        methods: ["get", "post", "put", "patch", "delete"],
+      },
+    });
   }
 
-  isRefreshing = true;
-  refreshPromise = httpClient
-    .post("/auth/refresh")
-    .then(() => {})
-    .finally(() => {
-      isRefreshing = false;
-      refreshPromise = null;
-    });
-
-  return refreshPromise;
-};
-
-httpClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        await refreshToken();
-        return httpClient(originalRequest);
-      } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
-        getAuthState().setUnauthenticated();
-        throw new Error("Authentication required");
-      }
+  refreshToken(): Promise<void> {
+    if (this.refreshPromise) {
+      return this.refreshPromise;
     }
 
-    if (error.response?.data) {
-      throw new Error(error.response.data.message || error.response.data);
+    this.refreshPromise = this.client
+      .post("auth/refresh", { retry: 0 })
+      .then((response) => {
+        if (!response.ok) {
+          throw new AuthError("Failed to refresh token");
+        }
+      })
+      .finally(() => {
+        this.refreshPromise = null;
+      });
+
+    return this.refreshPromise;
+  }
+
+  get<T>(
+    url: string,
+    params?: Record<
+      string,
+      string | number | boolean | (string | number | boolean)[]
+    >,
+  ): Promise<T> {
+    const p = new URLSearchParams();
+    for (const [key, value] of Object.entries(params || {})) {
+      p.set(key, String(value));
     }
 
-    throw error;
-  },
-);
+    return this.client.get(url, { searchParams: p }).json<T>();
+  }
 
-export { httpClient };
+  post<T>(url: string, data?: unknown): Promise<T> {
+    const options = data instanceof FormData ? { body: data } : { json: data };
+
+    return this.client.post(url, options).json<T>();
+  }
+
+  put<T>(url: string, data?: unknown): Promise<T> {
+    const options = data instanceof FormData ? { body: data } : { json: data };
+
+    return this.client.put(url, options).json<T>();
+  }
+
+  patch<T>(url: string, data?: unknown): Promise<T> {
+    const options = data instanceof FormData ? { body: data } : { json: data };
+
+    return this.client.patch(url, options).json<T>();
+  }
+
+  delete<T>(url: string): Promise<T> {
+    return this.client.delete(url).json<T>();
+  }
+}
+
+export const httpClient = new HttpClient();
