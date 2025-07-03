@@ -74,6 +74,9 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		sessionCookie.Value,
 	)
 	if err != nil {
+		// nuke cookies on any refresh error
+		h.authService.ClearAuthCookies(c)
+
 		switch {
 		case errors.Is(err, authService.ErrInvalidRefreshToken):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
