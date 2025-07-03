@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"log/slog"
+	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
 	"monolith/internal/api"
 	"monolith/internal/database"
@@ -12,7 +17,10 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
+	_ "go.uber.org/automaxprocs"
 )
+
+const shutdownTimeout = 10
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -38,8 +46,20 @@ func main() {
 	srv := api.NewServer(db, log)
 	srv.Setup()
 
-	if startErr := srv.Start(); startErr != nil {
-		log.Error("Server failed to start", "error", startErr)
-		panic("Server startup error")
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	go func() {
+		if startErr := srv.Start(); startErr != nil && errors.Is(startErr, http.ErrServerClosed) {
+			log.Error("Server failed to start", "error", startErr)
+			panic("Server startup error")
+		}
+	}()
+
+	<-ctx.Done()
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
+	defer cancel()
+	if shutdownErr := srv.Shutdown(ctx); shutdownErr != nil {
+		panic(shutdownErr)
 	}
 }

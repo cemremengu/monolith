@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -97,6 +98,11 @@ func (s *Server) Start() error {
 
 	s.log.Info("Server starting", slog.String("port", port))
 	return s.echo.Start(":" + port)
+}
+
+// Shutdown gracefully shuts down the server.
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.echo.Shutdown(ctx)
 }
 
 // Echo returns the underlying Echo instance for advanced configuration if needed.

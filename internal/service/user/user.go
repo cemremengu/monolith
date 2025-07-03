@@ -160,7 +160,11 @@ func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	return err
 }
 
-func (s *Service) UpdatePreferences(ctx context.Context, userID string, req UpdatePreferencesRequest) (*Account, error) {
+func (s *Service) UpdatePreferences(
+	ctx context.Context,
+	userID string,
+	req UpdatePreferencesRequest,
+) (*Account, error) {
 	var user Account
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		UPDATE account 
