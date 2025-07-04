@@ -1,7 +1,9 @@
 import { useAuth } from "@/store/auth";
-import ky, { type KyInstance } from "ky";
+import ky, { type KyInstance, type Options } from "ky";
 
 const API_BASE = "/api";
+
+type HttpClientOptions = Pick<Options, "headers" | "retry" | "timeout">;
 
 export class AuthError extends Error {
   constructor(message: string = "Authentication required") {
@@ -67,39 +69,51 @@ class HttpClient {
 
   get<T>(
     url: string,
-    params?: Record<
+    searchParams?: Record<
       string,
       string | number | boolean | (string | number | boolean)[]
     >,
+    options?: HttpClientOptions,
   ): Promise<T> {
     const p = new URLSearchParams();
-    for (const [key, value] of Object.entries(params || {})) {
+    for (const [key, value] of Object.entries(searchParams || {})) {
       p.set(key, String(value));
     }
 
-    return this.client.get(url, { searchParams: p }).json<T>();
+    return this.client.get(url, { searchParams: p, ...options }).json<T>();
   }
 
-  post<T>(url: string, data?: unknown): Promise<T> {
-    const options = data instanceof FormData ? { body: data } : { json: data };
+  post<T>(
+    url: string,
+    data?: unknown,
+    options?: HttpClientOptions,
+  ): Promise<T> {
+    const requestOptions =
+      data instanceof FormData ? { body: data } : { json: data };
 
-    return this.client.post(url, options).json<T>();
+    return this.client.post(url, { ...requestOptions, ...options }).json<T>();
   }
 
-  put<T>(url: string, data?: unknown): Promise<T> {
-    const options = data instanceof FormData ? { body: data } : { json: data };
+  put<T>(url: string, data?: unknown, options?: HttpClientOptions): Promise<T> {
+    const requestOptions =
+      data instanceof FormData ? { body: data } : { json: data };
 
-    return this.client.put(url, options).json<T>();
+    return this.client.put(url, { ...requestOptions, ...options }).json<T>();
   }
 
-  patch<T>(url: string, data?: unknown): Promise<T> {
-    const options = data instanceof FormData ? { body: data } : { json: data };
+  patch<T>(
+    url: string,
+    data?: unknown,
+    options?: HttpClientOptions,
+  ): Promise<T> {
+    const requestOptions =
+      data instanceof FormData ? { body: data } : { json: data };
 
-    return this.client.patch(url, options).json<T>();
+    return this.client.patch(url, { ...requestOptions, ...options }).json<T>();
   }
 
-  delete<T>(url: string): Promise<T> {
-    return this.client.delete(url).json<T>();
+  delete<T>(url: string, options?: HttpClientOptions): Promise<T> {
+    return this.client.delete(url, options).json<T>();
   }
 }
 
