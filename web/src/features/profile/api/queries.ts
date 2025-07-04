@@ -2,6 +2,7 @@ import {
   useMutation,
   useQueryClient,
   queryOptions,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { accountApi } from "./index";
 
@@ -16,10 +17,9 @@ export const profileQueryOptions = queryOptions({
   queryFn: accountApi.profile,
 });
 
-export const sessionsQueryOptions = queryOptions({
-  queryKey: accountKeys.sessions(),
-  queryFn: accountApi.sessions,
-});
+export const useProfile = () => {
+  return useSuspenseQuery(profileQueryOptions);
+};
 
 export const useUpdatePreferences = () => {
   const queryClient = useQueryClient();

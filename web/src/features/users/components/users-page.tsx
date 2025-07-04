@@ -6,7 +6,7 @@ import {
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
-  usersQueryOptions,
+  useUsers,
 } from "../api/queries";
 import type { User } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 const userSchema = z.object({
   username: z
@@ -43,7 +42,7 @@ const userSchema = z.object({
 type UserFormData = z.infer<typeof userSchema>;
 
 export function UsersPage() {
-  const { data: users } = useSuspenseQuery(usersQueryOptions({}));
+  const { data: users } = useUsers({});
 
   const [editingUser, setEditingUser] = useState<User | null>(null);
 

@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { profileQueryOptions } from "../api/queries";
+import { useProfile } from "../api/queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,7 +24,6 @@ import {
 import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 const profileSchema = z.object({
   name: z
@@ -41,7 +40,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export function ProfilePage() {
-  const { data: user } = useSuspenseQuery(profileQueryOptions);
+  const { data: user } = useProfile();
   const { t } = useTranslation();
 
   const form = useForm<ProfileFormData>({
