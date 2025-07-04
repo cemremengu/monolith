@@ -6,15 +6,10 @@ import type { User } from "@/api/users/types";
 type RouterContext = {
   queryClient: QueryClient;
   auth: {
-    isAuthenticated: boolean;
+    isLoggedIn: boolean;
     user: User | null;
     isLoading: boolean;
-    login: () => void;
-    logout: () => Promise<void>;
-    setUnauthenticated: () => void;
     fetchUser: () => Promise<void>;
-    setUser: (user: User) => void;
-    clearUser: () => void;
   };
 };
 

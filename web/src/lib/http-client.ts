@@ -1,5 +1,5 @@
+import { useAuth } from "@/store/auth";
 import ky, { type KyInstance } from "ky";
-import { getAuthState } from "@/context/auth";
 
 const API_BASE = "/api";
 
@@ -33,7 +33,7 @@ class HttpClient {
               return;
             } catch (refreshError) {
               console.error("Token refresh failed:", refreshError);
-              getAuthState().setUnauthenticated();
+              useAuth.getState().logout();
               throw new AuthError();
             }
           },

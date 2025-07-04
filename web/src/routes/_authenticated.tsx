@@ -12,17 +12,21 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/store/auth";
 
 export const Route = createFileRoute("/_authenticated")({
-  beforeLoad: ({ context, location }) => {
-    if (!context.auth.isAuthenticated) {
+  beforeLoad: async ({ context, location }) => {
+    if (!context.auth.isLoggedIn) {
       throw redirect({
         to: "/login",
         search: {
           redirect: location.href,
         },
       });
+    }
+
+    if (!context.auth.user) {
+      await context.auth.fetchUser();
     }
   },
   component: AuthenticatedLayout,

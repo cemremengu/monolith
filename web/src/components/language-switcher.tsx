@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { accountApi } from "@/api/account";
-import { useAuth } from "@/context/auth";
+import { useAuth } from "@/store/auth";
 import { languages } from "@/i18n/language";
 
 type LanguageSwitcherProps = {
@@ -17,7 +17,7 @@ type LanguageSwitcherProps = {
 
 export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
-  const { isAuthenticated, user } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   const changeLanguage = async (languageCode: string) => {
     // Always change the language in i18n
@@ -30,7 +30,7 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
     }
 
     // If not controlled, handle the API call ourselves with minimal preferences
-    if (isAuthenticated && user) {
+    if (isLoggedIn && user) {
       try {
         await accountApi.updatePreferences({
           language: languageCode,

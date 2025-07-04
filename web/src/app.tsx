@@ -1,18 +1,17 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 
-// Import the generated route tree
 import { routeTree } from "./routeTree.gen";
-import { useAuth } from "./context/auth";
+import { useAuth } from "./store/auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Spinner } from "@/components/spinner";
 import { NotFound } from "@/components/not-found";
+import { ThemeProvider } from "@/context/theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
-      // staleTime: 1000 * 60 * 5, // 5 minutes
-      // retry: 1,
+      refetchOnWindowFocus: true,
+      retry: false, // the retry behavior is handled by the HTTP client
     },
   },
 });
@@ -38,12 +37,12 @@ declare module "@tanstack/react-router" {
 }
 
 function Router() {
-  const auth = useAuth();
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} context={{ auth }} />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} context={{ auth: useAuth() }} />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
