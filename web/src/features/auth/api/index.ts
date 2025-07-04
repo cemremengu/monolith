@@ -1,5 +1,4 @@
-import type { User } from "../users/types";
-import type { LoginRequest } from "./types";
+import type { User, LoginRequest } from "@/types/api";
 import { httpClient } from "@/lib/http-client";
 
 export const authApi = {

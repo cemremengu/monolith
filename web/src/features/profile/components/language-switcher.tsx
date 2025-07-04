@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { accountApi } from "@/api/account";
+import { accountApi } from "@/features/profile/api";
 import { useAuth } from "@/store/auth";
 import { languages } from "@/i18n/language";
 

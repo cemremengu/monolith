@@ -1,4 +1,4 @@
-import type { User, CreateUserRequest } from "./types";
+import type { User, CreateUserRequest } from "@/types/api";
 import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {

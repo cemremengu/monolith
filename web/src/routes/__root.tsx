@@ -1,7 +1,7 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import type { QueryClient } from "@tanstack/react-query";
-import type { User } from "@/api/users/types";
+import type { User } from "@/types/api";
 
 type RouterContext = {
   queryClient: QueryClient;

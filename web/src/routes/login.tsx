@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { LoginForm } from "@/components/login-form";
+import { LoginPage } from "@/features/auth/components/login-page";
 import { z } from "zod";
 
 const loginSearchSchema = z.object({
@@ -15,10 +15,10 @@ export const Route = createFileRoute("/login")({
       });
     }
   },
-  component: LoginPage,
+  component: LoginRouteComponent,
 });
 
-function LoginPage() {
+function LoginRouteComponent() {
   const navigate = Route.useNavigate();
   const search = Route.useSearch();
 
@@ -26,11 +26,5 @@ function LoginPage() {
     navigate({ to: search.redirect || "/dashboard" });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md">
-        <LoginForm onSuccess={handleLoginSuccess} />
-      </div>
-    </div>
-  );
+  return <LoginPage onSuccess={handleLoginSuccess} />;
 }

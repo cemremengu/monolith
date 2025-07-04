@@ -4,7 +4,7 @@ import {
   queryOptions,
 } from "@tanstack/react-query";
 import { usersApi } from "./index";
-import type { CreateUserRequest } from "./types";
+import type { CreateUserRequest } from "@/types/api";
 
 export const userKeys = {
   all: ["users"] as const,

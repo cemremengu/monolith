@@ -1,3 +1,24 @@
+// Auth types
+export type LoginRequest = {
+  login: string;
+  password: string;
+};
+
+// Account types
+export type UpdatePreferencesRequest = {
+  language?: string;
+  theme?: string;
+  timezone?: string;
+};
+
+export type RegisterRequest = {
+  username: string;
+  email: string;
+  password: string;
+  name: string;
+};
+
+// User types
 export type User = {
   id: string;
   username: string;

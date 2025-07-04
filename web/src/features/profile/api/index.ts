@@ -1,5 +1,4 @@
-import type { User } from "../users/types";
-import type { UpdatePreferencesRequest } from "./types";
+import type { User, UpdatePreferencesRequest } from "@/types/api";
 import { httpClient } from "@/lib/http-client";
 
 export const accountApi = {

@@ -1,9 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authApi } from "@/api/auth";
-import { accountApi } from "@/api/account";
-import type { User } from "@/api/users/types";
-import type { LoginRequest } from "@/api/auth/types";
+import { authApi } from "@/features/auth/api";
+import { accountApi } from "@/features/profile/api";
+import type { User, LoginRequest } from "@/types/api";
 
 type AuthState = {
   user: User | null;
