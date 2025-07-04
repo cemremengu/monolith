@@ -46,7 +46,7 @@ export const useAuth = create<AuthStore>()(
           });
         }
 
-        window.location.href = "/login";
+        window.location.replace("/login");
       },
 
       fetchUser: async () => {

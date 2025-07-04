@@ -34,7 +34,6 @@ class HttpClient {
             } catch (refreshError) {
               console.error("Token refresh failed:", refreshError);
               useAuth.getState().logout();
-              throw new AuthError();
             }
           },
         ],

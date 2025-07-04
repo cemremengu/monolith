@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  Outlet,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -33,12 +28,10 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-  const navigate = useNavigate();
   const auth = useAuth();
 
   const handleLogout = async () => {
     await auth.logout();
-    navigate({ to: "/login" });
   };
 
   return (
