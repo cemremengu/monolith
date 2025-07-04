@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/context/theme";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
       retry: false, // the retry behavior is handled by the HTTP client
     },
   },
