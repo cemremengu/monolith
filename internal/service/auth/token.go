@@ -29,17 +29,17 @@ type Claims struct {
 const refreshTokenLength = 32
 
 type TokenService struct {
-	config *config.JWTConfig
+	config *config.SecurityConfig
 }
 
 func NewTokenService() *TokenService {
 	return &TokenService{
-		config: config.NewJWTConfig(),
+		config: config.NewSecurityConfig(),
 	}
 }
 
 func (ts *TokenService) getJWTSecret() []byte {
-	return []byte(ts.config.Secret)
+	return []byte(ts.config.SecretKey)
 }
 
 func HashToken(token string, secretKey string) string {

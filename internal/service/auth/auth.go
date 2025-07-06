@@ -18,20 +18,20 @@ import (
 const productionEnv = "production"
 
 type Service struct {
-	db           *database.DB
-	tokenService *TokenService
-	sessionRepo  *SessionRepository
-	jwtConfig    *config.JWTConfig
-	userService  *user.Service
+	db             *database.DB
+	tokenService   *TokenService
+	sessionRepo    *SessionRepository
+	securityConfig *config.SecurityConfig
+	userService    *user.Service
 }
 
 func NewService(db *database.DB) *Service {
 	return &Service{
-		db:           db,
-		tokenService: NewTokenService(),
-		sessionRepo:  NewSessionRepository(db),
-		jwtConfig:    config.NewJWTConfig(),
-		userService:  user.NewService(db),
+		db:             db,
+		tokenService:   NewTokenService(),
+		sessionRepo:    NewSessionRepository(db),
+		securityConfig: config.NewSecurityConfig(),
+		userService:    user.NewService(db),
 	}
 }
 
@@ -51,7 +51,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	refreshTokenHash := HashToken(refreshToken, s.jwtConfig.Secret)
+	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return err
@@ -177,7 +177,7 @@ func (s *Service) RefreshTokens(
 	refreshToken,
 	sessionID string,
 ) (*user.Account, string, string, error) {
-	refreshTokenHash := HashToken(refreshToken, s.jwtConfig.Secret)
+	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(ctx, refreshTokenHash)
 
 	if err != nil || session == nil || session.SessionID != sessionID {
@@ -199,7 +199,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", err
 	}
 
-	newRefreshTokenHash := HashToken(newRefreshToken, s.jwtConfig.Secret)
+	newRefreshTokenHash := HashToken(newRefreshToken, s.securityConfig.SecretKey)
 	newExpiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 	err = s.sessionRepo.UpdateSessionToken(
 		ctx,
