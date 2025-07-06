@@ -57,8 +57,8 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	deviceInfo := s.GetDeviceInfo(c)
-	ipAddress := s.GetClientIP(c)
+	userAgent := s.GetUserAgent(c)
+	clientIP := s.GetClientIP(c)
 	expiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 
 	err = s.sessionRepo.CreateSession(
@@ -66,8 +66,8 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		sessionID,
 		refreshTokenHash,
 		accountID,
-		deviceInfo,
-		ipAddress,
+		userAgent,
+		clientIP,
 		expiresAt,
 	)
 	if err != nil {
@@ -248,11 +248,11 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	var response []SessionResponse
 	for _, session := range sessions {
 		response = append(response, SessionResponse{
-			SessionID:  session.SessionID,
-			DeviceInfo: session.UserAgent,
-			IPAddress:  session.IPAddress,
-			CreatedAt:  session.CreatedAt,
-			RotatedAt:  session.RotatedAt,
+			SessionID: session.SessionID,
+			UserAgent: session.UserAgent,
+			ClientIP:  session.IPAddress,
+			CreatedAt: session.CreatedAt,
+			RotatedAt: session.RotatedAt,
 		})
 	}
 
@@ -311,8 +311,8 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSes
 	return revokedCount, nil
 }
 
-// GetDeviceInfo extracts device information from User-Agent header.
-func (s *Service) GetDeviceInfo(c echo.Context) string {
+// GetUserAgent extracts device information from User-Agent header.
+func (s *Service) GetUserAgent(c echo.Context) string {
 	userAgent := c.Request().Header.Get("User-Agent")
 	if userAgent == "" {
 		return "Unknown Device"

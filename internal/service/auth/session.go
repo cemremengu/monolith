@@ -44,16 +44,18 @@ func (r *SessionRepository) GenerateSessionID() (string, error) {
 
 func (r *SessionRepository) CreateSession(
 	ctx context.Context,
-	sessionID, tokenHash string,
+	sessionID,
+	tokenHash string,
 	accountID uuid.UUID,
-	deviceInfo, ipAddress string,
+	userAgent string,
+	clientIP string,
 	expiresAt time.Time,
 ) error {
 	query := `
 		INSERT INTO session (session_id, token_hash, account_id, user_agent, client_ip, expires_at, rotated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, NOW())
 	`
-	_, err := r.db.Pool.Exec(ctx, query, sessionID, tokenHash, accountID, deviceInfo, ipAddress, expiresAt)
+	_, err := r.db.Pool.Exec(ctx, query, sessionID, tokenHash, accountID, userAgent, clientIP, expiresAt)
 	return err
 }
 
