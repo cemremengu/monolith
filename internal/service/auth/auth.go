@@ -178,7 +178,7 @@ func (s *Service) RefreshTokens(
 	sessionID string,
 ) (*user.Account, string, string, error) {
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
-	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(ctx, refreshTokenHash)
+	session, err := s.sessionRepo.GetSessionByToken(ctx, refreshTokenHash)
 
 	if err != nil || session == nil || session.SessionID != sessionID {
 		return nil, "", "", ErrSessionExpired
