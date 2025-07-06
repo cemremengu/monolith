@@ -318,22 +318,7 @@ func (s *Service) GetUserAgent(c echo.Context) string {
 		return "Unknown Device"
 	}
 
-	switch {
-	case strings.Contains(userAgent, "iPhone"):
-		return "iPhone"
-	case strings.Contains(userAgent, "Android"):
-		return "Android Device"
-	case strings.Contains(userAgent, "Mobile"):
-		return "Mobile Device"
-	case strings.Contains(userAgent, "Chrome"):
-		return "Chrome Browser"
-	case strings.Contains(userAgent, "Firefox"):
-		return "Firefox Browser"
-	case strings.Contains(userAgent, "Safari"):
-		return "Safari Browser"
-	default:
-		return "Desktop Browser"
-	}
+	return userAgent
 }
 
 // GetClientIP extracts client IP address with support for proxy headers.
