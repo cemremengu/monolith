@@ -85,30 +85,15 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 func (r *SessionRepository) GetSessionByTokenWithTimeout(
 	ctx context.Context,
 	tokenHash string,
-	sessionTimeout time.Duration,
 ) (*Session, error) {
-	var query string
-	var args []any
-
-	if sessionTimeout > 0 {
-		query = `
-			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
-			FROM session
-			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW() AND created_at > $2
-		`
-		timeoutThreshold := time.Now().Add(-sessionTimeout)
-		args = []any{tokenHash, timeoutThreshold}
-	} else {
-		query = `
+	query := `
 			SELECT id, session_id, token_hash, account_id, device_info, ip_address, expires_at, created_at, rotated_at, revoked_at
 			FROM session
 			WHERE token_hash = $1 AND revoked_at IS NULL AND expires_at > NOW()
 		`
-		args = []any{tokenHash}
-	}
 
 	var session Session
-	err := r.db.Pool.QueryRow(ctx, query, args...).Scan(
+	err := r.db.Pool.QueryRow(ctx, query, tokenHash).Scan(
 		&session.ID,
 		&session.SessionID,
 		&session.TokenHash,

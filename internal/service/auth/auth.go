@@ -182,11 +182,7 @@ func (s *Service) RefreshTokens(
 	}
 
 	refreshTokenHash := HashToken(refreshToken)
-	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(
-		ctx,
-		refreshTokenHash,
-		s.jwtConfig.SessionTimeout,
-	)
+	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(ctx, refreshTokenHash)
 
 	if err != nil || session == nil || session.SessionID != sessionID {
 		return nil, "", "", ErrSessionExpired

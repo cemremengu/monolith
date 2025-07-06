@@ -11,7 +11,6 @@ type JWTConfig struct {
 	Secret               string
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
-	SessionTimeout       time.Duration
 }
 
 func NewJWTConfig() *JWTConfig {
@@ -19,7 +18,6 @@ func NewJWTConfig() *JWTConfig {
 		Secret:               getEnvOrDefault("SECRET_KEY", "your-256-bit-secret"),
 		AccessTokenDuration:  parseDurationOrDefault("JWT_ACCESS_TOKEN_DURATION", defaultAccessTokenDuration),
 		RefreshTokenDuration: parseDurationOrDefault("JWT_REFRESH_TOKEN_DURATION", 7*24*time.Hour),
-		SessionTimeout:       parseDurationOrDefault("SESSION_TIMEOUT", 0),
 	}
 }
 
