@@ -42,8 +42,8 @@ func (ts *TokenService) getJWTSecret() []byte {
 	return []byte(ts.config.Secret)
 }
 
-func HashToken(token string) string {
-	hash := sha256.Sum256([]byte(token))
+func HashToken(token string, secretKey string) string {
+	hash := sha256.Sum256([]byte(token + secretKey))
 	return hex.EncodeToString(hash[:])
 }
 
@@ -97,18 +97,6 @@ func (ts *TokenService) ValidateToken(tokenString string) (*Claims, error) {
 	}
 
 	return nil, ErrTokenInvalid
-}
-
-func (ts *TokenService) ValidateRefreshToken(tokenString string) (string, error) {
-	if len(tokenString) != refreshTokenLength*2 {
-		return "", ErrTokenInvalid
-	}
-
-	if _, err := hex.DecodeString(tokenString); err != nil {
-		return "", ErrTokenInvalid
-	}
-
-	return tokenString, nil
 }
 
 func (ts *TokenService) AccessTokenDuration() time.Duration {

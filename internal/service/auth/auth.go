@@ -51,7 +51,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	refreshTokenHash := HashToken(refreshToken)
+	refreshTokenHash := HashToken(refreshToken, s.jwtConfig.Secret)
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return err
@@ -174,14 +174,10 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.Account, e
 
 func (s *Service) RefreshTokens(
 	ctx context.Context,
-	refreshToken, sessionID string,
+	refreshToken,
+	sessionID string,
 ) (*user.Account, string, string, error) {
-	_, err := s.tokenService.ValidateRefreshToken(refreshToken)
-	if err != nil {
-		return nil, "", "", ErrInvalidRefreshToken
-	}
-
-	refreshTokenHash := HashToken(refreshToken)
+	refreshTokenHash := HashToken(refreshToken, s.jwtConfig.Secret)
 	session, err := s.sessionRepo.GetSessionByTokenWithTimeout(ctx, refreshTokenHash)
 
 	if err != nil || session == nil || session.SessionID != sessionID {
@@ -203,7 +199,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", err
 	}
 
-	newRefreshTokenHash := HashToken(newRefreshToken)
+	newRefreshTokenHash := HashToken(newRefreshToken, s.jwtConfig.Secret)
 	newExpiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 	err = s.sessionRepo.UpdateSessionToken(
 		ctx,

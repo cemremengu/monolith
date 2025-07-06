@@ -29,34 +29,3 @@ func TestGenerateRefreshToken(t *testing.T) {
 		t.Error("Expected different tokens, got identical tokens")
 	}
 }
-
-func TestValidateRefreshToken(t *testing.T) {
-	ts := NewTokenService()
-
-	// Test valid token
-	token, err := ts.GenerateRefreshToken()
-	if err != nil {
-		t.Fatalf("Expected no error generating token, got: %v", err)
-	}
-
-	validatedToken, err := ts.ValidateRefreshToken(token)
-	if err != nil {
-		t.Errorf("Expected no error validating token, got: %v", err)
-	}
-
-	if validatedToken != token {
-		t.Error("Expected validated token to match original")
-	}
-
-	// Test invalid token (wrong length)
-	_, err = ts.ValidateRefreshToken("invalid")
-	if err == nil {
-		t.Error("Expected error for invalid token")
-	}
-
-	// Test invalid token (not hex)
-	_, err = ts.ValidateRefreshToken("gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
-	if err == nil {
-		t.Error("Expected error for non-hex token")
-	}
-}
