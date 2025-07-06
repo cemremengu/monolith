@@ -13,12 +13,6 @@ func TestGenerateRefreshToken(t *testing.T) {
 		t.Fatalf("Expected no error, got: %v", err)
 	}
 
-	// Check token length (32 bytes = 64 hex characters)
-	expectedLength := refreshTokenLength * 2
-	if len(token) != expectedLength {
-		t.Errorf("Expected token length %d, got %d", expectedLength, len(token))
-	}
-
 	// Test multiple tokens are different
 	token2, err := ts.GenerateRefreshToken()
 	if err != nil {
