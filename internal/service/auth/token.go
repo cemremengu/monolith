@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -25,10 +26,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type RefreshTokenClaims struct {
-	UserID string `json:"userId"`
-	jwt.RegisteredClaims
-}
+const refreshTokenLength = 32
 
 type TokenService struct {
 	config *config.JWTConfig
@@ -66,19 +64,12 @@ func (ts *TokenService) GenerateAccessToken(userID, email string, isAdmin bool) 
 	return token.SignedString(ts.getJWTSecret())
 }
 
-func (ts *TokenService) GenerateRefreshToken(userID string) (string, error) {
-	claims := RefreshTokenClaims{
-		UserID: userID,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ts.config.RefreshTokenDuration)),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    "monolith",
-		},
+func (ts *TokenService) GenerateRefreshToken() (string, error) {
+	bytes := make([]byte, refreshTokenLength)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(ts.getJWTSecret())
+	return hex.EncodeToString(bytes), nil
 }
 
 func (ts *TokenService) ValidateToken(tokenString string) (*Claims, error) {
@@ -108,31 +99,16 @@ func (ts *TokenService) ValidateToken(tokenString string) (*Claims, error) {
 	return nil, ErrTokenInvalid
 }
 
-func (ts *TokenService) ValidateRefreshToken(tokenString string) (*RefreshTokenClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &RefreshTokenClaims{}, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, ErrTokenInvalid
-		}
-		return ts.getJWTSecret(), nil
-	})
-	if err != nil {
-		switch {
-		case errors.Is(err, jwt.ErrTokenMalformed):
-			return nil, ErrTokenMalformed
-		case errors.Is(err, jwt.ErrTokenExpired):
-			return nil, ErrTokenExpired
-		case errors.Is(err, jwt.ErrTokenNotValidYet):
-			return nil, ErrTokenNotValidYet
-		default:
-			return nil, ErrTokenInvalid
-		}
+func (ts *TokenService) ValidateRefreshToken(tokenString string) (string, error) {
+	if len(tokenString) != refreshTokenLength*2 {
+		return "", ErrTokenInvalid
 	}
 
-	if claims, ok := token.Claims.(*RefreshTokenClaims); ok && token.Valid {
-		return claims, nil
+	if _, err := hex.DecodeString(tokenString); err != nil {
+		return "", ErrTokenInvalid
 	}
 
-	return nil, ErrTokenInvalid
+	return tokenString, nil
 }
 
 func (ts *TokenService) AccessTokenDuration() time.Duration {

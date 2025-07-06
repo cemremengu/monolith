@@ -41,7 +41,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	refreshToken, err := s.tokenService.GenerateRefreshToken(userID)
+	refreshToken, err := s.tokenService.GenerateRefreshToken()
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (s *Service) RefreshTokens(
 	ctx context.Context,
 	refreshToken, sessionID string,
 ) (*user.Account, string, string, error) {
-	claims, err := s.tokenService.ValidateRefreshToken(refreshToken)
+	_, err := s.tokenService.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return nil, "", "", ErrInvalidRefreshToken
 	}
@@ -188,7 +188,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", ErrSessionExpired
 	}
 
-	user, err := s.userService.GetAccountByID(ctx, claims.UserID)
+	user, err := s.userService.GetAccountByID(ctx, session.AccountID.String())
 	if err != nil {
 		return nil, "", "", ErrUserNotFound
 	}
@@ -198,7 +198,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", err
 	}
 
-	newRefreshToken, err := s.tokenService.GenerateRefreshToken(user.ID)
+	newRefreshToken, err := s.tokenService.GenerateRefreshToken()
 	if err != nil {
 		return nil, "", "", err
 	}
