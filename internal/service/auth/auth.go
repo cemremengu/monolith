@@ -249,7 +249,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	for _, session := range sessions {
 		response = append(response, SessionResponse{
 			SessionID:  session.SessionID,
-			DeviceInfo: session.DeviceInfo,
+			DeviceInfo: session.UserAgent,
 			IPAddress:  session.IPAddress,
 			CreatedAt:  session.CreatedAt,
 			RotatedAt:  session.RotatedAt,
