@@ -19,7 +19,7 @@ type Session struct {
 	TokenHash string     `db:"token_hash"`
 	AccountID uuid.UUID  `db:"account_id"`
 	UserAgent string     `db:"user_agent"`
-	IPAddress string     `db:"client_ip"`
+	ClientIP  string     `db:"client_ip"`
 	ExpiresAt time.Time  `db:"expires_at"`
 	CreatedAt time.Time  `db:"created_at"`
 	RotatedAt time.Time  `db:"rotated_at"`
@@ -72,7 +72,7 @@ func (r *SessionRepository) GetSessionByToken(ctx context.Context, tokenHash str
 		&session.TokenHash,
 		&session.AccountID,
 		&session.UserAgent,
-		&session.IPAddress,
+		&session.ClientIP,
 		&session.ExpiresAt,
 		&session.CreatedAt,
 		&session.RotatedAt,
@@ -140,7 +140,7 @@ func (r *SessionRepository) GetUserSessions(ctx context.Context, accountID uuid.
 			&session.TokenHash,
 			&session.AccountID,
 			&session.UserAgent,
-			&session.IPAddress,
+			&session.ClientIP,
 			&session.ExpiresAt,
 			&session.CreatedAt,
 			&session.RotatedAt,

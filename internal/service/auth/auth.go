@@ -246,7 +246,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 		response = append(response, SessionResponse{
 			SessionID: session.SessionID,
 			UserAgent: session.UserAgent,
-			ClientIP:  session.IPAddress,
+			ClientIP:  session.ClientIP,
 			CreatedAt: session.CreatedAt,
 			RotatedAt: session.RotatedAt,
 		})
