@@ -85,13 +85,13 @@ func (r *SessionRepository) UpdateSessionToken(
 	return err
 }
 
-func (r *SessionRepository) RevokeSession(ctx context.Context, sessionID uuid.UUID) error {
+func (r *SessionRepository) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
 	query := `
 		UPDATE session
 		SET revoked_at = NOW()
-		WHERE id = $1
+		WHERE id = $1 and account_id = $2
 	`
-	_, err := r.db.Pool.Exec(ctx, query, sessionID)
+	_, err := r.db.Pool.Exec(ctx, query, userID, sessionID)
 	return err
 }
 

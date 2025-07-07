@@ -244,27 +244,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]Sess
 }
 
 func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
-	if userID != uuid.Nil {
-
-		sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
-		if err != nil {
-			return err
-		}
-
-		sessionFound := false
-		for _, session := range sessions {
-			if session.ID == sessionID {
-				sessionFound = true
-				break
-			}
-		}
-
-		if !sessionFound {
-			return ErrSessionNotFound
-		}
-	}
-
-	return s.sessionRepo.RevokeSession(ctx, sessionID)
+	return s.sessionRepo.RevokeSession(ctx, userID, sessionID)
 }
 
 func (s *Service) RevokeAllOtherSessions(
@@ -278,7 +258,7 @@ func (s *Service) RevokeAllOtherSessions(
 	revokedCount := 0
 	for _, session := range sessions {
 		if session.ID != currentSessionID {
-			err = s.sessionRepo.RevokeSession(ctx, session.ID)
+			err = s.sessionRepo.RevokeSession(ctx, userID, session.ID)
 			if err == nil {
 				revokedCount++
 			}
