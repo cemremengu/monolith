@@ -8,6 +8,7 @@ import (
 	authService "monolith/internal/service/auth"
 	"monolith/internal/service/user"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -87,13 +88,18 @@ func (h *AccountHandler) RevokeSession(c echo.Context) error {
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
-	sessionID := c.Param("sessionId")
+	sessionIDParam := c.Param("sessionId")
 
-	if sessionID == "" {
+	if sessionIDParam == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Session ID is required"})
 	}
 
-	err := h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
+	sessionID, err := uuid.Parse(sessionIDParam)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session ID format"})
+	}
+
+	err = h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, authService.ErrInvalidUserID):
@@ -114,9 +120,11 @@ func (h *AccountHandler) RevokeAllOtherSessions(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	currentSessionID := ""
+	var currentSessionID uuid.UUID
 	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
-		currentSessionID = sessionCookie.Value
+		if parsedID, parseErr := uuid.Parse(sessionCookie.Value); parseErr == nil {
+			currentSessionID = parsedID
+		}
 	}
 
 	revokedCount, err := h.authService.RevokeAllOtherSessions(c.Request().Context(), userID, currentSessionID)

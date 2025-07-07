@@ -85,7 +85,7 @@ func (r *SessionRepository) UpdateSessionToken(
 	return err
 }
 
-func (r *SessionRepository) RevokeSession(ctx context.Context, sessionID string) error {
+func (r *SessionRepository) RevokeSession(ctx context.Context, sessionID uuid.UUID) error {
 	query := `
 		UPDATE session
 		SET revoked_at = NOW()

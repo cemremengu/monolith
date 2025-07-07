@@ -171,13 +171,13 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.Account, e
 
 func (s *Service) RefreshTokens(
 	ctx context.Context,
-	refreshToken,
-	sessionID string,
+	refreshToken string,
+	sessionID uuid.UUID,
 ) (*user.Account, string, string, error) {
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	session, err := s.sessionRepo.GetSessionByToken(ctx, refreshTokenHash)
 
-	if err != nil || session == nil || session.ID.String() != sessionID {
+	if err != nil || session == nil || session.ID != sessionID {
 		return nil, "", "", ErrSessionExpired
 	}
 
@@ -252,7 +252,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	return response, nil
 }
 
-func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID string) error {
+func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID uuid.UUID) error {
 	if userID != "" {
 		accountID, err := uuid.Parse(userID)
 		if err != nil {
@@ -266,7 +266,7 @@ func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID st
 
 		sessionFound := false
 		for _, session := range sessions {
-			if session.ID.String() == sessionID {
+			if session.ID == sessionID {
 				sessionFound = true
 				break
 			}
@@ -280,7 +280,7 @@ func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID st
 	return s.sessionRepo.RevokeSession(ctx, sessionID)
 }
 
-func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID string, currentSessionID string) (int, error) {
+func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID string, currentSessionID uuid.UUID) (int, error) {
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return 0, ErrInvalidUserID
@@ -293,8 +293,8 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID string, cur
 
 	revokedCount := 0
 	for _, session := range sessions {
-		if session.ID.String() != currentSessionID {
-			err = s.sessionRepo.RevokeSession(ctx, session.ID.String())
+		if session.ID != currentSessionID {
+			err = s.sessionRepo.RevokeSession(ctx, session.ID)
 			if err == nil {
 				revokedCount++
 			}

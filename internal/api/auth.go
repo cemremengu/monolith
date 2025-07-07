@@ -54,7 +54,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 func (h *AuthHandler) Logout(c echo.Context) error {
 	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
 		if sessionID, err := uuid.Parse(sessionCookie.Value); err == nil {
-			_ = h.authService.RevokeSession(c.Request().Context(), "", sessionID.String())
+			_ = h.authService.RevokeSession(c.Request().Context(), "", sessionID)
 		}
 	}
 
@@ -73,10 +73,15 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session not found"})
 	}
 
+	sessionID, err := uuid.Parse(sessionCookie.Value)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid session ID"})
+	}
+
 	_, newAccessToken, newRefreshToken, err := h.authService.RefreshTokens(
 		c.Request().Context(),
 		refreshTokenCookie.Value,
-		sessionCookie.Value,
+		sessionID,
 	)
 	if err != nil {
 		// nuke cookies on any refresh error
