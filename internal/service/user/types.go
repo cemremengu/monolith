@@ -1,9 +1,13 @@
 package user
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Account struct {
-	ID         string     `json:"id"               db:"id"`
+	ID         uuid.UUID  `json:"id"               db:"id"`
 	Username   string     `json:"username"         db:"username"`
 	Email      string     `json:"email"            db:"email"`
 	Name       *string    `json:"name"             db:"name"`

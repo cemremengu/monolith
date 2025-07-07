@@ -35,7 +35,7 @@ func NewService(db *database.DB) *Service {
 	}
 }
 
-func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isAdmin bool) error {
+func (s *Service) GenerateAndSetTokens(c echo.Context, userID uuid.UUID, email string, isAdmin bool) error {
 	accessToken, err := s.tokenService.GenerateAccessToken(userID, email, isAdmin)
 	if err != nil {
 		return err
@@ -49,10 +49,6 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 	sessionID := uuid.New()
 
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
-	accountID, err := uuid.Parse(userID)
-	if err != nil {
-		return err
-	}
 
 	userAgent := s.GetUserAgent(c)
 	clientIP := s.GetClientIP(c)
@@ -62,7 +58,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		c.Request().Context(),
 		sessionID,
 		refreshTokenHash,
-		accountID,
+		userID,
 		userAgent,
 		clientIP,
 		expiresAt,
@@ -181,7 +177,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", ErrSessionExpired
 	}
 
-	user, err := s.userService.GetAccountByID(ctx, session.AccountID.String())
+	user, err := s.userService.GetAccountByID(ctx, session.AccountID)
 	if err != nil {
 		return nil, "", "", ErrUserNotFound
 	}
@@ -227,13 +223,8 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 	}
 }
 
-func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]SessionResponse, error) {
-	accountID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, ErrInvalidUserID
-	}
-
-	sessions, err := s.sessionRepo.GetUserSessions(ctx, accountID)
+func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]SessionResponse, error) {
+	sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -252,14 +243,10 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	return response, nil
 }
 
-func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID uuid.UUID) error {
-	if userID != "" {
-		accountID, err := uuid.Parse(userID)
-		if err != nil {
-			return ErrInvalidUserID
-		}
+func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
+	if userID != uuid.Nil {
 
-		sessions, err := s.sessionRepo.GetUserSessions(ctx, accountID)
+		sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
 		if err != nil {
 			return err
 		}
@@ -280,13 +267,10 @@ func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID uu
 	return s.sessionRepo.RevokeSession(ctx, sessionID)
 }
 
-func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID string, currentSessionID uuid.UUID) (int, error) {
-	accountID, err := uuid.Parse(userID)
-	if err != nil {
-		return 0, ErrInvalidUserID
-	}
-
-	sessions, err := s.sessionRepo.GetUserSessions(ctx, accountID)
+func (s *Service) RevokeAllOtherSessions(
+	ctx context.Context, userID uuid.UUID, currentSessionID uuid.UUID,
+) (int, error) {
+	sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
 	if err != nil {
 		return 0, err
 	}

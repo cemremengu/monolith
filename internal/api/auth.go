@@ -49,12 +49,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-// GetSession retrieves the current session for the authenticated user.
+// Logout revokes the current session and clears authentication cookies.
 // Ignore any errors and act as a no-op on failure.
 func (h *AuthHandler) Logout(c echo.Context) error {
 	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
 		if sessionID, err := uuid.Parse(sessionCookie.Value); err == nil {
-			_ = h.authService.RevokeSession(c.Request().Context(), "", sessionID)
+			_ = h.authService.RevokeSession(c.Request().Context(), uuid.Nil, sessionID)
 		}
 	}
 

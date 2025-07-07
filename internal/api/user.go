@@ -6,6 +6,7 @@ import (
 	"monolith/internal/database"
 	"monolith/internal/service/user"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -30,8 +31,12 @@ func (h *UserHandler) GetUsers(c echo.Context) error {
 
 func (h *UserHandler) GetUser(c echo.Context) error {
 	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+	}
 
-	user, err := h.userService.GetUser(c.Request().Context(), id)
+	user, err := h.userService.GetUser(c.Request().Context(), userID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}
@@ -55,13 +60,17 @@ func (h *UserHandler) CreateUser(c echo.Context) error {
 
 func (h *UserHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+	}
 
 	var req user.CreateUserRequest
-	if err := c.Bind(&req); err != nil {
+	if err = c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
 
-	updatedUser, err := h.userService.UpdateUser(c.Request().Context(), id, req)
+	updatedUser, err := h.userService.UpdateUser(c.Request().Context(), userID, req)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}
@@ -71,8 +80,12 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 
 func (h *UserHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+	}
 
-	err := h.userService.DeleteUser(c.Request().Context(), id)
+	err = h.userService.DeleteUser(c.Request().Context(), userID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
 	}

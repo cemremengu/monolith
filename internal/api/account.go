@@ -25,7 +25,7 @@ func NewAccountHandler(db *database.DB) *AccountHandler {
 }
 
 func (h *AccountHandler) Profile(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
@@ -39,7 +39,7 @@ func (h *AccountHandler) Profile(c echo.Context) error {
 }
 
 func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
@@ -58,7 +58,7 @@ func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 }
 
 func (h *AccountHandler) GetSessions(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
@@ -84,7 +84,7 @@ func (h *AccountHandler) GetSessions(c echo.Context) error {
 }
 
 func (h *AccountHandler) RevokeSession(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
@@ -115,7 +115,7 @@ func (h *AccountHandler) RevokeSession(c echo.Context) error {
 }
 
 func (h *AccountHandler) RevokeAllOtherSessions(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}

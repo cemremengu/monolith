@@ -10,6 +10,7 @@ import (
 	"monolith/internal/config"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var (
@@ -20,9 +21,9 @@ var (
 )
 
 type Claims struct {
-	UserID  string `json:"userId"`
-	Email   string `json:"email"`
-	IsAdmin bool   `json:"isAdmin"`
+	UserID  uuid.UUID `json:"userId"`
+	Email   string    `json:"email"`
+	IsAdmin bool      `json:"isAdmin"`
 	jwt.RegisteredClaims
 }
 
@@ -47,7 +48,7 @@ func HashToken(token string, secretKey string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func (ts *TokenService) GenerateAccessToken(userID, email string, isAdmin bool) (string, error) {
+func (ts *TokenService) GenerateAccessToken(userID uuid.UUID, email string, isAdmin bool) (string, error) {
 	claims := Claims{
 		UserID:  userID,
 		Email:   email,

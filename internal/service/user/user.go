@@ -6,6 +6,7 @@ import (
 	"monolith/internal/database"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -74,7 +75,7 @@ func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*Account
 	return &user, nil
 }
 
-func (s *Service) GetAccountByID(ctx context.Context, userID string) (*Account, error) {
+func (s *Service) GetAccountByID(ctx context.Context, userID uuid.UUID) (*Account, error) {
 	var user Account
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone, 
@@ -88,7 +89,7 @@ func (s *Service) GetAccountByID(ctx context.Context, userID string) (*Account, 
 	return &user, nil
 }
 
-func (s *Service) UpdateLastSeen(ctx context.Context, userID string) error {
+func (s *Service) UpdateLastSeen(ctx context.Context, userID uuid.UUID) error {
 	_, err := s.db.Pool.Exec(ctx, `
 		UPDATE account SET last_seen_at = NOW() WHERE id = $1
 	`, userID)
@@ -110,7 +111,7 @@ func (s *Service) GetUsers(ctx context.Context) ([]Account, error) {
 	return users, nil
 }
 
-func (s *Service) GetUser(ctx context.Context, id string) (*Account, error) {
+func (s *Service) GetUser(ctx context.Context, id uuid.UUID) (*Account, error) {
 	var user Account
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone, 
@@ -138,7 +139,7 @@ func (s *Service) CreateUser(ctx context.Context, req CreateUserRequest) (*Accou
 	return &user, nil
 }
 
-func (s *Service) UpdateUser(ctx context.Context, id string, req CreateUserRequest) (*Account, error) {
+func (s *Service) UpdateUser(ctx context.Context, id uuid.UUID, req CreateUserRequest) (*Account, error) {
 	var user Account
 	err := pgxscan.Get(ctx, s.db.Pool, &user, `
 		UPDATE account 
@@ -153,7 +154,7 @@ func (s *Service) UpdateUser(ctx context.Context, id string, req CreateUserReque
 	return &user, nil
 }
 
-func (s *Service) DeleteUser(ctx context.Context, id string) error {
+func (s *Service) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := s.db.Pool.Exec(ctx, `
 		UPDATE account SET is_disabled = TRUE, updated_at = NOW() WHERE id = $1
 	`, id)
@@ -162,7 +163,7 @@ func (s *Service) DeleteUser(ctx context.Context, id string) error {
 
 func (s *Service) UpdatePreferences(
 	ctx context.Context,
-	userID string,
+	userID uuid.UUID,
 	req UpdatePreferencesRequest,
 ) (*Account, error) {
 	var user Account
