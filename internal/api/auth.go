@@ -8,6 +8,7 @@ import (
 	authService "monolith/internal/service/auth"
 	"monolith/internal/service/user"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,9 +49,13 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// GetSession retrieves the current session for the authenticated user.
+// Ignore any errors and act as a no-op on failure.
 func (h *AuthHandler) Logout(c echo.Context) error {
 	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
-		_ = h.authService.RevokeSession(c.Request().Context(), "", sessionCookie.Value)
+		if sessionID, err := uuid.Parse(sessionCookie.Value); err == nil {
+			_ = h.authService.RevokeSession(c.Request().Context(), "", sessionID.String())
+		}
 	}
 
 	h.authService.ClearAuthCookies(c)

@@ -10,5 +10,6 @@ var (
 	ErrSessionExpired      = errors.New("session expired or invalid")
 	ErrUserNotFound        = errors.New("user not found")
 	ErrInvalidUserID       = errors.New("invalid user ID")
+	ErrInvalidSessionID    = errors.New("invalid session ID")
 	ErrSessionNotFound     = errors.New("session not found")
 )

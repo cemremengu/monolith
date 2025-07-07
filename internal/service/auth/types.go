@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"monolith/internal/service/user"
+
+	"github.com/google/uuid"
 )
 
 type LoginRequest struct {
@@ -17,7 +19,7 @@ type Response struct {
 }
 
 type SessionResponse struct {
-	SessionID string    `json:"sessionId"`
+	ID        uuid.UUID `json:"id"`
 	UserAgent string    `json:"userAgent"`
 	ClientIP  string    `json:"clientIp"`
 	CreatedAt time.Time `json:"createdAt"`

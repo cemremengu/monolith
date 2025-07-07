@@ -76,7 +76,7 @@ func (h *AccountHandler) GetSessions(c echo.Context) error {
 	}
 
 	for i := range sessions {
-		sessions[i].IsCurrent = sessions[i].SessionID == currentSessionID
+		sessions[i].IsCurrent = sessions[i].ID.String() == currentSessionID
 	}
 
 	return c.JSON(http.StatusOK, sessions)

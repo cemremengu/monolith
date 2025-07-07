@@ -46,10 +46,7 @@ func (s *Service) GenerateAndSetTokens(c echo.Context, userID, email string, isA
 		return err
 	}
 
-	sessionID, err := s.sessionRepo.GenerateSessionID()
-	if err != nil {
-		return err
-	}
+	sessionID := uuid.New()
 
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	accountID, err := uuid.Parse(userID)
@@ -102,7 +99,7 @@ func (s *Service) SetRefreshCookies(c echo.Context, accessToken, refreshToken st
 	c.SetCookie(refreshCookie)
 }
 
-func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionID string) {
+func (s *Service) setCookies(c echo.Context, accessToken string, refreshToken string, sessionID uuid.UUID) {
 	accessCookie := &http.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,
@@ -127,7 +124,7 @@ func (s *Service) setCookies(c echo.Context, accessToken, refreshToken, sessionI
 
 	sessionCookie := &http.Cookie{
 		Name:     "session_id",
-		Value:    sessionID,
+		Value:    sessionID.String(),
 		HttpOnly: true,
 		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
@@ -180,7 +177,7 @@ func (s *Service) RefreshTokens(
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	session, err := s.sessionRepo.GetSessionByToken(ctx, refreshTokenHash)
 
-	if err != nil || session == nil || session.SessionID != sessionID {
+	if err != nil || session == nil || session.ID.String() != sessionID {
 		return nil, "", "", ErrSessionExpired
 	}
 
@@ -203,7 +200,7 @@ func (s *Service) RefreshTokens(
 	newExpiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 	err = s.sessionRepo.UpdateSessionToken(
 		ctx,
-		session.SessionID,
+		session.ID,
 		newRefreshTokenHash,
 		newExpiresAt,
 	)
@@ -244,7 +241,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	var response []SessionResponse
 	for _, session := range sessions {
 		response = append(response, SessionResponse{
-			SessionID: session.SessionID,
+			ID:        session.ID,
 			UserAgent: session.UserAgent,
 			ClientIP:  session.ClientIP,
 			CreatedAt: session.CreatedAt,
@@ -255,7 +252,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]Session
 	return response, nil
 }
 
-func (s *Service) RevokeSession(ctx context.Context, userID, sessionID string) error {
+func (s *Service) RevokeSession(ctx context.Context, userID string, sessionID string) error {
 	if userID != "" {
 		accountID, err := uuid.Parse(userID)
 		if err != nil {
@@ -269,7 +266,7 @@ func (s *Service) RevokeSession(ctx context.Context, userID, sessionID string) e
 
 		sessionFound := false
 		for _, session := range sessions {
-			if session.SessionID == sessionID {
+			if session.ID.String() == sessionID {
 				sessionFound = true
 				break
 			}
@@ -283,7 +280,7 @@ func (s *Service) RevokeSession(ctx context.Context, userID, sessionID string) e
 	return s.sessionRepo.RevokeSession(ctx, sessionID)
 }
 
-func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSessionID string) (int, error) {
+func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID string, currentSessionID string) (int, error) {
 	accountID, err := uuid.Parse(userID)
 	if err != nil {
 		return 0, ErrInvalidUserID
@@ -296,8 +293,8 @@ func (s *Service) RevokeAllOtherSessions(ctx context.Context, userID, currentSes
 
 	revokedCount := 0
 	for _, session := range sessions {
-		if session.SessionID != currentSessionID {
-			err = s.sessionRepo.RevokeSession(ctx, session.SessionID)
+		if session.ID.String() != currentSessionID {
+			err = s.sessionRepo.RevokeSession(ctx, session.ID.String())
 			if err == nil {
 				revokedCount++
 			}
