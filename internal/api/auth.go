@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"monolith/internal/database"
+	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
-	"monolith/internal/service/user"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -14,13 +14,11 @@ import (
 
 type AuthHandler struct {
 	authService *authService.Service
-	userService *user.Service
 }
 
 func NewAuthHandler(db *database.DB) *AuthHandler {
 	return &AuthHandler{
 		authService: authService.NewService(db),
-		userService: user.NewService(db),
 	}
 }
 
@@ -101,4 +99,29 @@ func (h *AuthHandler) RefreshToken(c echo.Context) error {
 
 	h.authService.SetRefreshCookies(c, newAccessToken, newRefreshToken)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Tokens refreshed successfully"})
+}
+
+func (h *AuthHandler) Register(c echo.Context) error {
+	var req account.RegisterRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+	}
+
+	account, err := h.authService.Register(c.Request().Context(), req)
+	if err != nil {
+		switch {
+		case errors.Is(err, authService.ErrPasswordTooShort):
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		case errors.Is(err, authService.ErrUserAlreadyExists):
+			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
+		default:
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create account"})
+		}
+	}
+
+	response := map[string]any{
+		"account": account,
+	}
+
+	return c.JSON(http.StatusCreated, response)
 }

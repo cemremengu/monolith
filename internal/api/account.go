@@ -5,22 +5,22 @@ import (
 	"net/http"
 
 	"monolith/internal/database"
+	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
-	"monolith/internal/service/user"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 type AccountHandler struct {
-	authService *authService.Service
-	userService *user.Service
+	authService    *authService.Service
+	accountService *account.Service
 }
 
 func NewAccountHandler(db *database.DB) *AccountHandler {
 	return &AccountHandler{
-		authService: authService.NewService(db),
-		userService: user.NewService(db),
+		authService:    authService.NewService(db),
+		accountService: account.NewService(db),
 	}
 }
 
@@ -30,12 +30,12 @@ func (h *AccountHandler) Profile(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	user, err := h.userService.GetAccountByID(c.Request().Context(), userID)
+	account, err := h.accountService.GetAccountByID(c.Request().Context(), userID)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "Account not found"})
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, account)
 }
 
 func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
@@ -44,17 +44,17 @@ func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	var req user.UpdatePreferencesRequest
+	var req account.UpdatePreferencesRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
 	}
 
-	updatedUser, err := h.userService.UpdatePreferences(c.Request().Context(), userID, req)
+	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), userID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to update preferences"})
 	}
 
-	return c.JSON(http.StatusOK, updatedUser)
+	return c.JSON(http.StatusOK, updatedAccount)
 }
 
 func (h *AccountHandler) GetSessions(c echo.Context) error {
@@ -139,29 +139,4 @@ func (h *AccountHandler) RevokeAllOtherSessions(c echo.Context) error {
 		"message":      "Other sessions revoked successfully",
 		"revokedCount": revokedCount,
 	})
-}
-
-func (h *AccountHandler) Register(c echo.Context) error {
-	var req user.RegisterRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
-	}
-
-	user, err := h.authService.Register(c.Request().Context(), req)
-	if err != nil {
-		switch {
-		case errors.Is(err, authService.ErrPasswordTooShort):
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		case errors.Is(err, authService.ErrUserAlreadyExists):
-			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
-		default:
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
-		}
-	}
-
-	response := map[string]any{
-		"user": user,
-	}
-
-	return c.JSON(http.StatusCreated, response)
 }

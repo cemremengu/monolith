@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	"monolith/internal/service/user"
+	"monolith/internal/service/account"
 
 	"github.com/google/uuid"
 )
@@ -14,8 +14,8 @@ type LoginRequest struct {
 }
 
 type Response struct {
-	Token string       `json:"token"`
-	User  user.Account `json:"user"`
+	Token   string          `json:"token"`
+	Account account.Account `json:"account"`
 }
 
 type SessionResponse struct {

@@ -9,7 +9,7 @@ import (
 
 	"monolith/internal/config"
 	"monolith/internal/database"
-	"monolith/internal/service/user"
+	"monolith/internal/service/account"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -22,7 +22,7 @@ type Service struct {
 	tokenService   *TokenService
 	sessionRepo    *SessionRepository
 	securityConfig *config.SecurityConfig
-	userService    *user.Service
+	accountService *account.Service
 }
 
 func NewService(db *database.DB) *Service {
@@ -31,7 +31,7 @@ func NewService(db *database.DB) *Service {
 		tokenService:   NewTokenService(),
 		sessionRepo:    NewSessionRepository(db),
 		securityConfig: config.NewSecurityConfig(),
-		userService:    user.NewService(db),
+		accountService: account.NewService(db),
 	}
 }
 
@@ -130,12 +130,12 @@ func (s *Service) setCookies(c echo.Context, accessToken string, refreshToken st
 	c.SetCookie(sessionCookie)
 }
 
-func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user.Account, error) {
+func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*account.Account, error) {
 	if req.Password == "" || len(req.Password) < 8 {
 		return nil, ErrPasswordTooShort
 	}
 
-	exists, err := s.userService.UserExists(ctx, req.Email, req.Username)
+	exists, err := s.accountService.UserExists(ctx, req.Email, req.Username)
 	if err != nil {
 		return nil, err
 	}
@@ -143,33 +143,33 @@ func (s *Service) Register(ctx context.Context, req user.RegisterRequest) (*user
 		return nil, ErrUserAlreadyExists
 	}
 
-	return s.userService.CreateAccount(ctx, req)
+	return s.accountService.Register(ctx, req)
 }
 
-func (s *Service) Login(ctx context.Context, req LoginRequest) (*user.Account, error) {
-	user, err := s.userService.GetAccountByLogin(ctx, req.Login)
+func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.Account, error) {
+	account, err := s.accountService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = s.userService.ValidatePassword(user.Password, req.Password)
+	err = s.accountService.ValidatePassword(account.Password, req.Password)
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 
-	err = s.userService.UpdateLastSeen(ctx, user.ID)
+	err = s.accountService.UpdateLastSeen(ctx, account.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return account, nil
 }
 
 func (s *Service) RefreshTokens(
 	ctx context.Context,
 	refreshToken string,
 	sessionID uuid.UUID,
-) (*user.Account, string, string, error) {
+) (*account.Account, string, string, error) {
 	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
 	session, err := s.sessionRepo.GetSessionByToken(ctx, refreshTokenHash)
 
@@ -177,12 +177,12 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", ErrSessionExpired
 	}
 
-	user, err := s.userService.GetAccountByID(ctx, session.AccountID)
+	account, err := s.accountService.GetAccountByID(ctx, session.AccountID)
 	if err != nil {
 		return nil, "", "", ErrUserNotFound
 	}
 
-	newAccessToken, err := s.tokenService.GenerateAccessToken(user.ID, user.Email, user.IsAdmin)
+	newAccessToken, err := s.tokenService.GenerateAccessToken(account.ID, account.Email, account.IsAdmin)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -204,7 +204,7 @@ func (s *Service) RefreshTokens(
 		return nil, "", "", err
 	}
 
-	return user, newAccessToken, newRefreshToken, nil
+	return account, newAccessToken, newRefreshToken, nil
 }
 
 func (s *Service) ClearAuthCookies(c echo.Context) {

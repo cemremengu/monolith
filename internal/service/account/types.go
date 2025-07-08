@@ -1,4 +1,4 @@
-package user
+package account
 
 import (
 	"time"
@@ -6,12 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// User represents a user for profile and administration purposes
-type User struct {
+type Account struct {
 	ID         uuid.UUID  `json:"id"               db:"id"`
 	Username   string     `json:"username"         db:"username"`
 	Email      string     `json:"email"            db:"email"`
 	Name       *string    `json:"name"             db:"name"`
+	Password   string     `json:"-"                db:"password"`
 	Avatar     *string    `json:"avatar,omitempty" db:"avatar"`
 	IsAdmin    bool       `json:"isAdmin"          db:"is_admin"`
 	Language   *string    `json:"language"         db:"language"`
@@ -23,14 +23,15 @@ type User struct {
 	UpdatedAt  time.Time  `json:"updatedAt"        db:"updated_at"`
 }
 
-type CreateUserRequest struct {
+type RegisterRequest struct {
 	Username string `json:"username" validate:"required"`
-	Name     string `json:"name"     validate:"required"`
 	Email    string `json:"email"    validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+	Name     string `json:"name"`
 }
 
-type UpdateUserRequest struct {
-	Username string `json:"username" validate:"required"`
-	Name     string `json:"name"     validate:"required"`
-	Email    string `json:"email"    validate:"required,email"`
+type UpdatePreferencesRequest struct {
+	Language *string `json:"language"`
+	Theme    *string `json:"theme"`
+	Timezone *string `json:"timezone"`
 }
