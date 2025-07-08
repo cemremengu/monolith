@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"monolith/internal/database"
+	"monolith/internal/util"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
@@ -16,14 +17,6 @@ type Service struct {
 
 func NewService(db *database.DB) *Service {
 	return &Service{db: db}
-}
-
-func (s *Service) HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
 }
 
 func (s *Service) ValidatePassword(hashedPassword, password string) error {
@@ -42,7 +35,7 @@ func (s *Service) UserExists(ctx context.Context, email, username string) (bool,
 }
 
 func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, error) {
-	hashedPassword, err := s.HashPassword(req.Password)
+	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
