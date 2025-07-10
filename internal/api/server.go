@@ -6,8 +6,12 @@ import (
 	"net/http"
 	"os"
 
+	"monolith/internal/config"
 	"monolith/internal/database"
 	customMiddleware "monolith/internal/middleware"
+	"monolith/internal/service/account"
+	"monolith/internal/service/auth"
+	"monolith/internal/service/user"
 	"monolith/web"
 
 	"github.com/labstack/echo/v4"
@@ -16,17 +20,32 @@ import (
 
 // HTTPServer wraps the Echo server and provides methods for setup and startup.
 type HTTPServer struct {
-	echo *echo.Echo
-	db   *database.DB
-	log  *slog.Logger
+	echo           *echo.Echo
+	db             *database.DB
+	log            *slog.Logger
+	securityConfig *config.SecurityConfig
+	userService    *user.Service
+	accountService *account.Service
+	authService    *auth.Service
 }
 
-// NewHTTPServer creates a new server instance with the given database and logger.
-func NewHTTPServer(db *database.DB, log *slog.Logger) *HTTPServer {
+// NewHTTPServer creates a new server instance with the given database, logger, and services.
+func NewHTTPServer(
+	db *database.DB,
+	log *slog.Logger,
+	securityConfig *config.SecurityConfig,
+	userService *user.Service,
+	accountService *account.Service,
+	authService *auth.Service,
+) *HTTPServer {
 	return &HTTPServer{
-		echo: echo.New(),
-		db:   db,
-		log:  log,
+		echo:           echo.New(),
+		db:             db,
+		log:            log,
+		securityConfig: securityConfig,
+		userService:    userService,
+		accountService: accountService,
+		authService:    authService,
 	}
 }
 
@@ -62,9 +81,9 @@ func (hs *HTTPServer) Setup() {
 
 // setupRoutes configures all the application routes.
 func (hs *HTTPServer) setupRoutes() {
-	userHandler := NewUserHandler(hs.db)
-	authHandler := NewAuthHandler(hs.db)
-	accountHandler := NewAccountHandler(hs.db)
+	userHandler := NewUserHandler(hs.userService)
+	authHandler := NewAuthHandler(hs.authService)
+	accountHandler := NewAccountHandler(hs.authService, hs.accountService)
 
 	api := hs.echo.Group("/api")
 

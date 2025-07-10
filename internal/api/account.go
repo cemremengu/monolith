@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"monolith/internal/database"
 	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
 
@@ -17,10 +16,10 @@ type AccountHandler struct {
 	accountService *account.Service
 }
 
-func NewAccountHandler(db *database.DB) *AccountHandler {
+func NewAccountHandler(authService *authService.Service, accountService *account.Service) *AccountHandler {
 	return &AccountHandler{
-		authService:    authService.NewService(db),
-		accountService: account.NewService(db),
+		authService:    authService,
+		accountService: accountService,
 	}
 }
 

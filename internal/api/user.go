@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 
-	"monolith/internal/database"
 	"monolith/internal/service/user"
 
 	"github.com/google/uuid"
@@ -14,9 +13,9 @@ type UserHandler struct {
 	userService *user.Service
 }
 
-func NewUserHandler(db *database.DB) *UserHandler {
+func NewUserHandler(userService *user.Service) *UserHandler {
 	return &UserHandler{
-		userService: user.NewService(db),
+		userService: userService,
 	}
 }
 

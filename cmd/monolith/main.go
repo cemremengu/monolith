@@ -10,8 +10,12 @@ import (
 	"time"
 
 	"monolith/internal/api"
+	"monolith/internal/config"
 	"monolith/internal/database"
 	"monolith/internal/logger"
+	"monolith/internal/service/account"
+	"monolith/internal/service/auth"
+	"monolith/internal/service/user"
 	"monolith/migrations"
 
 	"github.com/jackc/pgx/v5/stdlib"
@@ -43,7 +47,15 @@ func main() {
 
 	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
-	srv := api.NewHTTPServer(db, log)
+	// Initialize security configuration
+	securityConfig := config.NewSecurityConfig()
+
+	// Initialize all services at startup
+	userService := user.NewService(db)
+	accountService := account.NewService(db)
+	authService := auth.NewService(db)
+
+	srv := api.NewHTTPServer(db, log, securityConfig, userService, accountService, authService)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
