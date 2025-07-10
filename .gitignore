@@ -24,8 +24,7 @@ go.work.sum
 # IDE-specific files
 .vscode/*
 !.vscode/launch.json
-.claude/*
-!.claude/commands
+.claude/
 .idea/
 *.swp
 *.swo
