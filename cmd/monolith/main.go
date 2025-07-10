@@ -43,7 +43,7 @@ func main() {
 
 	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
-	srv := api.NewServer(db, log)
+	srv := api.NewHTTPServer(db, log)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

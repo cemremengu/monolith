@@ -14,16 +14,16 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-// Server wraps the Echo server and provides methods for setup and startup.
-type Server struct {
+// HTTPServer wraps the Echo server and provides methods for setup and startup.
+type HTTPServer struct {
 	echo *echo.Echo
 	db   *database.DB
 	log  *slog.Logger
 }
 
-// NewServer creates a new server instance with the given database and logger.
-func NewServer(db *database.DB, log *slog.Logger) *Server {
-	return &Server{
+// NewHTTPServer creates a new server instance with the given database and logger.
+func NewHTTPServer(db *database.DB, log *slog.Logger) *HTTPServer {
+	return &HTTPServer{
 		echo: echo.New(),
 		db:   db,
 		log:  log,
@@ -31,8 +31,8 @@ func NewServer(db *database.DB, log *slog.Logger) *Server {
 }
 
 // Setup configures the server with middleware and routes.
-func (s *Server) Setup() {
-	e := s.echo
+func (hs *HTTPServer) Setup() {
+	e := hs.echo
 
 	e.HideBanner = true
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -57,16 +57,16 @@ func (s *Server) Setup() {
 		HTML5:      true,
 	}))
 
-	s.setupRoutes()
+	hs.setupRoutes()
 }
 
 // setupRoutes configures all the application routes.
-func (s *Server) setupRoutes() {
-	userHandler := NewUserHandler(s.db)
-	authHandler := NewAuthHandler(s.db)
-	accountHandler := NewAccountHandler(s.db)
+func (hs *HTTPServer) setupRoutes() {
+	userHandler := NewUserHandler(hs.db)
+	authHandler := NewAuthHandler(hs.db)
+	accountHandler := NewAccountHandler(hs.db)
 
-	api := s.echo.Group("/api")
+	api := hs.echo.Group("/api")
 
 	// Public auth routes
 	api.POST("/auth/login", authHandler.Login)
@@ -74,7 +74,7 @@ func (s *Server) setupRoutes() {
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
-	protected := api.Group("", customMiddleware.SessionAuth(s.db))
+	protected := api.Group("", customMiddleware.SessionAuth(hs.db))
 
 	protected.POST("/auth/rotate-token", authHandler.RotateToken)
 
@@ -92,22 +92,22 @@ func (s *Server) setupRoutes() {
 }
 
 // Start starts the server on the specified port.
-func (s *Server) Start() error {
+func (hs *HTTPServer) Start() error {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3001"
 	}
 
-	s.log.Info("Server starting", slog.String("port", port))
-	return s.echo.Start(":" + port)
+	hs.log.Info("Server starting", slog.String("port", port))
+	return hs.echo.Start(":" + port)
 }
 
 // Shutdown gracefully shuts down the server.
-func (s *Server) Shutdown(ctx context.Context) error {
-	return s.echo.Shutdown(ctx)
+func (hs *HTTPServer) Shutdown(ctx context.Context) error {
+	return hs.echo.Shutdown(ctx)
 }
 
 // Echo returns the underlying Echo instance for advanced configuration if needed.
-func (s *Server) Echo() *echo.Echo {
-	return s.echo
+func (hs *HTTPServer) Echo() *echo.Echo {
+	return hs.echo
 }
