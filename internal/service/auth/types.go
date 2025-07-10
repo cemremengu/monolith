@@ -3,19 +3,12 @@ package auth
 import (
 	"time"
 
-	"monolith/internal/service/account"
-
 	"github.com/google/uuid"
 )
 
 type LoginRequest struct {
 	Login    string `json:"login"    validate:"required"`
 	Password string `json:"password" validate:"required"`
-}
-
-type Response struct {
-	Token   string          `json:"token"`
-	Account account.Account `json:"account"`
 }
 
 type SessionResponse struct {
@@ -46,4 +39,16 @@ type Session struct {
 
 func (s *Session) NextRotation(rotationInterval time.Duration) time.Time {
 	return s.RotatedAt.Add(rotationInterval - rotationLeeway)
+}
+
+type CreateSessionRequest struct {
+	AccountID uuid.UUID
+	ClientIP  string
+	UserAgent string
+}
+
+type RotateSessionTokenRequest struct {
+	UnhashedToken string
+	ClientIP      string
+	UserAgent     string
 }

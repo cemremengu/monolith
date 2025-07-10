@@ -35,7 +35,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to login"})
 	}
 
-	session, tokenErr := h.authService.CreateSession(c, user.ID)
+	session, tokenErr := h.authService.CreateSession(c, &authService.CreateSessionRequest{
+		AccountID: user.ID,
+		ClientIP:  c.RealIP(),
+		UserAgent: c.Request().UserAgent(),
+	})
+
 	if tokenErr != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate session token"})
 	}
@@ -64,7 +69,11 @@ func (h *AuthHandler) RotateToken(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session token not found"})
 	}
 
-	session, err := h.authService.RotateSessionToken(c.Request().Context(), sessionTokenCookie.Value)
+	session, err := h.authService.RotateSessionToken(c.Request().Context(), &authService.RotateSessionTokenRequest{
+		UnhashedToken: sessionTokenCookie.Value,
+		ClientIP:      c.RealIP(),
+		UserAgent:     c.Request().UserAgent(),
+	})
 	if err != nil {
 		// nuke cookies on any refresh error
 		h.authService.ClearAuthCookies(c)

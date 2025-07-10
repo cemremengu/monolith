@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"monolith/internal/config"
@@ -39,7 +38,7 @@ func NewService(db *database.DB) *Service {
 	}
 }
 
-func (s *Service) CreateSession(c echo.Context, accountID uuid.UUID) (*Session, error) {
+func (s *Service) CreateSession(c echo.Context, req *CreateSessionRequest) (*Session, error) {
 	token, err := s.tokenService.GenerateSessionToken()
 	if err != nil {
 		return nil, err
@@ -48,9 +47,6 @@ func (s *Service) CreateSession(c echo.Context, accountID uuid.UUID) (*Session, 
 	sessionID := uuid.New()
 	hashedToken := hashToken(token, s.securityConfig.SecretKey)
 
-	userAgent := s.GetUserAgent(c)
-	clientIP := s.GetClientIP(c)
-
 	query := `
 		INSERT INTO session (id, token, prev_token, account_id, user_agent, client_ip)
 		VALUES ($1, $2, $3, $4, $5, $6)
@@ -58,7 +54,7 @@ func (s *Service) CreateSession(c echo.Context, accountID uuid.UUID) (*Session, 
 	`
 
 	var session Session
-	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, sessionID, hashedToken, hashedToken, accountID, userAgent, clientIP)
+	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, sessionID, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
 	if err != nil {
 		return nil, nil
 	}
@@ -127,8 +123,8 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.Account
 	return account, nil
 }
 
-func (s *Service) RotateSessionToken(ctx context.Context, token string) (*Session, error) {
-	currentSession, err := s.GetSessionByToken(ctx, token)
+func (s *Service) RotateSessionToken(ctx context.Context, req *RotateSessionTokenRequest) (*Session, error) {
+	currentSession, err := s.GetSessionByToken(ctx, req.UnhashedToken)
 	if err != nil {
 		return nil, err
 	}
@@ -208,31 +204,6 @@ func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID
 	`
 	_, err := s.db.Pool.Exec(ctx, query, sessionID, userID)
 	return err
-}
-
-// GetUserAgent extracts device information from User-Agent header.
-func (s *Service) GetUserAgent(c echo.Context) string {
-	userAgent := c.Request().Header.Get("User-Agent")
-	if userAgent == "" {
-		return "Unknown Device"
-	}
-
-	return userAgent
-}
-
-// GetClientIP extracts client IP address with support for proxy headers.
-func (s *Service) GetClientIP(c echo.Context) string {
-	if xff := c.Request().Header.Get("X-Forwarded-For"); xff != "" {
-		if ips := strings.Split(xff, ","); len(ips) > 0 {
-			return strings.TrimSpace(ips[0])
-		}
-	}
-
-	if xri := c.Request().Header.Get("X-Real-IP"); xri != "" {
-		return xri
-	}
-
-	return c.RealIP()
 }
 
 func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (*Session, error) {

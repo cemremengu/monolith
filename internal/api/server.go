@@ -51,7 +51,6 @@ func (s *Server) Setup() {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.Secure())
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Filesystem: http.FS(web.Assets()),
