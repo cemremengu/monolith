@@ -34,7 +34,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to login"})
 	}
 
-	session, tokenErr := h.authService.CreateSession(c, &authService.CreateSessionRequest{
+	session, tokenErr := h.authService.CreateSession(c.Request().Context(), &authService.CreateSessionRequest{
 		AccountID: user.ID,
 		ClientIP:  c.RealIP(),
 		UserAgent: c.Request().UserAgent(),

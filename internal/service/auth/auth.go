@@ -34,7 +34,7 @@ func NewService(db *database.DB) *Service {
 	}
 }
 
-func (s *Service) CreateSession(c echo.Context, req *CreateSessionRequest) (*Session, error) {
+func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) (*Session, error) {
 	token, hashedToken, err := createAndHashToken(s.securityConfig.SecretKey)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *Service) CreateSession(c echo.Context, req *CreateSessionRequest) (*Ses
 	`
 
 	var session Session
-	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
+	err = pgxscan.Get(ctx, s.db.Pool, &session, query, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
 	if err != nil {
 		return nil, nil
 	}
