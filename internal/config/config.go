@@ -39,10 +39,10 @@ type LoggingConfig struct {
 }
 
 const (
-	defaultTokenRotationIntervalMinutes = 10                  // 10 minutes
-	defaultLoginMaximumLifetime         = 30 * 24 * time.Hour // 30 days
-	defaultLoginInactiveLifetime        = 7 * 24 * time.Hour  // 7 days
-	defaultLoginCookieName              = "session_token"     // Default cookie name for session tokens
+	defaultTokenRotationIntervalMinutes = 10
+	defaultLoginMaximumLifetime         = 30 * 24 * time.Hour
+	defaultLoginInactiveLifetime        = 7 * 24 * time.Hour
+	defaultLoginCookieName              = "session_token"
 	defaultDatabaseURL                  = "postgres://postgres:postgres@localhost:5432/my_db"
 	defaultPort                         = "3001"
 	defaultLogLevel                     = slog.LevelInfo
