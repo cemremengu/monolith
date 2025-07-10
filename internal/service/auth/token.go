@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+
+	"monolith/internal/util"
 )
 
 const sessionTokenLength = 16
@@ -19,13 +20,14 @@ func createAndHashToken(secretKey string) (string, string, error) {
 		return "", "", err
 	}
 
-	return token, hashToken(secretKey, token), nil
+	return token, hashToken(token, secretKey), nil
 }
 
 func createToken() (string, error) {
-	bytes := make([]byte, sessionTokenLength)
-	if _, err := rand.Read(bytes); err != nil {
+	token, err := util.RandomHex(sessionTokenLength)
+	if err != nil {
 		return "", err
 	}
-	return hex.EncodeToString(bytes), nil
+
+	return token, nil
 }

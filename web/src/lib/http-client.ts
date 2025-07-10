@@ -1,3 +1,4 @@
+import { useAuth } from "@/store/auth";
 import ky, { type KyInstance, type Options } from "ky";
 
 const API_BASE = "/api";
@@ -24,6 +25,14 @@ class HttpClient {
             if (!(request.body instanceof FormData)) {
               request.headers.set("Content-Type", "application/json");
             }
+          },
+        ],
+        beforeError: [
+          (error) => {
+            if (error.response?.status === 401) {
+              useAuth.getState().logout();
+            }
+            return error;
           },
         ],
       },
