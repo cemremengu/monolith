@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,18 +19,12 @@ import (
 	"monolith/migrations"
 
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	_ "go.uber.org/automaxprocs"
 )
 
 const shutdownTimeout = 10
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		fmt.Printf("Failed to load .env file: %v\n", err)
-	}
-
-	// Initialize configuration
 	cfg := config.NewConfig()
 
 	log := logger.New(logger.Config{
@@ -50,7 +43,6 @@ func main() {
 
 	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
-	// Initialize all services at startup
 	userService := user.NewService(db)
 	accountService := account.NewService(db)
 	authService := auth.NewService(db)

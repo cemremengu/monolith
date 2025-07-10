@@ -1,10 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -47,6 +50,10 @@ const (
 )
 
 func NewConfig() *Config {
+	if err := godotenv.Load(); err != nil {
+		fmt.Printf("Failed to load .env file: %v\n", err)
+	}
+
 	return &Config{
 		Security: SecurityConfig{
 			SecretKey:                            getEnvOrDefault("SECRET_KEY", "aTiONDsHeAngUaTeRvESteRUmbayaNCI"),
