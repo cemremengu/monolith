@@ -31,14 +31,17 @@ func main() {
 		fmt.Printf("Failed to load .env file: %v\n", err)
 	}
 
+	// Initialize configuration
+	cfg := config.NewConfig()
+
 	log := logger.New(logger.Config{
-		Level: logger.GetLevel(os.Getenv("LOG_LEVEL")),
-		Env:   os.Getenv("ENV"),
+		Level: cfg.Logging.Level,
+		Env:   cfg.Logging.Env,
 	})
 
 	slog.SetDefault(log)
 
-	db, err := database.New()
+	db, err := database.New(cfg.Database.URL)
 	if err != nil {
 		log.Error("Failed to connect to database", "error", err)
 		panic("Database connection error")
@@ -47,15 +50,12 @@ func main() {
 
 	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
 
-	// Initialize security configuration
-	securityConfig := config.NewSecurityConfig()
-
 	// Initialize all services at startup
 	userService := user.NewService(db)
 	accountService := account.NewService(db)
 	authService := auth.NewService(db)
 
-	srv := api.NewHTTPServer(db, log, securityConfig, userService, accountService, authService)
+	srv := api.NewHTTPServer(db, log, cfg, userService, accountService, authService)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

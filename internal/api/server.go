@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"os"
 
 	"monolith/internal/config"
 	"monolith/internal/database"
@@ -23,7 +22,7 @@ type HTTPServer struct {
 	echo           *echo.Echo
 	db             *database.DB
 	log            *slog.Logger
-	securityConfig *config.SecurityConfig
+	config         *config.Config
 	userService    *user.Service
 	accountService *account.Service
 	authService    *auth.Service
@@ -33,7 +32,7 @@ type HTTPServer struct {
 func NewHTTPServer(
 	db *database.DB,
 	log *slog.Logger,
-	securityConfig *config.SecurityConfig,
+	cfg *config.Config,
 	userService *user.Service,
 	accountService *account.Service,
 	authService *auth.Service,
@@ -42,7 +41,7 @@ func NewHTTPServer(
 		echo:           echo.New(),
 		db:             db,
 		log:            log,
-		securityConfig: securityConfig,
+		config:         cfg,
 		userService:    userService,
 		accountService: accountService,
 		authService:    authService,
@@ -112,10 +111,7 @@ func (hs *HTTPServer) setupRoutes() {
 
 // Start starts the server on the specified port.
 func (hs *HTTPServer) Start() error {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3001"
-	}
+	port := hs.config.Server.Port
 
 	hs.log.Info("Server starting", slog.String("port", port))
 	return hs.echo.Start(":" + port)
