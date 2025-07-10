@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
-	"github.com/labstack/gommon/log"
 	_ "go.uber.org/automaxprocs"
 )
 
@@ -28,7 +28,7 @@ const shutdownTimeout = 10
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Debug("No .env file found or error loading .env file", "error", err)
+		fmt.Printf("Failed to load .env file: %v\n", err)
 	}
 
 	log := logger.New(logger.Config{

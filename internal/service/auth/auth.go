@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 )
 
 const (
-	productionEnv  = "production"
 	rotationLeeway = 5 * time.Second
 )
 
@@ -64,7 +62,7 @@ func (s *Service) SetSessionCookies(c echo.Context, session *Session) {
 		Name:     s.securityConfig.LoginCookieName,
 		Value:    session.UnhashedToken,
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == productionEnv,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(s.securityConfig.LoginMaximumLifetimeDuration.Seconds()),
 		Path:     "/",
@@ -76,7 +74,7 @@ func (s *Service) SetSessionCookies(c echo.Context, session *Session) {
 		Name:     "session_expiry",
 		Value:    strconv.FormatInt(expiry.Unix(), 10),
 		HttpOnly: false,
-		Secure:   os.Getenv("ENV") == productionEnv,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int(s.securityConfig.LoginMaximumLifetimeDuration.Seconds()),
 		Path:     "/",
@@ -152,7 +150,7 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 		Name:     s.securityConfig.LoginCookieName,
 		Value:    "",
 		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == productionEnv,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,
 		Path:     "/",
@@ -162,7 +160,7 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 		Name:     "session_expiry",
 		Value:    "",
 		HttpOnly: false,
-		Secure:   os.Getenv("ENV") == productionEnv,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,
 		Path:     "/",
