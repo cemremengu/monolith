@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrNoRows = pgx.ErrNoRows
 
 type DB struct {
 	Pool *pgxpool.Pool

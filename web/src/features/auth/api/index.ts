@@ -3,7 +3,7 @@ import { httpClient } from "@/lib/http-client";
 
 export const authApi = {
   login: (data: LoginRequest): Promise<{ user: User }> => {
-    return httpClient.post(`auth/login`, data, { retry: 0 });
+    return httpClient.post(`auth/login`, data);
   },
 
   logout: (): Promise<void> => {

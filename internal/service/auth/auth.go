@@ -2,8 +2,10 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,16 +13,19 @@ import (
 	"monolith/internal/database"
 	"monolith/internal/service/account"
 
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
-const productionEnv = "production"
+const (
+	productionEnv  = "production"
+	rotationLeeway = 5 * time.Second
+)
 
 type Service struct {
 	db             *database.DB
 	tokenService   *TokenService
-	sessionRepo    *SessionRepository
 	securityConfig *config.SecurityConfig
 	accountService *account.Service
 }
@@ -29,105 +34,62 @@ func NewService(db *database.DB) *Service {
 	return &Service{
 		db:             db,
 		tokenService:   NewTokenService(),
-		sessionRepo:    NewSessionRepository(db),
 		securityConfig: config.NewSecurityConfig(),
 		accountService: account.NewService(db),
 	}
 }
 
-func (s *Service) GenerateAndSetTokens(c echo.Context, userID uuid.UUID, email string, isAdmin bool) error {
-	accessToken, err := s.tokenService.GenerateAccessToken(userID, email, isAdmin)
+func (s *Service) CreateSession(c echo.Context, accountID uuid.UUID) (*Session, error) {
+	token, err := s.tokenService.GenerateSessionToken()
 	if err != nil {
-		return err
-	}
-
-	refreshToken, err := s.tokenService.GenerateRefreshToken()
-	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sessionID := uuid.New()
-
-	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
+	hashedToken := hashToken(token, s.securityConfig.SecretKey)
 
 	userAgent := s.GetUserAgent(c)
 	clientIP := s.GetClientIP(c)
-	expiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
 
-	err = s.sessionRepo.CreateSession(
-		c.Request().Context(),
-		sessionID,
-		refreshTokenHash,
-		userID,
-		userAgent,
-		clientIP,
-		expiresAt,
-	)
+	query := `
+		INSERT INTO session (id, token, prev_token, account_id, user_agent, client_ip)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING *
+	`
+
+	var session Session
+	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, sessionID, hashedToken, hashedToken, accountID, userAgent, clientIP)
 	if err != nil {
-		return err
+		return nil, nil
 	}
 
-	s.setCookies(c, accessToken, refreshToken, sessionID)
-	return nil
+	session.UnhashedToken = token
+
+	return &session, nil
 }
 
-func (s *Service) SetRefreshCookies(c echo.Context, accessToken, refreshToken string) {
-	accessCookie := &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
+func (s *Service) SetSessionCookies(c echo.Context, session *Session) {
+	c.SetCookie(&http.Cookie{
+		Name:     s.securityConfig.LoginCookieName,
+		Value:    session.UnhashedToken,
 		HttpOnly: true,
 		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(s.tokenService.AccessTokenDuration().Seconds()),
+		MaxAge:   int(s.securityConfig.LoginMaximumLifetimeDuration.Seconds()),
 		Path:     "/",
-	}
-	c.SetCookie(accessCookie)
+	})
 
-	refreshCookie := &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == productionEnv,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(s.tokenService.RefreshTokenDuration().Seconds()),
-		Path:     "/",
-	}
-	c.SetCookie(refreshCookie)
-}
+	expiry := session.NextRotation(time.Duration(s.securityConfig.TokenRotationIntervalMinutes) * time.Minute)
 
-func (s *Service) setCookies(c echo.Context, accessToken string, refreshToken string, sessionID uuid.UUID) {
-	accessCookie := &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		HttpOnly: true,
+	c.SetCookie(&http.Cookie{
+		Name:     "session_expiry",
+		Value:    strconv.FormatInt(expiry.Unix(), 10),
+		HttpOnly: false,
 		Secure:   os.Getenv("ENV") == productionEnv,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(s.tokenService.AccessTokenDuration().Seconds()),
+		MaxAge:   int(s.securityConfig.LoginMaximumLifetimeDuration.Seconds()),
 		Path:     "/",
-	}
-	c.SetCookie(accessCookie)
-
-	refreshCookie := &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == productionEnv,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(s.tokenService.RefreshTokenDuration().Seconds()),
-		Path:     "/",
-	}
-	c.SetCookie(refreshCookie)
-
-	sessionCookie := &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionID.String(),
-		HttpOnly: true,
-		Secure:   os.Getenv("ENV") == productionEnv,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   int(s.tokenService.RefreshTokenDuration().Seconds()),
-		Path:     "/",
-	}
-	c.SetCookie(sessionCookie)
+	})
 }
 
 func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*account.Account, error) {
@@ -165,66 +127,61 @@ func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.Account
 	return account, nil
 }
 
-func (s *Service) RefreshTokens(
-	ctx context.Context,
-	refreshToken string,
-	sessionID uuid.UUID,
-) (*account.Account, string, string, error) {
-	refreshTokenHash := HashToken(refreshToken, s.securityConfig.SecretKey)
-	session, err := s.sessionRepo.GetSessionByToken(ctx, refreshTokenHash)
-
-	if err != nil || session == nil || session.ID != sessionID {
-		return nil, "", "", ErrSessionExpired
-	}
-
-	account, err := s.accountService.GetAccountByID(ctx, session.AccountID)
+func (s *Service) RotateSessionToken(ctx context.Context, token string) (*Session, error) {
+	currentSession, err := s.GetSessionByToken(ctx, token)
 	if err != nil {
-		return nil, "", "", ErrUserNotFound
+		return nil, err
 	}
 
-	newAccessToken, err := s.tokenService.GenerateAccessToken(account.ID, account.Email, account.IsAdmin)
+	newToken, err := s.tokenService.GenerateSessionToken()
 	if err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
-	newRefreshToken, err := s.tokenService.GenerateRefreshToken()
+	newTokenHash := hashToken(newToken, s.securityConfig.SecretKey)
+
+	query := `
+		UPDATE session
+		SET token = $1, prev_token = $2, rotated_at = NOW(), token_seen = FALSE, seen_at = NULL
+		WHERE id = $3
+		RETURNING *
+	`
+
+	var session Session
+	err = pgxscan.Get(ctx, s.db.Pool, &session, query, newTokenHash, currentSession.Token, currentSession.ID)
 	if err != nil {
-		return nil, "", "", err
+		return nil, err
 	}
 
-	newRefreshTokenHash := HashToken(newRefreshToken, s.securityConfig.SecretKey)
-	newExpiresAt := time.Now().Add(s.tokenService.RefreshTokenDuration())
-	err = s.sessionRepo.UpdateSessionToken(
-		ctx,
-		session.ID,
-		newRefreshTokenHash,
-		newExpiresAt,
-	)
-	if err != nil {
-		return nil, "", "", err
-	}
+	session.UnhashedToken = newToken
 
-	return account, newAccessToken, newRefreshToken, nil
+	return &session, nil
 }
 
 func (s *Service) ClearAuthCookies(c echo.Context) {
-	cookies := []string{"access_token", "refresh_token", "session_id"}
-	for _, cookieName := range cookies {
-		cookie := &http.Cookie{
-			Name:     cookieName,
-			Value:    "",
-			HttpOnly: true,
-			Secure:   os.Getenv("ENV") == productionEnv,
-			SameSite: http.SameSiteStrictMode,
-			MaxAge:   -1,
-			Path:     "/",
-		}
-		c.SetCookie(cookie)
-	}
+	c.SetCookie(&http.Cookie{
+		Name:     s.securityConfig.LoginCookieName,
+		Value:    "",
+		HttpOnly: true,
+		Secure:   os.Getenv("ENV") == productionEnv,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Path:     "/",
+	})
+
+	c.SetCookie(&http.Cookie{
+		Name:     "session_expiry",
+		Value:    "",
+		HttpOnly: false,
+		Secure:   os.Getenv("ENV") == productionEnv,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   -1,
+		Path:     "/",
+	})
 }
 
 func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]SessionResponse, error) {
-	sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
+	sessions, err := s.GetSessionsByAccountID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -244,28 +201,13 @@ func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]Sess
 }
 
 func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
-	return s.sessionRepo.RevokeSession(ctx, userID, sessionID)
-}
-
-func (s *Service) RevokeAllOtherSessions(
-	ctx context.Context, userID uuid.UUID, currentSessionID uuid.UUID,
-) (int, error) {
-	sessions, err := s.sessionRepo.GetUserSessions(ctx, userID)
-	if err != nil {
-		return 0, err
-	}
-
-	revokedCount := 0
-	for _, session := range sessions {
-		if session.ID != currentSessionID {
-			err = s.sessionRepo.RevokeSession(ctx, userID, session.ID)
-			if err == nil {
-				revokedCount++
-			}
-		}
-	}
-
-	return revokedCount, nil
+	query := `
+		UPDATE session
+		SET revoked_at = NOW()
+		WHERE id = $1 and account_id = $2
+	`
+	_, err := s.db.Pool.Exec(ctx, query, sessionID, userID)
+	return err
 }
 
 // GetUserAgent extracts device information from User-Agent header.
@@ -291,4 +233,75 @@ func (s *Service) GetClientIP(c echo.Context) string {
 	}
 
 	return c.RealIP()
+}
+
+func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (*Session, error) {
+	hashedtoken := hashToken(unhashedToken, s.securityConfig.SecretKey)
+
+	query := `
+		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
+		FROM session
+		WHERE token = $1 OR prev_token = $2
+	`
+	var session Session
+	err := pgxscan.Get(ctx, s.db.Pool, &session, query, hashedtoken, hashedtoken)
+	if err != nil {
+		if errors.Is(err, database.ErrNoRows) {
+			return nil, ErrSessionNotFound
+		}
+
+		if session.RevokedAt != nil {
+			return nil, ErrSessionRevoked
+		}
+
+		if session.CreatedAt.Before(s.createdAfterThreshold()) || session.RotatedAt.Before(s.rotatedAfterThreshold()) {
+			return nil, ErrSessionExpired
+		}
+
+		return nil, err
+	}
+
+	return &session, nil
+}
+
+func (s *Service) createdAfterThreshold() time.Time {
+	return time.Now().Add(-s.securityConfig.LoginMaximumLifetimeDuration)
+}
+
+func (s *Service) rotatedAfterThreshold() time.Time {
+	return time.Now().Add(-s.securityConfig.LoginMaximumInactiveLifetimeDuration)
+}
+
+func (s *Service) RevokeAllUserSessions(ctx context.Context, accountID uuid.UUID) error {
+	query := `
+		UPDATE session
+		SET revoked_at = NOW()
+		WHERE account_id = $1 AND revoked_at IS NULL
+	`
+	_, err := s.db.Pool.Exec(ctx, query, accountID)
+	return err
+}
+
+func (s *Service) GetSessionsByAccountID(ctx context.Context, accountID uuid.UUID) ([]Session, error) {
+	query := `
+		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
+		FROM session
+		WHERE account_id = $1 AND revoked_at IS NULL
+		ORDER BY rotated_at DESC
+	`
+	var sessions []Session
+	err := pgxscan.Select(ctx, s.db.Pool, &sessions, query, accountID)
+	if err != nil {
+		return nil, err
+	}
+	return sessions, nil
+}
+
+func (s *Service) CleanupSessions(ctx context.Context) error {
+	query := `
+		DELETE FROM session
+		WHERE revoked_at IS NOT NULL
+	`
+	_, err := s.db.Pool.Exec(ctx, query)
+	return err
 }

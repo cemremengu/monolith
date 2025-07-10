@@ -28,6 +28,7 @@ You run in an environment where `ast-grep` is available; whenever a search requi
 - Always use camelCase for JSON struct tags
 - Always use `any` instead of `interface{}`
 - Use singular package names (e.g., `user` instead of `users`)
+- Use pgxscan for scanning rows into structs
 
 ## Frontend Standarts
 

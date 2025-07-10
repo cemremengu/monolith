@@ -1,4 +1,3 @@
-import { useAuth } from "@/store/auth";
 import ky, { type KyInstance, type Options } from "ky";
 
 const API_BASE = "/api";
@@ -14,7 +13,6 @@ export class AuthError extends Error {
 
 class HttpClient {
   private client: KyInstance;
-  private refreshPromise: Promise<void> | null = null;
 
   constructor() {
     this.client = ky.create({
@@ -28,43 +26,9 @@ class HttpClient {
             }
           },
         ],
-        beforeRetry: [
-          async () => {
-            try {
-              await this.refreshToken();
-              return;
-            } catch (refreshError) {
-              console.error("Token refresh failed:", refreshError);
-              useAuth.getState().logout();
-            }
-          },
-        ],
       },
-      retry: {
-        limit: 1,
-        statusCodes: [401],
-        methods: ["get", "post", "put", "patch", "delete"],
-      },
+      retry: 0,
     });
-  }
-
-  refreshToken(): Promise<void> {
-    if (this.refreshPromise) {
-      return this.refreshPromise;
-    }
-
-    this.refreshPromise = this.client
-      .post("auth/refresh", { retry: 0 })
-      .then((response) => {
-        if (!response.ok) {
-          throw new AuthError("Failed to refresh token");
-        }
-      })
-      .finally(() => {
-        this.refreshPromise = null;
-      });
-
-    return this.refreshPromise;
   }
 
   get<T>(

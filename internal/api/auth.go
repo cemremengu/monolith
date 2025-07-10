@@ -8,7 +8,6 @@ import (
 	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -36,9 +35,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to login"})
 	}
 
-	if tokenErr := h.authService.GenerateAndSetTokens(c, user.ID, user.Email, user.IsAdmin); tokenErr != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate tokens"})
+	session, tokenErr := h.authService.CreateSession(c, user.ID)
+	if tokenErr != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to generate session token"})
 	}
+
+	h.authService.SetSessionCookies(c, session)
 
 	response := map[string]any{
 		"user": user,
@@ -50,55 +52,36 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // Logout revokes the current session and clears authentication cookies.
 // Ignore any errors and act as a no-op on failure.
 func (h *AuthHandler) Logout(c echo.Context) error {
-	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
-		if sessionID, err := uuid.Parse(sessionCookie.Value); err == nil {
-			_ = h.authService.RevokeSession(c.Request().Context(), uuid.Nil, sessionID)
-		}
-	}
-
+	// For logout, just clear the cookie
+	// The session will eventually be cleaned up by the cleanup process
 	h.authService.ClearAuthCookies(c)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out successfully"})
 }
 
-func (h *AuthHandler) RefreshToken(c echo.Context) error {
-	refreshTokenCookie, err := c.Cookie("refresh_token")
+func (h *AuthHandler) RotateToken(c echo.Context) error {
+	sessionTokenCookie, err := c.Cookie("session_token")
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Refresh token not found"})
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session token not found"})
 	}
 
-	sessionCookie, err := c.Cookie("session_id")
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session not found"})
-	}
-
-	sessionID, err := uuid.Parse(sessionCookie.Value)
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid session ID"})
-	}
-
-	_, newAccessToken, newRefreshToken, err := h.authService.RefreshTokens(
-		c.Request().Context(),
-		refreshTokenCookie.Value,
-		sessionID,
-	)
+	session, err := h.authService.RotateSessionToken(c.Request().Context(), sessionTokenCookie.Value)
 	if err != nil {
 		// nuke cookies on any refresh error
 		h.authService.ClearAuthCookies(c)
 
 		switch {
-		case errors.Is(err, authService.ErrInvalidRefreshToken):
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		case errors.Is(err, authService.ErrSessionExpired):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		case errors.Is(err, authService.ErrUserNotFound):
 			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
 		default:
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to refresh tokens"})
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to refresh session"})
 		}
 	}
 
-	h.authService.SetRefreshCookies(c, newAccessToken, newRefreshToken)
-	return c.JSON(http.StatusOK, map[string]string{"message": "Tokens refreshed successfully"})
+	h.authService.SetSessionCookies(c, session)
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Session refreshed successfully"})
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {

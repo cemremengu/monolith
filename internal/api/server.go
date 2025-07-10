@@ -72,17 +72,18 @@ func (s *Server) setupRoutes() {
 	// Public auth routes
 	api.POST("/auth/login", authHandler.Login)
 	api.POST("/auth/register", authHandler.Register)
-	api.POST("/auth/refresh", authHandler.RefreshToken)
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
-	protected := api.Group("", customMiddleware.JWTAuth())
+	protected := api.Group("", customMiddleware.SessionAuth(s.db))
+
+	protected.POST("/auth/rotate-token", authHandler.RotateToken)
+
 	// Account management (profile & preferences)
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
 	protected.GET("/account/sessions", accountHandler.GetSessions)
 	protected.DELETE("/account/sessions/:sessionId", accountHandler.RevokeSession)
-	protected.POST("/account/sessions/revoke-others", accountHandler.RevokeAllOtherSessions)
 	// User administration (admin only)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)

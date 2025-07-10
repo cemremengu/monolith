@@ -63,6 +63,8 @@ func (h *AccountHandler) GetSessions(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
+	currentSessionID := c.Get("session_id").(uuid.UUID)
+
 	sessions, err := h.authService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
 		if errors.Is(err, authService.ErrInvalidUserID) {
@@ -71,13 +73,8 @@ func (h *AccountHandler) GetSessions(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch sessions"})
 	}
 
-	var currentSessionID string
-	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
-		currentSessionID = sessionCookie.Value
-	}
-
 	for i := range sessions {
-		sessions[i].IsCurrent = sessions[i].ID.String() == currentSessionID
+		sessions[i].IsCurrent = sessions[i].ID == currentSessionID
 	}
 
 	return c.JSON(http.StatusOK, sessions)
@@ -112,31 +109,4 @@ func (h *AccountHandler) RevokeSession(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Session revoked successfully"})
-}
-
-func (h *AccountHandler) RevokeAllOtherSessions(c echo.Context) error {
-	userID, ok := c.Get("user_id").(uuid.UUID)
-	if !ok {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
-	}
-
-	var currentSessionID uuid.UUID
-	if sessionCookie, cookieErr := c.Cookie("session_id"); cookieErr == nil {
-		if parsedID, parseErr := uuid.Parse(sessionCookie.Value); parseErr == nil {
-			currentSessionID = parsedID
-		}
-	}
-
-	revokedCount, err := h.authService.RevokeAllOtherSessions(c.Request().Context(), userID, currentSessionID)
-	if err != nil {
-		if errors.Is(err, authService.ErrInvalidUserID) {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		}
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to revoke sessions"})
-	}
-
-	return c.JSON(http.StatusOK, map[string]any{
-		"message":      "Other sessions revoked successfully",
-		"revokedCount": revokedCount,
-	})
 }
