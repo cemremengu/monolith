@@ -24,7 +24,6 @@ const (
 
 type Service struct {
 	db             *database.DB
-	tokenService   *TokenService
 	securityConfig *config.SecurityConfig
 	accountService *account.Service
 }
@@ -32,29 +31,25 @@ type Service struct {
 func NewService(db *database.DB) *Service {
 	return &Service{
 		db:             db,
-		tokenService:   NewTokenService(),
 		securityConfig: config.NewSecurityConfig(),
 		accountService: account.NewService(db),
 	}
 }
 
 func (s *Service) CreateSession(c echo.Context, req *CreateSessionRequest) (*Session, error) {
-	token, err := s.tokenService.GenerateSessionToken()
+	token, hashedToken, err := createAndHashToken(s.securityConfig.SecretKey)
 	if err != nil {
 		return nil, err
 	}
 
-	sessionID := uuid.New()
-	hashedToken := hashToken(token, s.securityConfig.SecretKey)
-
 	query := `
-		INSERT INTO session (id, token, prev_token, account_id, user_agent, client_ip)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO session (token, prev_token, account_id, user_agent, client_ip)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING *
 	`
 
 	var session Session
-	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, sessionID, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
+	err = pgxscan.Get(c.Request().Context(), s.db.Pool, &session, query, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
 	if err != nil {
 		return nil, nil
 	}
@@ -129,12 +124,10 @@ func (s *Service) RotateSessionToken(ctx context.Context, req *RotateSessionToke
 		return nil, err
 	}
 
-	newToken, err := s.tokenService.GenerateSessionToken()
+	newToken, hashedToken, err := createAndHashToken(s.securityConfig.SecretKey)
 	if err != nil {
 		return nil, err
 	}
-
-	newTokenHash := hashToken(newToken, s.securityConfig.SecretKey)
 
 	query := `
 		UPDATE session
@@ -144,7 +137,7 @@ func (s *Service) RotateSessionToken(ctx context.Context, req *RotateSessionToke
 	`
 
 	var session Session
-	err = pgxscan.Get(ctx, s.db.Pool, &session, query, newTokenHash, currentSession.Token, currentSession.ID)
+	err = pgxscan.Get(ctx, s.db.Pool, &session, query, hashedToken, currentSession.Token, currentSession.ID)
 	if err != nil {
 		return nil, err
 	}
