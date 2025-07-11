@@ -98,7 +98,7 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 		case errors.Is(err, authService.ErrUserNotFound):
 			return c.JSON(http.StatusUnauthorized, APIError{Message: err.Error()})
 		default:
-			return c.JSON(http.StatusInternalServerError, APIError{Message: "Failed to  session"})
+			return c.JSON(http.StatusInternalServerError, APIError{Message: "Failed to rotate session"})
 		}
 	}
 
