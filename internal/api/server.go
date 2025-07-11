@@ -96,8 +96,7 @@ func (hs *HTTPServer) setupRoutes() {
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
-	securityConfig := config.NewSecurityConfig()
-	protected := api.Group("", customMiddleware.SessionAuth(hs.sessionService, hs.accountService, securityConfig))
+	protected := api.Group("", customMiddleware.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
 
 	// Session management
 	protected.GET("/sessions", sessionHandler.GetSessions)
