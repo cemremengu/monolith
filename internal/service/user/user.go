@@ -20,7 +20,7 @@ func NewService(db *database.DB) *Service {
 func (s *Service) GetUsers(ctx context.Context) ([]User, error) {
 	var users []User
 	err := pgxscan.Select(ctx, s.db.Pool, &users, `
-		SELECT id, username, emaeil, name, avatar, is_admin, language, theme, timezone, 
+		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone, 
 		       last_seen_at, is_disabled, created_at, updated_at 
 		FROM account 
 		WHERE is_disabled = FALSE
