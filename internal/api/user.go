@@ -22,7 +22,11 @@ func NewUserHandler(userService *user.Service) *UserHandler {
 func (h *UserHandler) GetUsers(c echo.Context) error {
 	users, err := h.userService.GetUsers(c.Request().Context())
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch users"})
+		return APIError{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to retrieve users",
+			Err:     err,
+		}
 	}
 
 	return c.JSON(http.StatusOK, users)

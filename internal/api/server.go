@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"monolith/internal/config"
 	"monolith/internal/database"
-	customMiddleware "monolith/internal/middleware"
+	mw "monolith/internal/middleware"
 	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
 	"monolith/internal/service/session"
@@ -31,7 +32,16 @@ type HTTPServer struct {
 }
 
 type APIError struct {
+	Code    int    `json:"code"`
 	Message string `json:"message"`
+	Err     error  `json:"-"`
+}
+
+func (e APIError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return e.Message
 }
 
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
@@ -63,6 +73,8 @@ func (hs *HTTPServer) Setup() {
 	e.HideBanner = true
 	e.Pre(middleware.RemoveTrailingSlash())
 
+	e.HTTPErrorHandler = customErrorHandler
+
 	// Middleware
 	// the order of the middleware is important in most cases
 
@@ -73,7 +85,7 @@ func (hs *HTTPServer) Setup() {
 		},
 	}))
 
-	e.Use(customMiddleware.Logger())
+	e.Use(mw.Logger())
 	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
@@ -100,7 +112,7 @@ func (hs *HTTPServer) setupRoutes() {
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
-	protected := api.Group("", customMiddleware.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
+	protected := api.Group("", mw.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
 
 	protected.GET("/sessions", sessionHandler.GetSessions)
 	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
@@ -133,4 +145,19 @@ func (hs *HTTPServer) Shutdown(ctx context.Context) error {
 // Echo returns the underlying Echo instance for advanced configuration if needed.
 func (hs *HTTPServer) Echo() *echo.Echo {
 	return hs.echo
+}
+
+func customErrorHandler(err error, c echo.Context) {
+	var apiErr APIError
+	if errors.As(err, &apiErr) {
+		if apiErr.Code == 0 {
+			c.JSON(apiErr.Code, map[string]string{"message": apiErr.Message})
+		} else {
+			c.JSON(apiErr.Code, APIError{Message: apiErr.Message, Err: apiErr.Err})
+		}
+		return
+	}
+
+	// Fallback to default error handler
+	c.Echo().DefaultHTTPErrorHandler(err, c)
 }
