@@ -29,7 +29,10 @@ class HttpClient {
         ],
         beforeError: [
           (error) => {
-            if (error.response?.status === 401) {
+            if (
+              error.response?.status === 401 &&
+              useAuth.getState().isLoggedIn
+            ) {
               useAuth.getState().logout();
             }
             return error;
