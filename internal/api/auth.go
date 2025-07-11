@@ -25,15 +25,27 @@ func NewAuthHandler(authService *authService.Service, sessionService *sessionSer
 func (h *AuthHandler) Login(c echo.Context) error {
 	var req authService.LoginRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, APIError{Message: "Invalid request body"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request body",
+			Err:     err,
+		}
 	}
 
 	user, err := h.authService.Login(c.Request().Context(), req)
 	if err != nil {
 		if errors.Is(err, authService.ErrInvalidCredentials) {
-			return c.JSON(http.StatusUnauthorized, APIError{Message: "Invalid email or password"})
+			return APIError{
+				Code:    http.StatusUnauthorized,
+				Message: "Invalid email or password",
+				Err:     err,
+			}
 		}
-		return c.JSON(http.StatusInternalServerError, APIError{Message: "Failed to login"})
+		return APIError{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to login",
+			Err:     err,
+		}
 	}
 
 	session, tokenErr := h.sessionService.CreateSession(c.Request().Context(), &sessionService.CreateSessionRequest{
@@ -43,7 +55,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	})
 
 	if tokenErr != nil {
-		return c.JSON(http.StatusInternalServerError, APIError{Message: "Failed to create session"})
+		return APIError{
+			Code: http.StatusInternalServerError,
+
+			Message: "Failed to create session",
+			Err:     tokenErr,
+		}
 	}
 
 	h.sessionService.SetSessionCookies(c, session)
@@ -61,5 +78,5 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	// For logout, just clear the cookie
 	// The session will eventually be cleaned up by the cleanup process
 	h.sessionService.ClearAuthCookies(c)
-	return c.JSON(http.StatusOK, APIError{Message: "Logged out successfully"})
+	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out successfully"})
 }

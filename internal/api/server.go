@@ -32,7 +32,7 @@ type HTTPServer struct {
 }
 
 type APIError struct {
-	Code    int    `json:"code"`
+	Code    int    `json:"-"`
 	Message string `json:"message"`
 	Err     error  `json:"-"`
 }
@@ -71,9 +71,9 @@ func (hs *HTTPServer) Setup() {
 	e := hs.echo
 
 	e.HideBanner = true
-	e.Pre(middleware.RemoveTrailingSlash())
-
 	e.HTTPErrorHandler = customErrorHandler
+
+	e.Pre(middleware.RemoveTrailingSlash())
 
 	// Middleware
 	// the order of the middleware is important in most cases
@@ -148,13 +148,13 @@ func (hs *HTTPServer) Echo() *echo.Echo {
 }
 
 func customErrorHandler(err error, c echo.Context) {
+	if c.Response().Committed {
+		return
+	}
+
 	var apiErr APIError
 	if errors.As(err, &apiErr) {
-		if apiErr.Code == 0 {
-			c.JSON(apiErr.Code, map[string]string{"message": apiErr.Message})
-		} else {
-			c.JSON(apiErr.Code, APIError{Message: apiErr.Message, Err: apiErr.Err})
-		}
+		c.JSON(apiErr.Code, apiErr)
 		return
 	}
 

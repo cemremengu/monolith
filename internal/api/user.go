@@ -36,12 +36,20 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid user ID format",
+			Err:     err,
+		}
 	}
 
 	user, err := h.userService.GetUser(c.Request().Context(), userID)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		return APIError{
+			Code:    http.StatusNotFound,
+			Message: "User not found",
+			Err:     err,
+		}
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -50,12 +58,20 @@ func (h *UserHandler) GetUser(c echo.Context) error {
 func (h *UserHandler) CreateUser(c echo.Context) error {
 	var req user.CreateUserRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request body",
+			Err:     err,
+		}
 	}
 
 	createdUser, err := h.userService.CreateUser(c.Request().Context(), req)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create user"})
+		return APIError{
+			Code:    http.StatusInternalServerError,
+			Message: "Failed to create user",
+			Err:     err,
+		}
 	}
 
 	return c.JSON(http.StatusCreated, createdUser)
@@ -65,17 +81,29 @@ func (h *UserHandler) UpdateUser(c echo.Context) error {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid user ID format",
+			Err:     err,
+		}
 	}
 
 	var req user.UpdateUserRequest
 	if err = c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid request body",
+			Err:     err,
+		}
 	}
 
 	updatedUser, err := h.userService.UpdateUser(c.Request().Context(), userID, req)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		return APIError{
+			Code:    http.StatusNotFound,
+			Message: "User not found",
+			Err:     err,
+		}
 	}
 
 	return c.JSON(http.StatusOK, updatedUser)
@@ -85,12 +113,20 @@ func (h *UserHandler) DeleteUser(c echo.Context) error {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID format"})
+		return APIError{
+			Code:    http.StatusBadRequest,
+			Message: "Invalid user ID format",
+			Err:     err,
+		}
 	}
 
 	err = h.userService.DeleteUser(c.Request().Context(), userID)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "User not found"})
+		return APIError{
+			Code:    http.StatusNotFound,
+			Message: "User not found",
+			Err:     err,
+		}
 	}
 
 	return c.NoContent(http.StatusNoContent)
