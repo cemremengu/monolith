@@ -180,6 +180,10 @@ func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (
 		return nil, ErrSessionExpired
 	}
 
+	if session.NeedsRotation(time.Duration(s.securityConfig.TokenRotationIntervalMinutes) * time.Minute) {
+		return nil, ErrSessionNeedsRotation
+	}
+
 	return &session, nil
 }
 

@@ -32,10 +32,21 @@ type Session struct {
 	UnhashedToken string `db:"-" json:"-"`
 }
 
-const rotationLeeway = 5 * time.Second
+const (
+	rotationLeeway   = 5 * time.Second
+	urgentRotateTime = 1 * time.Minute
+)
 
 func (s *Session) NextRotation(rotationInterval time.Duration) time.Time {
 	return s.RotatedAt.Add(rotationInterval - rotationLeeway)
+}
+
+func (t *Session) NeedsRotation(rotationInterval time.Duration) bool {
+	if !t.TokenSeen {
+		return t.RotatedAt.Before(time.Now().Add(-urgentRotateTime))
+	}
+
+	return t.RotatedAt.Before(time.Now().Add(-rotationInterval))
 }
 
 type CreateSessionRequest struct {
