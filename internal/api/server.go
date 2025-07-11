@@ -10,6 +10,7 @@ import (
 	customMiddleware "monolith/internal/middleware"
 	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
+	"monolith/internal/service/session"
 	"monolith/internal/service/user"
 	"monolith/web"
 
@@ -26,6 +27,7 @@ type HTTPServer struct {
 	userService    *user.Service
 	accountService *account.Service
 	authService    *auth.Service
+	sessionService *session.Service
 }
 
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
@@ -36,6 +38,7 @@ func NewHTTPServer(
 	userService *user.Service,
 	accountService *account.Service,
 	authService *auth.Service,
+	sessionService *session.Service,
 ) *HTTPServer {
 	return &HTTPServer{
 		echo:           echo.New(),
@@ -45,6 +48,7 @@ func NewHTTPServer(
 		userService:    userService,
 		accountService: accountService,
 		authService:    authService,
+		sessionService: sessionService,
 	}
 }
 
@@ -81,8 +85,8 @@ func (hs *HTTPServer) Setup() {
 // setupRoutes configures all the application routes.
 func (hs *HTTPServer) setupRoutes() {
 	userHandler := NewUserHandler(hs.userService)
-	authHandler := NewAuthHandler(hs.authService)
-	accountHandler := NewAccountHandler(hs.authService, hs.accountService)
+	authHandler := NewAuthHandler(hs.authService, hs.sessionService)
+	accountHandler := NewAccountHandler(hs.authService, hs.accountService, hs.sessionService)
 
 	api := hs.echo.Group("/api")
 

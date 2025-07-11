@@ -6,6 +6,7 @@ import (
 
 	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
+	sessionService "monolith/internal/service/session"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -14,12 +15,14 @@ import (
 type AccountHandler struct {
 	authService    *authService.Service
 	accountService *account.Service
+	sessionService *sessionService.Service
 }
 
-func NewAccountHandler(authService *authService.Service, accountService *account.Service) *AccountHandler {
+func NewAccountHandler(authService *authService.Service, accountService *account.Service, sessionService *sessionService.Service) *AccountHandler {
 	return &AccountHandler{
 		authService:    authService,
 		accountService: accountService,
+		sessionService: sessionService,
 	}
 }
 
@@ -62,9 +65,12 @@ func (h *AccountHandler) GetSessions(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid user ID"})
 	}
 
-	currentSessionID := c.Get("session_id").(uuid.UUID)
+	currentSessionID, ok := c.Get("session_id").(uuid.UUID)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid session ID"})
+	}
 
-	sessions, err := h.authService.GetUserSessions(c.Request().Context(), userID)
+	sessions, err := h.sessionService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
 		if errors.Is(err, authService.ErrInvalidUserID) {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
@@ -95,12 +101,12 @@ func (h *AccountHandler) RevokeSession(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid session ID format"})
 	}
 
-	err = h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
+	err = h.sessionService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, authService.ErrInvalidUserID):
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		case errors.Is(err, authService.ErrSessionNotFound):
+		case errors.Is(err, sessionService.ErrSessionNotFound):
 			return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 		default:
 			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to revoke session"})

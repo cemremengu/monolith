@@ -15,6 +15,7 @@ import (
 	"monolith/internal/logger"
 	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
+	"monolith/internal/service/session"
 	"monolith/internal/service/user"
 	"monolith/migrations"
 
@@ -46,8 +47,9 @@ func main() {
 	userService := user.NewService(db)
 	accountService := account.NewService(db)
 	authService := auth.NewService(db)
+	sessionService := session.NewService(db)
 
-	srv := api.NewHTTPServer(db, log, cfg, userService, accountService, authService)
+	srv := api.NewHTTPServer(db, log, cfg, userService, accountService, authService, sessionService)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
