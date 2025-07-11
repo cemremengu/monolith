@@ -30,6 +30,10 @@ type HTTPServer struct {
 	sessionService *session.Service
 }
 
+type APIError struct {
+	Message string `json:"message"`
+}
+
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
 func NewHTTPServer(
 	db *database.DB,
@@ -100,7 +104,7 @@ func (hs *HTTPServer) setupRoutes() {
 
 	protected.GET("/sessions", sessionHandler.GetSessions)
 	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
-	protected.POST("/sessions/rotate", sessionHandler.RotateToken)
+	protected.POST("/sessions/rotate", sessionHandler.RotateSession)
 
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
