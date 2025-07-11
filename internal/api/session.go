@@ -24,34 +24,20 @@ func NewSessionHandler(sessionService *sessionService.Service) *SessionHandler {
 func (h *SessionHandler) GetSessions(c echo.Context) error {
 	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Invalid user ID",
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
 	}
 
 	currentSessionID, ok := c.Get("session_id").(uuid.UUID)
 	if !ok {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Invalid session ID",
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid session ID")
 	}
 
 	sessions, err := h.sessionService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
 		if errors.Is(err, authService.ErrInvalidUserID) {
-			return APIError{
-				Code:    http.StatusBadRequest,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
 		}
-		return APIError{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to retrieve sessions",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve sessions").SetInternal(err)
 	}
 
 	for i := range sessions {
@@ -64,50 +50,28 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 func (h *SessionHandler) RevokeSession(c echo.Context) error {
 	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Invalid user ID",
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
 	}
 	sessionIDParam := c.Param("sessionId")
 
 	if sessionIDParam == "" {
-		return APIError{
-			Code:    http.StatusBadRequest,
-			Message: "Session ID is required",
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Session ID is required")
 	}
 
 	sessionID, err := uuid.Parse(sessionIDParam)
 	if err != nil {
-		return APIError{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid session ID format",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").SetInternal(err)
 	}
 
 	err = h.sessionService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, authService.ErrInvalidUserID):
-			return APIError{
-				Code:    http.StatusBadRequest,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
 		case errors.Is(err, sessionService.ErrSessionNotFound):
-			return APIError{
-				Code:    http.StatusNotFound,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusNotFound, "Session not found").SetInternal(err)
 		default:
-			return APIError{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to revoke session",
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke session").SetInternal(err)
 		}
 	}
 
@@ -117,11 +81,7 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 func (h *SessionHandler) RotateSession(c echo.Context) error {
 	sessionTokenCookie, err := c.Cookie("session_token")
 	if err != nil {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Authentication required",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Session token cookie not found").SetInternal(err)
 	}
 
 	session, err := h.sessionService.RotateSessionToken(c.Request().Context(), &sessionService.RotateSessionTokenRequest{
@@ -134,23 +94,11 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 
 		switch {
 		case errors.Is(err, sessionService.ErrSessionExpired):
-			return APIError{
-				Code:    http.StatusUnauthorized,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusUnauthorized, "Session expired").SetInternal(err)
 		case errors.Is(err, authService.ErrUserNotFound):
-			return APIError{
-				Code:    http.StatusUnauthorized,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusUnauthorized, "User not found").SetInternal(err)
 		default:
-			return APIError{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to rotate session",
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to rotate session").SetInternal(err)
 		}
 	}
 

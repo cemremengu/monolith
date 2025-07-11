@@ -23,19 +23,12 @@ func NewAccountHandler(accountService *account.Service) *AccountHandler {
 func (h *AccountHandler) Profile(c echo.Context) error {
 	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Invalid user ID",
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
 	}
 
 	account, err := h.accountService.GetAccountByID(c.Request().Context(), userID)
 	if err != nil {
-		return APIError{
-			Code:    http.StatusNotFound,
-			Message: "Account not found",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusNotFound, "Account not found").SetInternal(err)
 	}
 
 	return c.JSON(http.StatusOK, account)
@@ -44,28 +37,17 @@ func (h *AccountHandler) Profile(c echo.Context) error {
 func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 	userID, ok := c.Get("user_id").(uuid.UUID)
 	if !ok {
-		return APIError{
-			Code:    http.StatusUnauthorized,
-			Message: "Invalid user ID",
-		}
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
 	}
 
 	var req account.UpdatePreferencesRequest
 	if err := c.Bind(&req); err != nil {
-		return APIError{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request body",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
 	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), userID, req)
 	if err != nil {
-		return APIError{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to update preferences",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update preferences").SetInternal(err)
 	}
 
 	return c.JSON(http.StatusOK, updatedAccount)
@@ -74,34 +56,18 @@ func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 func (h *AccountHandler) Register(c echo.Context) error {
 	var req account.RegisterRequest
 	if err := c.Bind(&req); err != nil {
-		return APIError{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request body",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
 	userAccount, err := h.accountService.Register(c.Request().Context(), req)
 	if err != nil {
 		switch {
 		case errors.Is(err, account.ErrPasswordTooShort):
-			return APIError{
-				Code:    http.StatusBadRequest,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusBadRequest, "Password too short").SetInternal(err)
 		case errors.Is(err, account.ErrUserAlreadyExists):
-			return APIError{
-				Code:    http.StatusConflict,
-				Message: err.Error(),
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusConflict, "User already exists").SetInternal(err)
 		default:
-			return APIError{
-				Code:    http.StatusInternalServerError,
-				Message: "Failed to register account",
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to register user").SetInternal(err)
 		}
 	}
 

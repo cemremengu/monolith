@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"net/http"
 
@@ -29,19 +28,6 @@ type HTTPServer struct {
 	accountService *account.Service
 	authService    *auth.Service
 	sessionService *session.Service
-}
-
-type APIError struct {
-	Code    int    `json:"-"`
-	Message string `json:"message"`
-	Err     error  `json:"-"`
-}
-
-func (e APIError) Error() string {
-	if e.Err != nil {
-		return e.Err.Error()
-	}
-	return e.Message
 }
 
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
@@ -71,7 +57,6 @@ func (hs *HTTPServer) Setup() {
 	e := hs.echo
 
 	e.HideBanner = true
-	e.HTTPErrorHandler = customErrorHandler
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -145,19 +130,4 @@ func (hs *HTTPServer) Shutdown(ctx context.Context) error {
 // Echo returns the underlying Echo instance for advanced configuration if needed.
 func (hs *HTTPServer) Echo() *echo.Echo {
 	return hs.echo
-}
-
-func customErrorHandler(err error, c echo.Context) {
-	if c.Response().Committed {
-		return
-	}
-
-	var apiErr APIError
-	if errors.As(err, &apiErr) {
-		c.JSON(apiErr.Code, apiErr)
-		return
-	}
-
-	// Fallback to default error handler
-	c.Echo().DefaultHTTPErrorHandler(err, c)
 }

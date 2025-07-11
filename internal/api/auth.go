@@ -25,27 +25,15 @@ func NewAuthHandler(authService *authService.Service, sessionService *sessionSer
 func (h *AuthHandler) Login(c echo.Context) error {
 	var req authService.LoginRequest
 	if err := c.Bind(&req); err != nil {
-		return APIError{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request body",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
 	user, err := h.authService.Login(c.Request().Context(), req)
 	if err != nil {
 		if errors.Is(err, authService.ErrInvalidCredentials) {
-			return APIError{
-				Code:    http.StatusUnauthorized,
-				Message: "Invalid email or password",
-				Err:     err,
-			}
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials").SetInternal(err)
 		}
-		return APIError{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to login",
-			Err:     err,
-		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to login").SetInternal(err)
 	}
 
 	session, tokenErr := h.sessionService.CreateSession(c.Request().Context(), &sessionService.CreateSessionRequest{
@@ -55,12 +43,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	})
 
 	if tokenErr != nil {
-		return APIError{
-			Code: http.StatusInternalServerError,
-
-			Message: "Failed to create session",
-			Err:     tokenErr,
-		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create session").SetInternal(tokenErr)
 	}
 
 	h.sessionService.SetSessionCookies(c, session)
