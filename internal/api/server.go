@@ -98,17 +98,14 @@ func (hs *HTTPServer) setupRoutes() {
 	// Protected routes
 	protected := api.Group("", customMiddleware.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
 
-	// Session management
 	protected.GET("/sessions", sessionHandler.GetSessions)
 	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
 	protected.POST("/sessions/rotate", sessionHandler.RotateToken)
 
-	// Account management (profile & preferences)
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
 	protected.POST("/account/register", accountHandler.Register)
 
-	// User administration (admin only)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)
 	protected.POST("/users", userHandler.CreateUser)
