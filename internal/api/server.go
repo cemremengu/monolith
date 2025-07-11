@@ -92,7 +92,7 @@ func (hs *HTTPServer) setupRoutes() {
 
 	// Public auth routes
 	api.POST("/auth/login", authHandler.Login)
-	api.POST("/auth/register", authHandler.Register)
+	api.POST("/auth/register", accountHandler.Register)
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes

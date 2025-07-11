@@ -115,3 +115,28 @@ func (h *AccountHandler) RevokeSession(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Session revoked successfully"})
 }
+
+func (h *AccountHandler) Register(c echo.Context) error {
+	var req account.RegisterRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
+	}
+
+	userAccount, err := h.accountService.Register(c.Request().Context(), req)
+	if err != nil {
+		switch {
+		case errors.Is(err, account.ErrPasswordTooShort):
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+		case errors.Is(err, account.ErrUserAlreadyExists):
+			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
+		default:
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create account"})
+		}
+	}
+
+	response := map[string]any{
+		"account": userAccount,
+	}
+
+	return c.JSON(http.StatusCreated, response)
+}

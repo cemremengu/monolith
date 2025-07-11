@@ -19,22 +19,6 @@ func NewService(db *database.DB) *Service {
 	}
 }
 
-func (s *Service) Register(ctx context.Context, req account.RegisterRequest) (*account.Account, error) {
-	if req.Password == "" || len(req.Password) < 8 {
-		return nil, ErrPasswordTooShort
-	}
-
-	exists, err := s.accountService.UserExists(ctx, req.Email, req.Username)
-	if err != nil {
-		return nil, err
-	}
-	if exists {
-		return nil, ErrUserAlreadyExists
-	}
-
-	return s.accountService.Register(ctx, req)
-}
-
 func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.Account, error) {
 	account, err := s.accountService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {

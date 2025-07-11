@@ -35,6 +35,18 @@ func (s *Service) UserExists(ctx context.Context, email, username string) (bool,
 }
 
 func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, error) {
+	if req.Password == "" || len(req.Password) < 8 {
+		return nil, ErrPasswordTooShort
+	}
+
+	exists, err := s.UserExists(ctx, req.Email, req.Username)
+	if err != nil {
+		return nil, err
+	}
+	if exists {
+		return nil, ErrUserAlreadyExists
+	}
+
 	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		return nil, err

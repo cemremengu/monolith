@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"monolith/internal/service/account"
 	authService "monolith/internal/service/auth"
 	sessionService "monolith/internal/service/session"
 
@@ -93,29 +92,4 @@ func (h *AuthHandler) RotateToken(c echo.Context) error {
 	h.sessionService.SetSessionCookies(c, session)
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Session refreshed successfully"})
-}
-
-func (h *AuthHandler) Register(c echo.Context) error {
-	var req account.RegisterRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request body"})
-	}
-
-	account, err := h.authService.Register(c.Request().Context(), req)
-	if err != nil {
-		switch {
-		case errors.Is(err, authService.ErrPasswordTooShort):
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
-		case errors.Is(err, authService.ErrUserAlreadyExists):
-			return c.JSON(http.StatusConflict, map[string]string{"error": err.Error()})
-		default:
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create account"})
-		}
-	}
-
-	response := map[string]any{
-		"account": account,
-	}
-
-	return c.JSON(http.StatusCreated, response)
 }
