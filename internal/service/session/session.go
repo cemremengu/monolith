@@ -34,7 +34,7 @@ func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) 
 	}
 
 	query := `
-		INSERT INTO session (todken, prev_token, account_id, user_agent, client_ip)
+		INSERT INTO session (token, prev_token, account_id, user_agent, client_ip)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING *
 	`
