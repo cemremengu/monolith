@@ -51,6 +51,13 @@ class HttpClient {
     >,
     options?: HttpClientOptions,
   ): Promise<T> {
+    const hasSearchParams =
+      searchParams && Object.keys(searchParams).length > 0;
+
+    if (!hasSearchParams) {
+      return this.client.get(url, options).json<T>();
+    }
+
     const p = new URLSearchParams();
     for (const [key, value] of Object.entries(searchParams || {})) {
       p.set(key, String(value));
