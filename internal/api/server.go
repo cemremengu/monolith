@@ -86,7 +86,8 @@ func (hs *HTTPServer) Setup() {
 func (hs *HTTPServer) setupRoutes() {
 	userHandler := NewUserHandler(hs.userService)
 	authHandler := NewAuthHandler(hs.authService, hs.sessionService)
-	accountHandler := NewAccountHandler(hs.authService, hs.accountService, hs.sessionService)
+	accountHandler := NewAccountHandler(hs.accountService)
+	sessionHandler := NewSessionHandler(hs.sessionService)
 
 	api := hs.echo.Group("/api")
 
@@ -99,13 +100,14 @@ func (hs *HTTPServer) setupRoutes() {
 	securityConfig := config.NewSecurityConfig()
 	protected := api.Group("", customMiddleware.SessionAuth(hs.sessionService, hs.accountService, securityConfig))
 
-	protected.POST("/auth/rotate-token", authHandler.RotateToken)
+	// Session management
+	protected.GET("/sessions", sessionHandler.GetSessions)
+	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
+	protected.POST("/sessions/rotate-token", sessionHandler.RotateToken)
 
 	// Account management (profile & preferences)
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
-	protected.GET("/account/sessions", accountHandler.GetSessions)
-	protected.DELETE("/account/sessions/:sessionId", accountHandler.RevokeSession)
 	// User administration (admin only)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)

@@ -63,33 +63,3 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	h.sessionService.ClearAuthCookies(c)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out successfully"})
 }
-
-func (h *AuthHandler) RotateToken(c echo.Context) error {
-	sessionTokenCookie, err := c.Cookie("session_token")
-	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Session token not found"})
-	}
-
-	session, err := h.sessionService.RotateSessionToken(c.Request().Context(), &sessionService.RotateSessionTokenRequest{
-		UnhashedToken: sessionTokenCookie.Value,
-		ClientIP:      c.RealIP(),
-		UserAgent:     c.Request().UserAgent(),
-	})
-	if err != nil {
-		// nuke cookies on any refresh error
-		h.sessionService.ClearAuthCookies(c)
-
-		switch {
-		case errors.Is(err, sessionService.ErrSessionExpired):
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-		case errors.Is(err, authService.ErrUserNotFound):
-			return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
-		default:
-			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to refresh session"})
-		}
-	}
-
-	h.sessionService.SetSessionCookies(c, session)
-
-	return c.JSON(http.StatusOK, map[string]string{"message": "Session refreshed successfully"})
-}
