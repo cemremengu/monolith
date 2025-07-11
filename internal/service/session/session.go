@@ -74,7 +74,7 @@ func (s *Service) SetSessionCookies(c echo.Context, session *Session) {
 	})
 }
 
-func (s *Service) RotateSessionToken(ctx context.Context, req *RotateSessionTokenRequest) (*Session, error) {
+func (s *Service) RotateSession(ctx context.Context, req *RotateSessionRequest) (*Session, error) {
 	currentSession, err := s.GetSessionByToken(ctx, req.UnhashedToken)
 	if err != nil {
 		return nil, err
@@ -125,15 +125,15 @@ func (s *Service) ClearAuthCookies(c echo.Context) {
 	})
 }
 
-func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]SessionResponse, error) {
+func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]UserSession, error) {
 	sessions, err := s.GetSessionsByAccountID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var response []SessionResponse
+	var response []UserSession
 	for _, session := range sessions {
-		response = append(response, SessionResponse{
+		response = append(response, UserSession{
 			ID:        session.ID,
 			UserAgent: session.UserAgent,
 			ClientIP:  session.ClientIP,

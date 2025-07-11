@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"strconv"
@@ -50,9 +49,7 @@ const (
 )
 
 func NewConfig() *Config {
-	if err := godotenv.Load(); err != nil {
-		fmt.Printf("Failed to load .env file: %v\n", err)
-	}
+	_ = godotenv.Load()
 
 	return &Config{
 		Security: SecurityConfig{

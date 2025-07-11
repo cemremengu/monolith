@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// User represents a user for profile and administration purposes
+// User represents a user for profile and administration purposes.
 type User struct {
 	ID         uuid.UUID  `json:"id"               db:"id"`
 	Username   string     `json:"username"         db:"username"`

@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type SessionResponse struct {
+type UserSession struct {
 	ID        uuid.UUID `json:"id"`
 	UserAgent string    `json:"userAgent"`
 	ClientIP  string    `json:"clientIp"`
@@ -41,12 +41,12 @@ func (s *Session) NextRotation(rotationInterval time.Duration) time.Time {
 	return s.RotatedAt.Add(rotationInterval - rotationLeeway)
 }
 
-func (t *Session) NeedsRotation(rotationInterval time.Duration) bool {
-	if !t.TokenSeen {
-		return t.RotatedAt.Before(time.Now().Add(-urgentRotateTime))
+func (s *Session) NeedsRotation(rotationInterval time.Duration) bool {
+	if !s.TokenSeen {
+		return s.RotatedAt.Before(time.Now().Add(-urgentRotateTime))
 	}
 
-	return t.RotatedAt.Before(time.Now().Add(-rotationInterval))
+	return s.RotatedAt.Before(time.Now().Add(-rotationInterval))
 }
 
 type CreateSessionRequest struct {
@@ -55,7 +55,7 @@ type CreateSessionRequest struct {
 	UserAgent string
 }
 
-type RotateSessionTokenRequest struct {
+type RotateSessionRequest struct {
 	UnhashedToken string
 	ClientIP      string
 	UserAgent     string

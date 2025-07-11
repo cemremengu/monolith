@@ -84,7 +84,7 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Session token cookie not found").SetInternal(err)
 	}
 
-	session, err := h.sessionService.RotateSessionToken(c.Request().Context(), &sessionService.RotateSessionTokenRequest{
+	session, err := h.sessionService.RotateSession(c.Request().Context(), &sessionService.RotateSessionRequest{
 		UnhashedToken: sessionTokenCookie.Value,
 		ClientIP:      c.RealIP(),
 		UserAgent:     c.Request().UserAgent(),
