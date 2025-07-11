@@ -4,18 +4,13 @@ import (
 	"net/http"
 
 	"monolith/internal/config"
-	"monolith/internal/database"
 	"monolith/internal/service/account"
 	"monolith/internal/service/session"
 
 	"github.com/labstack/echo/v4"
 )
 
-func SessionAuth(db *database.DB) echo.MiddlewareFunc {
-	sessionService := session.NewService(db)
-	accountService := account.NewService(db)
-	securityConfig := config.NewSecurityConfig()
-
+func SessionAuth(sessionService *session.Service, accountService *account.Service, securityConfig *config.SecurityConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(securityConfig.LoginCookieName)
