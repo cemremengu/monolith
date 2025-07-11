@@ -20,13 +20,13 @@ export const cookieUtils = {
   },
 };
 
-export function useTokenRotation(onLogout?: () => void) {
+export function useSessionRotation(onLogout?: () => void) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastExpiryRef = useRef<number>(0);
 
   const rotateToken = useCallback(async () => {
     try {
-      await httpClient.post("auth/rotate-token", undefined);
+      await httpClient.post("sessions/rotate", undefined);
 
       return { success: true };
     } catch (error) {

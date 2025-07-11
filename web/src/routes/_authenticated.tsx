@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/store/auth";
-import { useTokenRotation } from "@/hooks/use-token-rotation";
+import { useSessionRotation } from "@/hooks/use-session-rotation";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context, location }) => {
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   const auth = useAuth();
 
-  useTokenRotation(auth.logout);
+  useSessionRotation(auth.logout);
 
   return (
     <SidebarProvider>

@@ -93,7 +93,6 @@ func (hs *HTTPServer) setupRoutes() {
 
 	// Public auth routes
 	api.POST("/auth/login", authHandler.Login)
-	api.POST("/auth/register", accountHandler.Register)
 	api.POST("/auth/logout", authHandler.Logout)
 
 	// Protected routes
@@ -103,11 +102,13 @@ func (hs *HTTPServer) setupRoutes() {
 	// Session management
 	protected.GET("/sessions", sessionHandler.GetSessions)
 	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
-	protected.POST("/sessions/rotate-token", sessionHandler.RotateToken)
+	protected.POST("/sessions/rotate", sessionHandler.RotateToken)
 
 	// Account management (profile & preferences)
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
+	protected.POST("/account/register", accountHandler.Register)
+
 	// User administration (admin only)
 	protected.GET("/users", userHandler.GetUsers)
 	protected.GET("/users/:id", userHandler.GetUser)
