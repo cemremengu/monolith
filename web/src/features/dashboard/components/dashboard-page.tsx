@@ -31,14 +31,49 @@ export function DashboardPage() {
         </div>
         <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         <div className="space-y-2">
-          <p className="font-light">Light (300)</p>
-          <p className="font-normal">
-            Whereas recognition of the inherent dignity Normal (400)
+          <p className="font-light">
+            Whereas recognition of the inherent dignity. Light (300)
           </p>
-          <p className="font-medium">Medium (500)</p>
-          <p className="font-semibold">SemiBold (600)</p>
-          <p className="font-bold">Bold (700)</p>
-          <p style={{ fontWeight: 450 }}>Custom (450)</p>
+          <p className="font-normal">
+            Whereas recognition of the inherent dignity. Normal (400)
+          </p>
+          <p className="font-medium">
+            Whereas recognition of the inherent dignity. Medium (500)
+          </p>
+          <p className="font-semibold">
+            Whereas recognition of the inherent dignity. SemiBold (600)
+          </p>
+          <p className="font-bold">
+            Whereas recognition of the inherent dignity. Bold (700)
+          </p>
+          <p style={{ fontWeight: 450 }}>
+            Whereas recognition of the inherent dignity. Custom (450)
+          </p>
+          <p className="font-extrabold">
+            Whereas recognition of the inherent dignity. ExtraBold (800)
+          </p>
+
+          <p className="italic font-light">
+            Whereas recognition of the inherent dignity. Light Italic (300)
+          </p>
+          <p className="italic font-normal">
+            Whereas recognition of the inherent dignity. Normal Italic (400)
+          </p>
+          <p className="italic font-medium">
+            Whereas recognition of the inherent dignity. Medium Italic (500)
+          </p>
+          <p className="italic font-semibold">
+            Whereas recognition of the inherent dignity. SemiBold Italic (600)
+          </p>
+          <p className="italic font-bold">
+            Whereas recognition of the inherent dignity. Bold Italic (700)
+          </p>
+          <p className="italic" style={{ fontWeight: 450 }}>
+            Whereas recognition of the inherent dignity. Custom Italic (450)
+          </p>
+          <p className="italic font-extrabold">
+            Whereas recognition of the inherent dignity. ExtraBold Italic (800)
+          </p>
         </div>
       </div>
     </div>
