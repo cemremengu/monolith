@@ -4,6 +4,38 @@
 
 - Keep code comments minimum and relevant to the code itself. Do not add comments that are not directly related to the code or that explain obvious things.
 
+# Tech Stack
+
+## Backend
+
+- Go + Echo framework
+- PostgreSQL + pgx driver
+- Goose for migrations
+
+## Frontend
+
+- React 19 + TypeScript
+- Vite
+- TanStack Router
+- Tailwind v4 + shadcn/ui
+- TanStack Query
+- i18next for internationalization
+- Zod for validation
+- Zustand for state management
+- React Hook Form for forms
+- Lucide React for icons
+- Sonner for notifications
+- Radix UI for UI components
+
+## Architecture
+
+- Monolith with embedded frontend (single binary deployment)
+
+## Development
+
+- Taskfile
+- golangci-lint + ESLint + Vitest
+
 # Development Standards & Best Practices
 
 ## PostgreSQL Database Design
