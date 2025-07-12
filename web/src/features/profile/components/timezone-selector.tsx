@@ -81,7 +81,7 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
           size="sm"
           className="w-full gap-2 justify-start"
         >
-          {getTimezoneLabel()}
+          <span className="truncate">{getTimezoneLabel()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
