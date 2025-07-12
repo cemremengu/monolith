@@ -30,6 +30,16 @@ export function DashboardPage() {
           <div className="bg-muted/50 aspect-video rounded-xl" />
         </div>
         <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
+        <div className="space-y-2">
+          <p className="font-light">Light (300)</p>
+          <p className="font-normal">
+            Whereas recognition of the inherent dignity Normal (400)
+          </p>
+          <p className="font-medium">Medium (500)</p>
+          <p className="font-semibold">SemiBold (600)</p>
+          <p className="font-bold">Bold (700)</p>
+          <p style={{ fontWeight: 450 }}>Custom (450)</p>
+        </div>
       </div>
     </div>
   );
