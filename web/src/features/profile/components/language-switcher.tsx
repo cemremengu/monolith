@@ -20,16 +20,13 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
   const { isLoggedIn, user } = useAuth();
 
   const changeLanguage = async (languageCode: string) => {
-    // Always change the language in i18n
     i18n.changeLanguage(languageCode);
 
     if (onChange) {
-      // If controlled, let parent handle the API call
       onChange(languageCode);
       return;
     }
 
-    // If not controlled, handle the API call ourselves with minimal preferences
     if (isLoggedIn && user) {
       try {
         await accountApi.updatePreferences({

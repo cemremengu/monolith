@@ -37,7 +37,6 @@ export function SettingsPage() {
 
   const handleThemeChange = async (theme: string) => {
     try {
-      // Update theme immediately in context
       setTheme(theme as "light" | "dark" | "system");
       await updatePreferences.mutateAsync({
         language: user?.language || "en",

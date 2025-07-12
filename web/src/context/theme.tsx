@@ -55,7 +55,6 @@ export function ThemeProvider({
     setTheme: (newTheme: Theme) => {
       setTheme(newTheme);
 
-      // Always save to localStorage for fallback
       localStorage.setItem(storageKey, newTheme);
     },
   };

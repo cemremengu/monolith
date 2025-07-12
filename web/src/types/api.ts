@@ -1,10 +1,8 @@
-// Auth types
 export type LoginRequest = {
   login: string;
   password: string;
 };
 
-// Account types
 export type UpdatePreferencesRequest = {
   language?: string;
   theme?: string;
@@ -18,7 +16,6 @@ export type RegisterRequest = {
   name: string;
 };
 
-// User types
 export type User = {
   id: string;
   username: string;
