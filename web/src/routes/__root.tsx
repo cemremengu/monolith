@@ -8,7 +8,6 @@ type RouterContext = {
   auth: {
     isLoggedIn: boolean;
     user: User | null;
-    isLoading: boolean;
     fetchUser: () => Promise<void>;
   };
 };

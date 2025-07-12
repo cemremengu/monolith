@@ -6,7 +6,6 @@ import type { User, LoginRequest } from "@/types/api";
 
 type AuthState = {
   user: User | null;
-  isLoading: boolean;
   isLoggedIn: boolean;
 };
 
@@ -20,18 +19,14 @@ type AuthStore = AuthState & AuthActions;
 
 export const useAuth = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
-      isLoading: false,
       isLoggedIn: false,
 
       login: async (data: LoginRequest) => {
-        const response = await authApi.login(data);
-
+        await authApi.login(data);
         set({
-          isLoggedIn: !!response.user,
-          user: response.user,
-          isLoading: false,
+          isLoggedIn: true,
         });
       },
 
@@ -42,7 +37,6 @@ export const useAuth = create<AuthStore>()(
           set({
             isLoggedIn: false,
             user: null,
-            isLoading: false,
           });
         }
 
@@ -50,21 +44,14 @@ export const useAuth = create<AuthStore>()(
       },
 
       fetchUser: async () => {
-        const { isLoading } = get();
-        if (isLoading) return;
-
-        set({ isLoading: true });
         try {
           const user = await accountApi.profile();
           set({
             user,
-            isLoading: false,
-            isLoggedIn: true,
           });
         } catch {
           set({
             user: null,
-            isLoading: false,
             isLoggedIn: false,
           });
         }

@@ -49,7 +49,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	h.sessionService.SetSessionCookies(c, session)
 
 	response := map[string]any{
-		"user": user,
+		"message": "Login successful",
 	}
 
 	return c.JSON(http.StatusOK, response)
