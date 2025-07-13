@@ -11,6 +11,7 @@ Keep code comments minimum and relevant to the code itself. Do not add comments 
 - Go + Echo framework
 - PostgreSQL + pgx driver
 - Goose for migrations
+- Testify for unit tests
 
 ## Frontend
 
