@@ -1,8 +1,8 @@
 # Instructions
 
-- You run in an environment where `ast-grep` is available; whenever a search requires syntax-aware or structural matching, default to `ast-grep -p '<pattern>' --lang go` (or set `--lang` appropriately for example use `ts` for `TypeScript`) and avoid falling back to text-only tools like `rg` or `grep` unless I explicitly request a plain-text search.
+You run in an environment where `ast-grep` is available; whenever a search requires syntax-aware or structural matching, default to `ast-grep -p '<pattern>' --lang go` (or set `--lang` appropriately for example use `ts` for `TypeScript`) and avoid falling back to text-only tools like `rg` or `grep` unless I explicitly request a plain-text search.
 
-- Keep code comments minimum and relevant to the code itself. Do not add comments that are not directly related to the code or that explain obvious things.
+Keep code comments minimum and relevant to the code itself. Do not add comments that are not directly related to the code or that explain obvious things.
 
 # Tech Stack
 
@@ -25,16 +25,67 @@
 - React Hook Form for forms
 - Lucide React for icons
 - Sonner for notifications
-- Radix UI for UI components
 
 ## Architecture
 
 - Monolith with embedded frontend (single binary deployment)
 
-## Development
+# Development Commands
 
-- Taskfile
-- golangci-lint + ESLint + Vitest
+## Backend Development
+
+- `task run:server` - Start backend with hot reload using wgo
+- `task test` - Run Go tests
+- `task lint` - Run golangci-lint
+- `task fmt` - Format Go code
+- `task update` - Update Go dependencies
+
+## Frontend Development
+
+- `task run:web` - Start frontend dev server with hot reload
+- `cd web && npm run build` - Build frontend for production
+- `cd web && npm run lint` - Run ESLint
+- `cd web && npm run lint:fix` - Fix ESLint issues automatically
+- `cd web && npm run router:generate` - Generate TanStack Router route tree
+
+## Build Commands
+
+- `task build:web` - Build frontend only
+- `task build:linux` - Build Linux binary with embedded frontend
+- `task build:win` - Build Windows binary with embedded frontend
+- `task build:docker` - Build Docker image
+
+# Architecture Overview
+
+## Service Layer Pattern
+
+The backend follows a service-oriented architecture with clear separation:
+
+- **Handlers** (`internal/api/*.go`) - HTTP request/response handling, validation
+- **Services** (`internal/service/*/`) - Business logic and data operations
+- **Database** (`internal/database/`) - Connection pooling and utilities
+
+## Dependency Injection
+
+Services are instantiated in `cmd/monolith/main.go` and injected into handlers:
+
+```go
+userService := user.NewService(db)
+accountService := account.NewService(db)
+authService := auth.NewService(db)
+sessionService := session.NewService(db)
+```
+
+## Frontend Architecture
+
+- **Feature-based structure** under `web/src/features/`
+- **Components** organized under `web/src/components/`
+- **TanStack Router** for file-based routing in `web/src/routes/`
+- **Types** for API responses and shared types in `web/src/types/`
+- **Context providers** for global state management in `web/src/context/`
+- **Hooks** for reusable logic in `web/src/hooks/`
+- **Utilities** in `web/src/utils/`
+- **Zustand** for global state management (`web/src/store/`)
 
 # Development Standards & Best Practices
 
