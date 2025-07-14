@@ -79,7 +79,7 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
         <Button
           variant="outline"
           size="sm"
-          className="w-full gap-2 justify-start"
+          className="w-full justify-start gap-2"
         >
           <span className="truncate">{getTimezoneLabel()}</span>
         </Button>

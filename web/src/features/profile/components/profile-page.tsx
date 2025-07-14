@@ -88,7 +88,7 @@ export function ProfilePage() {
 
   return (
     <div className="p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         <div>
           <h1 className="text-3xl font-bold">{t("profile.title")}</h1>
           <p className="text-muted-foreground">{t("profile.subtitle")}</p>
@@ -112,7 +112,7 @@ export function ProfilePage() {
                   {user.name || user.username}
                 </h2>
                 <p className="text-muted-foreground">@{user.username}</p>
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="text-muted-foreground flex items-center space-x-4 text-sm">
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-3 w-3" />
                     <span>
@@ -146,7 +146,7 @@ export function ProfilePage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="name"
@@ -235,15 +235,15 @@ export function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <User className="h-4 w-4 text-muted-foreground" />
+                  <User className="text-muted-foreground h-4 w-4" />
                   <span className="text-sm font-medium">
                     {t("profile.accountStatus.accountType")}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground pl-6">
+                <p className="text-muted-foreground pl-6 text-sm">
                   {user.isAdmin
                     ? t("profile.accountStatus.administrator")
                     : t("profile.accountStatus.regularUser")}
@@ -251,12 +251,12 @@ export function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <Mail className="text-muted-foreground h-4 w-4" />
                   <span className="text-sm font-medium">
                     {t("profile.accountStatus.status")}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground pl-6">
+                <p className="text-muted-foreground pl-6 text-sm">
                   {user.isDisabled
                     ? t("profile.accountStatus.disabled")
                     : t("profile.accountStatus.active")}
@@ -264,24 +264,24 @@ export function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <Calendar className="text-muted-foreground h-4 w-4" />
                   <span className="text-sm font-medium">
                     {t("profile.accountStatus.lastUpdated")}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground pl-6">
+                <p className="text-muted-foreground pl-6 text-sm">
                   {new Date(user.updatedAt).toLocaleDateString()}
                 </p>
               </div>
               {user.lastSeenAt && (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="text-muted-foreground h-4 w-4" />
                     <span className="text-sm font-medium">
                       {t("profile.accountStatus.lastSeen")}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground pl-6">
+                  <p className="text-muted-foreground pl-6 text-sm">
                     {new Date(user.lastSeenAt).toLocaleDateString()}
                   </p>
                 </div>

@@ -99,8 +99,8 @@ export function UsersPage() {
 
   return (
     <div className="p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Users</h1>
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-6 text-3xl font-bold">Users</h1>
 
         <Card className="mb-6">
           <CardHeader>
@@ -184,18 +184,18 @@ export function UsersPage() {
           {users.map((user) => (
             <Card key={user.id}>
               <CardContent className="p-4">
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold">
                       {user.name || user.username}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       @{user.username}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {user.email}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       Created: {new Date(user.createdAt).toLocaleDateString()}
                     </p>
                   </div>

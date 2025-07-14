@@ -8,14 +8,14 @@ export function NotFound() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="max-w-md w-full text-center space-y-8">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 text-center">
         {/* Error Icon */}
 
         {/* Error Message */}
         <div className="space-y-4">
-          <h1 className="text-6xl font-bold text-foreground">404</h1>
-          <h2 className="text-2xl font-semibold text-foreground">
+          <h1 className="text-foreground text-6xl font-bold">404</h1>
+          <h2 className="text-foreground text-2xl font-semibold">
             Page Not Found
           </h2>
           <p className="text-muted-foreground">
@@ -24,7 +24,7 @@ export function NotFound() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <Button
             onClick={handleGoBack}
             variant="outline"

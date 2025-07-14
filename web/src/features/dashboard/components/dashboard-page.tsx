@@ -53,25 +53,25 @@ export function DashboardPage() {
             Whereas recognition of the inherent dignity. ExtraBold (800)
           </p>
 
-          <p className="italic font-light">
+          <p className="font-light italic">
             Whereas recognition of the inherent dignity. Light Italic (300)
           </p>
-          <p className="italic font-normal">
+          <p className="font-normal italic">
             Whereas recognition of the inherent dignity. Normal Italic (400)
           </p>
-          <p className="italic font-medium">
+          <p className="font-medium italic">
             Whereas recognition of the inherent dignity. Medium Italic (500)
           </p>
-          <p className="italic font-semibold">
+          <p className="font-semibold italic">
             Whereas recognition of the inherent dignity. SemiBold Italic (600)
           </p>
-          <p className="italic font-bold">
+          <p className="font-bold italic">
             Whereas recognition of the inherent dignity. Bold Italic (700)
           </p>
           <p className="italic" style={{ fontWeight: 450 }}>
             Whereas recognition of the inherent dignity. Custom Italic (450)
           </p>
-          <p className="italic font-extrabold">
+          <p className="font-extrabold italic">
             Whereas recognition of the inherent dignity. ExtraBold Italic (800)
           </p>
         </div>

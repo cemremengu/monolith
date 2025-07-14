@@ -49,7 +49,7 @@ export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
         <Button
           variant="outline"
           size="sm"
-          className="w-full gap-2 justify-start"
+          className="w-full justify-start gap-2"
         >
           {getThemeIcon()}
           {getThemeLabel()}
