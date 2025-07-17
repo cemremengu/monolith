@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	authService "monolith/internal/service/auth"
+	loginService "monolith/internal/service/login"
 	sessionService "monolith/internal/service/session"
 
 	"github.com/google/uuid"
@@ -34,7 +34,7 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 
 	sessions, err := h.sessionService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
-		if errors.Is(err, authService.ErrInvalidUserID) {
+		if errors.Is(err, loginService.ErrInvalidUserID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve sessions").SetInternal(err)
@@ -66,7 +66,7 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 	err = h.sessionService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
 		switch {
-		case errors.Is(err, authService.ErrInvalidUserID):
+		case errors.Is(err, loginService.ErrInvalidUserID):
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
 		case errors.Is(err, sessionService.ErrSessionNotFound):
 			return echo.NewHTTPError(http.StatusNotFound, "Session not found").SetInternal(err)
@@ -95,7 +95,7 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 		switch {
 		case errors.Is(err, sessionService.ErrSessionExpired):
 			return echo.NewHTTPError(http.StatusUnauthorized, "Session expired").SetInternal(err)
-		case errors.Is(err, authService.ErrUserNotFound):
+		case errors.Is(err, loginService.ErrUserNotFound):
 			return echo.NewHTTPError(http.StatusUnauthorized, "User not found").SetInternal(err)
 		default:
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to rotate session").SetInternal(err)

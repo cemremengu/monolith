@@ -4,33 +4,33 @@ import (
 	"errors"
 	"net/http"
 
-	authService "monolith/internal/service/auth"
+	loginService "monolith/internal/service/login"
 	sessionService "monolith/internal/service/session"
 
 	"github.com/labstack/echo/v4"
 )
 
 type AuthHandler struct {
-	authService    *authService.Service
+	loginService   *loginService.Service
 	sessionService *sessionService.Service
 }
 
-func NewAuthHandler(authService *authService.Service, sessionService *sessionService.Service) *AuthHandler {
+func NewAuthHandler(loginService *loginService.Service, sessionService *sessionService.Service) *AuthHandler {
 	return &AuthHandler{
-		authService:    authService,
+		loginService:   loginService,
 		sessionService: sessionService,
 	}
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var req authService.LoginRequest
+	var req loginService.LoginRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
-	user, err := h.authService.Login(c.Request().Context(), req)
+	user, err := h.loginService.Login(c.Request().Context(), req)
 	if err != nil {
-		if errors.Is(err, authService.ErrInvalidCredentials) {
+		if errors.Is(err, loginService.ErrInvalidCredentials) {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials").SetInternal(err)
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to login").SetInternal(err)

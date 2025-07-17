@@ -9,7 +9,7 @@ import (
 	"monolith/internal/database"
 	mw "monolith/internal/middleware"
 	"monolith/internal/service/account"
-	"monolith/internal/service/auth"
+	"monolith/internal/service/login"
 	"monolith/internal/service/session"
 	"monolith/internal/service/user"
 	"monolith/web"
@@ -26,7 +26,7 @@ type HTTPServer struct {
 	config         *config.Config
 	userService    *user.Service
 	accountService *account.Service
-	authService    *auth.Service
+	loginService   *login.Service
 	sessionService *session.Service
 }
 
@@ -37,7 +37,7 @@ func NewHTTPServer(
 	cfg *config.Config,
 	userService *user.Service,
 	accountService *account.Service,
-	authService *auth.Service,
+	loginService *login.Service,
 	sessionService *session.Service,
 ) *HTTPServer {
 	return &HTTPServer{
@@ -47,7 +47,7 @@ func NewHTTPServer(
 		config:         cfg,
 		userService:    userService,
 		accountService: accountService,
-		authService:    authService,
+		loginService:   loginService,
 		sessionService: sessionService,
 	}
 }
@@ -86,7 +86,7 @@ func (hs *HTTPServer) Setup() {
 // setupRoutes configures all the application routes.
 func (hs *HTTPServer) setupRoutes() {
 	userHandler := NewUserHandler(hs.userService)
-	authHandler := NewAuthHandler(hs.authService, hs.sessionService)
+	authHandler := NewAuthHandler(hs.loginService, hs.sessionService)
 	accountHandler := NewAccountHandler(hs.accountService)
 	sessionHandler := NewSessionHandler(hs.sessionService)
 
