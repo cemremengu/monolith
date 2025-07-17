@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE session
+CREATE TABLE auth_session
 (
     id         UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
     token      TEXT                      NOT NULL UNIQUE,
@@ -14,8 +14,8 @@ CREATE TABLE session
     revoked_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_session_account_id ON session (account_id);
-CREATE INDEX idx_session_revoked_at ON session (revoked_at);
+CREATE INDEX idx_auth_session_account_id ON auth_session (account_id);
+CREATE INDEX idx_auth_session_revoked_at ON auth_session (revoked_at);
 
 -- +goose Down
-DROP TABLE session;
+DROP TABLE auth_session;

@@ -34,7 +34,7 @@ func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) 
 	}
 
 	query := `
-		INSERT INTO session (token, prev_token, account_id, user_agent, client_ip)
+		INSERT INTO auth_session (token, prev_token, account_id, user_agent, client_ip)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING *
 	`
@@ -86,7 +86,7 @@ func (s *Service) RotateSession(ctx context.Context, req *RotateSessionRequest) 
 	}
 
 	query := `
-		UPDATE session
+		UPDATE auth_session
 		SET token = $1, prev_token = $2, rotated_at = NOW(), token_seen = FALSE, seen_at = NULL
 		WHERE id = $3
 		RETURNING *
@@ -147,7 +147,7 @@ func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]User
 
 func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
 	query := `
-		UPDATE session
+		UPDATE auth_session
 		SET revoked_at = NOW()
 		WHERE id = $1 and account_id = $2
 	`
@@ -160,7 +160,7 @@ func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (
 
 	query := `
 		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
-		FROM session
+		FROM auth_session
 		WHERE token = $1 OR prev_token = $2
 	`
 	var session Session
@@ -197,7 +197,7 @@ func (s *Service) rotatedAfterThreshold() time.Time {
 
 func (s *Service) RevokeAllUserSessions(ctx context.Context, accountID uuid.UUID) error {
 	query := `
-		UPDATE session
+		UPDATE auth_session
 		SET revoked_at = NOW()
 		WHERE account_id = $1 AND revoked_at IS NULL
 	`
@@ -208,7 +208,7 @@ func (s *Service) RevokeAllUserSessions(ctx context.Context, accountID uuid.UUID
 func (s *Service) GetSessionsByAccountID(ctx context.Context, accountID uuid.UUID) ([]Session, error) {
 	query := `
 		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
-		FROM session
+		FROM auth_session
 		WHERE account_id = $1 AND revoked_at IS NULL
 		ORDER BY rotated_at DESC
 	`
@@ -222,7 +222,7 @@ func (s *Service) GetSessionsByAccountID(ctx context.Context, accountID uuid.UUI
 
 func (s *Service) CleanupSessions(ctx context.Context) error {
 	query := `
-		DELETE FROM session
+		DELETE FROM auth_session
 		WHERE revoked_at IS NOT NULL
 	`
 	_, err := s.db.Pool.Exec(ctx, query)
