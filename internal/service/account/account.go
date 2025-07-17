@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"monolith/internal/database"
-	"monolith/internal/util"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
@@ -47,7 +46,7 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, 
 		return nil, ErrUserAlreadyExists
 	}
 
-	hashedPassword, err := util.HashPassword(req.Password)
+	hashedPassword, err := hashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -118,4 +117,12 @@ func (s *Service) UpdatePreferences(
 		return nil, err
 	}
 	return &account, nil
+}
+
+func hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }

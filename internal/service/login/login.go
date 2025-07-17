@@ -19,7 +19,7 @@ func NewService(db *database.DB, accountService *account.Service) *Service {
 	}
 }
 
-func (s *Service) Login(ctx context.Context, req LoginRequest) (*account.Account, error) {
+func (s *Service) Login(ctx context.Context, req UserLoginRequest) (*account.Account, error) {
 	account, err := s.accountService.GetAccountByLogin(ctx, req.Login)
 	if err != nil {
 		return nil, ErrInvalidCredentials

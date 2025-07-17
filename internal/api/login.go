@@ -23,7 +23,7 @@ func NewAuthHandler(loginService *loginService.Service, authService *authService
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
-	var req loginService.LoginRequest
+	var req loginService.UserLoginRequest
 	if err := c.Bind(&req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
