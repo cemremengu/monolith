@@ -4,20 +4,20 @@ import (
 	"errors"
 	"net/http"
 
+	authService "monolith/internal/service/auth"
 	loginService "monolith/internal/service/login"
-	sessionService "monolith/internal/service/session"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 type SessionHandler struct {
-	sessionService *sessionService.Service
+	authService *authService.Service
 }
 
-func NewSessionHandler(sessionService *sessionService.Service) *SessionHandler {
+func NewSessionHandler(authService *authService.Service) *SessionHandler {
 	return &SessionHandler{
-		sessionService: sessionService,
+		authService: authService,
 	}
 }
 
@@ -32,7 +32,7 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid session ID")
 	}
 
-	sessions, err := h.sessionService.GetUserSessions(c.Request().Context(), userID)
+	sessions, err := h.authService.GetUserSessions(c.Request().Context(), userID)
 	if err != nil {
 		if errors.Is(err, loginService.ErrInvalidUserID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
@@ -63,12 +63,12 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").SetInternal(err)
 	}
 
-	err = h.sessionService.RevokeSession(c.Request().Context(), userID, sessionID)
+	err = h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, loginService.ErrInvalidUserID):
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
-		case errors.Is(err, sessionService.ErrSessionNotFound):
+		case errors.Is(err, authService.ErrSessionNotFound):
 			return echo.NewHTTPError(http.StatusNotFound, "Session not found").SetInternal(err)
 		default:
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke session").SetInternal(err)
@@ -84,16 +84,16 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Session token cookie not found").SetInternal(err)
 	}
 
-	session, err := h.sessionService.RotateSession(c.Request().Context(), &sessionService.RotateSessionRequest{
+	session, err := h.authService.RotateSession(c.Request().Context(), &authService.RotateSessionRequest{
 		UnhashedToken: sessionTokenCookie.Value,
 		ClientIP:      c.RealIP(),
 		UserAgent:     c.Request().UserAgent(),
 	})
 	if err != nil {
-		h.sessionService.ClearAuthCookies(c)
+		h.authService.ClearAuthCookies(c)
 
 		switch {
-		case errors.Is(err, sessionService.ErrSessionExpired):
+		case errors.Is(err, authService.ErrSessionExpired):
 			return echo.NewHTTPError(http.StatusUnauthorized, "Session expired").SetInternal(err)
 		case errors.Is(err, loginService.ErrUserNotFound):
 			return echo.NewHTTPError(http.StatusUnauthorized, "User not found").SetInternal(err)
@@ -102,7 +102,7 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 		}
 	}
 
-	h.sessionService.SetSessionCookies(c, session)
+	h.authService.SetSessionCookies(c, session)
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Session rotated successfully"})
 }

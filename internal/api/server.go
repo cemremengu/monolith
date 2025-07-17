@@ -9,8 +9,8 @@ import (
 	"monolith/internal/database"
 	mw "monolith/internal/middleware"
 	"monolith/internal/service/account"
+	"monolith/internal/service/auth"
 	"monolith/internal/service/login"
-	"monolith/internal/service/session"
 	"monolith/internal/service/user"
 	"monolith/web"
 
@@ -27,7 +27,7 @@ type HTTPServer struct {
 	userService    *user.Service
 	accountService *account.Service
 	loginService   *login.Service
-	sessionService *session.Service
+	authService    *auth.Service
 }
 
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
@@ -38,7 +38,7 @@ func NewHTTPServer(
 	userService *user.Service,
 	accountService *account.Service,
 	loginService *login.Service,
-	sessionService *session.Service,
+	authService *auth.Service,
 ) *HTTPServer {
 	return &HTTPServer{
 		echo:           echo.New(),
@@ -48,7 +48,7 @@ func NewHTTPServer(
 		userService:    userService,
 		accountService: accountService,
 		loginService:   loginService,
-		sessionService: sessionService,
+		authService:    authService,
 	}
 }
 
@@ -86,9 +86,9 @@ func (hs *HTTPServer) Setup() {
 // setupRoutes configures all the application routes.
 func (hs *HTTPServer) setupRoutes() {
 	userHandler := NewUserHandler(hs.userService)
-	authHandler := NewAuthHandler(hs.loginService, hs.sessionService)
+	authHandler := NewAuthHandler(hs.loginService, hs.authService)
 	accountHandler := NewAccountHandler(hs.accountService)
-	sessionHandler := NewSessionHandler(hs.sessionService)
+	authSessionHandler := NewSessionHandler(hs.authService)
 
 	api := hs.echo.Group("/api")
 
@@ -97,11 +97,11 @@ func (hs *HTTPServer) setupRoutes() {
 	api.POST("/logout", authHandler.Logout)
 
 	// Protected routes
-	protected := api.Group("", mw.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
+	protected := api.Group("", mw.SessionAuth(hs.authService, hs.accountService, hs.config.Security))
 
-	protected.GET("/sessions", sessionHandler.GetSessions)
-	protected.DELETE("/sessions/:sessionId", sessionHandler.RevokeSession)
-	protected.POST("/sessions/rotate", sessionHandler.RotateSession)
+	protected.GET("/sessions", authSessionHandler.GetSessions)
+	protected.DELETE("/sessions/:sessionId", authSessionHandler.RevokeSession)
+	protected.POST("/sessions/rotate", authSessionHandler.RotateSession)
 
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)

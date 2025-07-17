@@ -4,21 +4,21 @@ import (
 	"errors"
 	"net/http"
 
+	authService "monolith/internal/service/auth"
 	loginService "monolith/internal/service/login"
-	sessionService "monolith/internal/service/session"
 
 	"github.com/labstack/echo/v4"
 )
 
 type AuthHandler struct {
-	loginService   *loginService.Service
-	sessionService *sessionService.Service
+	loginService *loginService.Service
+	authService  *authService.Service
 }
 
-func NewAuthHandler(loginService *loginService.Service, sessionService *sessionService.Service) *AuthHandler {
+func NewAuthHandler(loginService *loginService.Service, authService *authService.Service) *AuthHandler {
 	return &AuthHandler{
-		loginService:   loginService,
-		sessionService: sessionService,
+		loginService: loginService,
+		authService:  authService,
 	}
 }
 
@@ -36,7 +36,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to login").SetInternal(err)
 	}
 
-	session, tokenErr := h.sessionService.CreateSession(c.Request().Context(), &sessionService.CreateSessionRequest{
+	session, tokenErr := h.authService.CreateSession(c.Request().Context(), &authService.CreateSessionRequest{
 		AccountID: user.ID,
 		ClientIP:  c.RealIP(),
 		UserAgent: c.Request().UserAgent(),
@@ -46,7 +46,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create session").SetInternal(tokenErr)
 	}
 
-	h.sessionService.SetSessionCookies(c, session)
+	h.authService.SetSessionCookies(c, session)
 
 	response := map[string]any{
 		"message": "Login successful",
@@ -60,6 +60,6 @@ func (h *AuthHandler) Login(c echo.Context) error {
 func (h *AuthHandler) Logout(c echo.Context) error {
 	// For logout, just clear the cookie
 	// The session will eventually be cleaned up by the cleanup process
-	h.sessionService.ClearAuthCookies(c)
+	h.authService.ClearAuthCookies(c)
 	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out successfully"})
 }

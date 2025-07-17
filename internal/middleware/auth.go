@@ -5,12 +5,12 @@ import (
 
 	"monolith/internal/config"
 	"monolith/internal/service/account"
-	"monolith/internal/service/session"
+	"monolith/internal/service/auth"
 
 	"github.com/labstack/echo/v4"
 )
 
-func SessionAuth(sessionService *session.Service, accountService *account.Service, securityConfig config.SecurityConfig) echo.MiddlewareFunc {
+func SessionAuth(authService *auth.Service, accountService *account.Service, securityConfig config.SecurityConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(securityConfig.LoginCookieName)
@@ -18,7 +18,7 @@ func SessionAuth(sessionService *session.Service, accountService *account.Servic
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Authentication required"})
 			}
 
-			session, err := sessionService.GetSessionByToken(c.Request().Context(), cookie.Value)
+			session, err := authService.GetSessionByToken(c.Request().Context(), cookie.Value)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Failed to retrieve session"})
 			}
