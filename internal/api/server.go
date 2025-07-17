@@ -99,9 +99,9 @@ func (hs *HTTPServer) setupRoutes() {
 	// Protected routes
 	protected := api.Group("", mw.SessionAuth(hs.authService, hs.accountService, hs.config.Security))
 
-	protected.GET("/sessions", authSessionHandler.GetSessions)
-	protected.DELETE("/sessions/:sessionId", authSessionHandler.RevokeSession)
-	protected.POST("/sessions/rotate", authSessionHandler.RotateSession)
+	protected.GET("/account/sessions", authSessionHandler.GetSessions)
+	protected.DELETE("/account/sessions/:sessionId", authSessionHandler.RevokeSession)
+	protected.POST("/account/sessions/rotate", authSessionHandler.RotateSession)
 
 	protected.GET("/account/profile", accountHandler.Profile)
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)

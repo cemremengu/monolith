@@ -26,7 +26,7 @@ export function useSessionRotation(onLogout?: () => void) {
 
   const rotateToken = useCallback(async () => {
     try {
-      await httpClient.post("sessions/rotate", undefined);
+      await httpClient.post("account/sessions/rotate", undefined);
 
       return { success: true };
     } catch (error) {
