@@ -46,8 +46,8 @@ func main() {
 
 	userService := user.NewService(db)
 	accountService := account.NewService(db)
-	authService := auth.NewService(db)
-	sessionService := session.NewService(db)
+	authService := auth.NewService(db, accountService)
+	sessionService := session.NewService(db, cfg.Security)
 
 	srv := api.NewHTTPServer(db, log, cfg, userService, accountService, authService, sessionService)
 	srv.Setup()

@@ -12,10 +12,10 @@ type Service struct {
 	accountService *account.Service
 }
 
-func NewService(db *database.DB) *Service {
+func NewService(db *database.DB, accountService *account.Service) *Service {
 	return &Service{
 		db:             db,
-		accountService: account.NewService(db),
+		accountService: accountService,
 	}
 }
 

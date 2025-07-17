@@ -17,13 +17,13 @@ import (
 
 type Service struct {
 	db             *database.DB
-	securityConfig *config.SecurityConfig
+	securityConfig config.SecurityConfig
 }
 
-func NewService(db *database.DB) *Service {
+func NewService(db *database.DB, cfg config.SecurityConfig) *Service {
 	return &Service{
 		db:             db,
-		securityConfig: config.NewSecurityConfig(),
+		securityConfig: cfg,
 	}
 }
 
