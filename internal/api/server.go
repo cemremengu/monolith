@@ -93,8 +93,8 @@ func (hs *HTTPServer) setupRoutes() {
 	api := hs.echo.Group("/api")
 
 	// Public auth routes
-	api.POST("/auth/login", authHandler.Login)
-	api.POST("/auth/logout", authHandler.Logout)
+	api.POST("/login", authHandler.Login)
+	api.POST("/logout", authHandler.Logout)
 
 	// Protected routes
 	protected := api.Group("", mw.SessionAuth(hs.sessionService, hs.accountService, hs.config.Security))
