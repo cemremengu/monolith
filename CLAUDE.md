@@ -117,6 +117,7 @@ sessionService := session.NewService(db)
 - Always use `any` instead of `interface{}`
 - Use singular package names (e.g., `user` instead of `users`)
 - Use pgxscan for scanning rows into structs
+- db tags are not required for struct fields, they are automatically inferred from struct field names
 
 ## Frontend Standarts
 

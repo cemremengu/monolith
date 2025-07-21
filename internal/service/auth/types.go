@@ -16,20 +16,20 @@ type UserSession struct {
 }
 
 type Session struct {
-	ID        uuid.UUID  `db:"id"`
-	Token     string     `db:"token"`
-	PrevToken *string    `db:"prev_token"`
-	AccountID uuid.UUID  `db:"account_id"`
-	UserAgent string     `db:"user_agent"`
-	ClientIP  string     `db:"client_ip"`
-	TokenSeen bool       `db:"token_seen"`
-	SeenAt    *time.Time `db:"seen_at"`
-	CreatedAt time.Time  `db:"created_at"`
-	RotatedAt time.Time  `db:"rotated_at"`
-	RevokedAt *time.Time `db:"revoked_at"`
+	ID        uuid.UUID
+	Token     string
+	PrevToken *string
+	AccountID uuid.UUID
+	UserAgent string
+	ClientIP  string
+	TokenSeen bool
+	SeenAt    *time.Time
+	CreatedAt time.Time
+	RotatedAt time.Time
+	RevokedAt *time.Time
 
 	// UnhashedToken is used to store the unhashed token temporarily
-	UnhashedToken string `db:"-" json:"-"`
+	UnhashedToken string `json:"-"`
 }
 
 const (

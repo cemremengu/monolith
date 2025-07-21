@@ -7,20 +7,20 @@ import (
 )
 
 type Account struct {
-	ID         uuid.UUID  `json:"id"               db:"id"`
-	Username   string     `json:"username"         db:"username"`
-	Email      string     `json:"email"            db:"email"`
-	Name       *string    `json:"name"             db:"name"`
-	Password   string     `json:"-"                db:"password"`
-	Avatar     *string    `json:"avatar,omitempty" db:"avatar"`
-	IsAdmin    bool       `json:"isAdmin"          db:"is_admin"`
-	Language   *string    `json:"language"         db:"language"`
-	Theme      *string    `json:"theme"            db:"theme"`
-	Timezone   *string    `json:"timezone"         db:"timezone"`
-	LastSeenAt *time.Time `json:"lastSeenAt"       db:"last_seen_at"`
-	IsDisabled bool       `json:"isDisabled"       db:"is_disabled"`
-	CreatedAt  time.Time  `json:"createdAt"        db:"created_at"`
-	UpdatedAt  time.Time  `json:"updatedAt"        db:"updated_at"`
+	ID         uuid.UUID  `json:"id"`
+	Username   string     `json:"username"`
+	Email      string     `json:"email"`
+	Name       *string    `json:"name"`
+	Password   string     `json:"-"`
+	Avatar     *string    `json:"avatar,omitempty"`
+	IsAdmin    bool       `json:"isAdmin"`
+	Language   *string    `json:"language"`
+	Theme      *string    `json:"theme"`
+	Timezone   *string    `json:"timezone"`
+	LastSeenAt *time.Time `json:"lastSeenAt"`
+	IsDisabled bool       `json:"isDisabled"`
+	CreatedAt  time.Time  `json:"createdAt"`
+	UpdatedAt  time.Time  `json:"updatedAt"`
 }
 
 type RegisterRequest struct {
