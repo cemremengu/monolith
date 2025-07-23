@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"monolith/internal/config"
 	"monolith/internal/database"
@@ -76,6 +77,9 @@ func (hs *HTTPServer) Setup() {
 	e.Use(middleware.RequestID())
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Skipper: func(c echo.Context) bool {
+			return strings.HasPrefix(c.Request().URL.Path, "/api")
+		},
 		Filesystem: http.FS(web.Assets()),
 		HTML5:      true,
 	}))
