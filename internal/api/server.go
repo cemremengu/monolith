@@ -107,11 +107,13 @@ func (hs *HTTPServer) setupRoutes() {
 	protected.PATCH("/account/preferences", accountHandler.UpdatePreferences)
 	protected.POST("/account/register", accountHandler.Register)
 
-	protected.GET("/users", userHandler.GetUsers)
-	protected.GET("/users/:id", userHandler.GetUser)
-	protected.POST("/users", userHandler.CreateUser)
-	protected.PUT("/users/:id", userHandler.UpdateUser)
-	protected.DELETE("/users/:id", userHandler.DeleteUser)
+	// Admin-only routes
+	admin := protected.Group("", mw.AdminOnly())
+	admin.GET("/users", userHandler.GetUsers)
+	admin.GET("/users/:id", userHandler.GetUser)
+	admin.POST("/users", userHandler.CreateUser)
+	admin.PUT("/users/:id", userHandler.UpdateUser)
+	admin.DELETE("/users/:id", userHandler.DeleteUser)
 }
 
 // Start starts the server on the specified port.
