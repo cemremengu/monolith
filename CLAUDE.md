@@ -104,6 +104,10 @@ sessionService := session.NewService(db)
 - Use snake_case for table and column names
 - Use singular nouns for table names (e.g., `account` not `accounts`)
 - Use descriptive but concise names that clearly indicate the column's purpose
+- Non unique indexes should be named as `ix_<table>_<column>` (e.g., `ix_account_email`)
+- Unique indexes should be named as `uq_<table>_<column>` (e.g., `uq_account_email`)
+- Foreign key constraints should be named as `fk_<table>_<column>` (e.g., `fk_account_user_id`)
+- Primary key constraints should be named as `pk_<table>` (e.g., `pk_account`)
 
 ### Additional Best Practices
 

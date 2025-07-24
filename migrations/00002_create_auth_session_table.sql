@@ -14,8 +14,8 @@ CREATE TABLE auth_session
     revoked_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_auth_session_account_id ON auth_session (account_id);
-CREATE INDEX idx_auth_session_revoked_at ON auth_session (revoked_at);
+CREATE INDEX ix_auth_session_account_id ON auth_session (account_id);
+CREATE INDEX ix_auth_session_revoked_at ON auth_session (revoked_at);
 
 -- +goose Down
 DROP TABLE auth_session;
