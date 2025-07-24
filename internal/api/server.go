@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"monolith"
+
 	"monolith/internal/config"
 	"monolith/internal/database"
 	mw "monolith/internal/middleware"
@@ -99,6 +101,12 @@ func (hs *HTTPServer) setupRoutes() {
 	// Public auth routes
 	api.POST("/login", authHandler.Login)
 	api.POST("/logout", authHandler.Logout)
+	api.GET("/version", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, monolith.GetVersionInfo())
+	})
+	api.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
 
 	// Protected routes
 	protected := api.Group("", mw.SessionAuth(hs.authService, hs.accountService, hs.config.Security))

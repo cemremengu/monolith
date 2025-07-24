@@ -1,12 +1,13 @@
 version: "3"
 
 vars:
+  PACKAGE: monolith
   VERSION:
     sh: git describe --tags 2> /dev/null || echo "v0.0.0"
   COMMIT:
     sh: git rev-parse --short HEAD 2> /dev/null || echo "unknown"
   DATE_BUILT: '{{now | date "2006-01-02T15:04:05Z"}}'
-  GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -tags "{{.TAGS}}" -ldflags "{{.LD_FLAGS}} -X main.Version={{.VERSION}} -X main.Commit={{.COMMIT}} -X main.DateBuilt={{.DATE_BUILT}}"
+  GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -tags "{{.TAGS}}" -ldflags "{{.LD_FLAGS}} -X {{.PACKAGE}}.Version={{.VERSION}} -X {{.PACKAGE}}.Commit={{.COMMIT}} -X {{.PACKAGE}}.DateBuilt={{.DATE_BUILT}}"
   WEB_BUILD_CMD: npm run build
 
 tasks:
