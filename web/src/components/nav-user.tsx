@@ -2,6 +2,7 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
+  Info,
   LogOut,
   Settings,
 } from "lucide-react";
@@ -24,6 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { AboutDialog } from "@/features/about/components/about-dialog";
 
 export function NavUser({
   user,
@@ -112,6 +114,14 @@ export function NavUser({
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+              <AboutDialog
+                trigger={
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Info />
+                    About
+                  </DropdownMenuItem>
+                }
+              />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
