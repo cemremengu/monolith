@@ -25,7 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { AboutDialog } from "@/features/about/components/about-dialog";
+import { AboutDialog } from "@/features/about/about-dialog";
 
 export function NavUser({
   user,

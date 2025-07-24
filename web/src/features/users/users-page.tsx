@@ -7,7 +7,7 @@ import {
   useUpdateUser,
   useDeleteUser,
   useUsers,
-} from "../api/queries";
+} from "./api/queries";
 import type { User } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

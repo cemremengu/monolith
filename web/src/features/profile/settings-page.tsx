@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { profileQueryOptions, useUpdatePreferences } from "../api/queries";
+import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
 import {
   Card,
   CardContent,

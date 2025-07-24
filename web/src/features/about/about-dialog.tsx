@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { getVersionInfo } from "../api";
+import { getVersionInfo } from "./api";
 
 type AboutDialogProps = {
   trigger?: React.ReactNode;
