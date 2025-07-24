@@ -1,5 +1,14 @@
 version: "3"
 
+vars:
+  VERSION:
+    sh: git describe --tags 2> /dev/null || echo "v0.0.0"
+  COMMIT:
+    sh: git rev-parse --short HEAD 2> /dev/null || echo "unknown"
+  DATE_BUILT: '{{now | date "2006-01-02T15:04:05Z"}}'
+  GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -tags "{{.TAGS}}" -ldflags "{{.LD_FLAGS}} -X main.Version={{.VERSION}} -X main.Commit={{.COMMIT}} -X main.DateBuilt={{.DATE_BUILT}}"
+  WEB_BUILD_CMD: npm run build
+
 tasks:
   run:server:
     cmds:
@@ -11,22 +20,34 @@ tasks:
     cmds:
       - go test -v ./...
   build:web:
+    internal: true
+    dir: web
     cmds:
-      - cd web && npm run build
+      - '{{.WEB_BUILD_CMD}}'
+  build:server:
+    internal: true
+    cmds:
+      - '{{.GO_BUILD_CMD}} ./cmd/monolith'
   build:win:
     cmds:
-      - cd web && npm run build
-      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-w -s" ./cmd/monolith
+      - task: build:web
+      - task: build:server
+    env:
+      GOOS: windows
+      GOARCH: amd64
   build:linux:
     cmds:
-      - cd web && npm run build
-      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" ./cmd/monolith
+      - task: build:web
+      - '{{.GO_BUILD_CMD}} ./cmd/monolith'
+    env:
+      GOOS: linux 
+      GOARCH: amd64
   build:docker:
     cmds:
       - docker build -t monolith:latest .
   fmt:
     cmds:
-      - cmd: go fmt ./...
+      - cmd: golangci-lint fmt
         ignore_error: true
   update:
     cmds:
@@ -35,3 +56,7 @@ tasks:
   lint:
     cmds:
       - golangci-lint run
+  install-tools:
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/wgo/wgo@latest
