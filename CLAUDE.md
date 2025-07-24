@@ -99,18 +99,62 @@ sessionService := session.NewService(db)
 - **Text data**: Always use `TEXT` instead of `VARCHAR(N)` for variable-length strings
 - **JSON data**: Always use `JSONB` instead of `JSON` for better performance and indexing capabilities
 
-### Naming Conventions
+## General Naming Conventions
 
-- Use snake_case for table and column names
-- Use singular nouns for table names (e.g., `account` not `accounts`)
-- Use descriptive but concise names that clearly indicate the column's purpose
-- Non unique indexes should be named as `ix_<table>_<column>` (e.g., `ix_account_email`)
+- **Use snake_case** for table and column names
+- **Use singular nouns** for table names (e.g., `account` not `accounts`)
+- **Use descriptive but concise names** that clearly indicate the column's purpose
+
+## Index Naming Standard
+
+The standard naming convention for indexes in PostgreSQL follows this pattern:
+
+```
+{tablename}_{columnname(s)}_{suffix}
+```
+
+### Index Suffixes
+
+| Suffix  | Constraint/Index Type   |
+| ------- | ----------------------- |
+| `pkey`  | Primary Key constraint  |
+| `key`   | Unique constraint       |
+| `excl`  | Exclusion constraint    |
+| `idx`   | Any other kind of index |
+| `fkey`  | Foreign key             |
+| `check` | Check constraint        |
+
+### Examples
+
+```sql
+-- Primary key
+account_pkey
+
+-- Unique constraint
+user_email_key
+
+-- Foreign key
+order_customer_id_fkey
+
+-- Regular index
+product_name_idx
+
+-- Check constraint
+user_age_check
+
+-- Multi-column index
+order_customer_id_created_at_idx
+```
 
 ### Additional Best Practices
 
 - Include `created_at` and `updated_at` timestamp columns where necessary
 - Use proper constraints (NOT NULL, CHECK, UNIQUE) where appropriate
 - Create indexes on frequently queried columns
+- Keep names under 63 characters (PostgreSQL limit)
+- Avoid reserved keywords
+- Use consistent abbreviations across your schema
+- Consider prefixing related tables with a common identifier for organization
 
 ## Golang Standards
 
