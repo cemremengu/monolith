@@ -35,14 +35,14 @@ Keep code comments minimum and relevant to the code itself. Do not add comments 
 
 ## Backend Development
 
-- `task run:server` - Start backend with hot reload using wgo
-- `task test` - Run Go tests
-- `task lint` - Run lint
-- `task update` - Update Go dependencies
+- `task run` - Start backend with hot reload using wgo
+- `task test:go` - Run Go tests
+- `task dev:lint` - Run lint
+- `task dev:update` - Update Go dependencies
 
 ## Frontend Development
 
-- `task run:web` - Start frontend dev server with hot reload
+- `task web` - Start frontend dev server with hot reload
 - `cd web && npm run build` - Build frontend for production
 - `cd web && npm run lint` - Run ESLint
 - `cd web && npm run lint:fix` - Fix ESLint issues automatically

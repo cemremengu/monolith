@@ -1,0 +1,31 @@
+version: "3"
+
+tasks:
+  go:
+    desc: "Run Go tests"
+    cmds:
+      - go test -v ./...
+
+  web:
+    desc: "Run web tests"
+    dir: web
+    cmds:
+      - npm test
+
+  coverage:
+    desc: "Run Go tests with coverage"
+    cmds:
+      - go test -v -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+
+  all:
+    desc: "Run all tests"
+    cmds:
+      - task: go
+      - task: web
+
+  # Alias for backward compatibility
+  default:
+    desc: "Run Go tests (default behavior)"
+    cmds:
+      - task: go

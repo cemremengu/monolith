@@ -10,50 +10,20 @@ vars:
   GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -tags "{{.TAGS}}" -ldflags "{{.LD_FLAGS}} -X {{.PACKAGE}}.Version={{.VERSION}} -X {{.PACKAGE}}.Commit={{.COMMIT}} -X {{.PACKAGE}}.DateBuilt={{.DATE_BUILT}}"
   WEB_BUILD_CMD: npm run build
 
+includes:
+  dev: ./taskfiles/development.yml
+  build: ./taskfiles/build.yml
+  test: ./taskfiles/test.yml
+  tools: ./taskfiles/tools.yml
+
 tasks:
-  run:server:
+  # Quick aliases for common tasks
+  run:
+    desc: "Run the server in development mode"
     cmds:
-      - wgo run ./cmd/monolith
-  run:web:
+      - task: dev:server
+  
+  web:
+    desc: "Run the web development server"
     cmds:
-      - cd web && npm run dev
-  test:
-    cmds:
-      - go test -v ./...
-  build:web:
-    dir: web
-    cmds:
-      - "{{.WEB_BUILD_CMD}}"
-  build:server:
-    cmds:
-      - "{{.GO_BUILD_CMD}} ./cmd/monolith"
-  build:win:
-    cmds:
-      - task: build:web
-      - task: build:server
-    env:
-      GOOS: windows
-      GOARCH: amd64
-  build:linux:
-    cmds:
-      - task: build:web
-      - "{{.GO_BUILD_CMD}} ./cmd/monolith"
-    env:
-      GOOS: linux
-      GOARCH: amd64
-  build:docker:
-    cmds:
-      - docker build -t monolith:latest .
-  update:
-    cmds:
-      - go get -u ./...
-      - go mod tidy
-  lint:
-    cmds:
-      - golangci-lint fmt
-      - golangci-lint run
-      - cd web && npm run lint:fix
-  install-tools:
-    cmds:
-      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-      - go install github.com/wgo/wgo@latest
+      - task: dev:web

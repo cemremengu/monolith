@@ -1,0 +1,28 @@
+version: "3"
+
+tasks:
+  install:
+    desc: "Install development tools"
+    cmds:
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install github.com/wgo/wgo@latest
+
+  install-web:
+    desc: "Install web dependencies"
+    dir: web
+    cmds:
+      - npm install
+
+  setup:
+    desc: "Setup development environment"
+    cmds:
+      - task: install
+      - task: install-web
+
+  clean:
+    desc: "Clean build artifacts and caches"
+    cmds:
+      - rm -rf dist/
+      - rm -rf web/dist/
+      - rm -f coverage.out coverage.html
+      - go clean -cache
