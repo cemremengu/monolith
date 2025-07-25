@@ -86,7 +86,7 @@ sessionService := session.NewService(db)
 - **Context providers** for global state management in `web/src/context/`
 - **Hooks** for reusable logic in `web/src/hooks/`
 - **Utilities** in `web/src/utils/`
-- **Zustand** for global state management (`web/src/store/`)
+- **Zustand** for global state management (`web/src/hooks/`)
 
 # Development Standards & Best Practices
 
