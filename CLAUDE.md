@@ -37,8 +37,7 @@ Keep code comments minimum and relevant to the code itself. Do not add comments 
 
 - `task run:server` - Start backend with hot reload using wgo
 - `task test` - Run Go tests
-- `task lint` - Run golangci-lint
-- `task fmt` - Format Go code
+- `task lint` - Run lint
 - `task update` - Update Go dependencies
 
 ## Frontend Development

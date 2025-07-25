@@ -44,17 +44,15 @@ tasks:
   build:docker:
     cmds:
       - docker build -t monolith:latest .
-  fmt:
-    cmds:
-      - cmd: golangci-lint fmt
-        ignore_error: true
   update:
     cmds:
       - go get -u ./...
       - go mod tidy
   lint:
     cmds:
+      - golangci-lint fmt
       - golangci-lint run
+      - cd web && npm run lint
   install-tools:
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
