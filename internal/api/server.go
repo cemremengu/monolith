@@ -140,8 +140,3 @@ func (hs *HTTPServer) Start() error {
 func (hs *HTTPServer) Shutdown(ctx context.Context) error {
 	return hs.echo.Shutdown(ctx)
 }
-
-// Echo returns the underlying Echo instance for advanced configuration if needed.
-func (hs *HTTPServer) Echo() *echo.Echo {
-	return hs.echo
-}
