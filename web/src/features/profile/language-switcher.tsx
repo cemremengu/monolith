@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { accountApi } from "@/features/profile/api";
-import { useAuth } from "@/store/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { languages } from "@/i18n/language";
 
 type LanguageSwitcherProps = {

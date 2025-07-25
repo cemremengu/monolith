@@ -7,7 +7,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/store/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useSessionRotation } from "@/hooks/use-session-rotation";
 
 export const Route = createFileRoute("/_authenticated")({
