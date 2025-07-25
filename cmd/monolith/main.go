@@ -56,7 +56,7 @@ func main() {
 	defer stop()
 
 	go func() {
-		if startErr := srv.Start(); startErr != nil && errors.Is(startErr, http.ErrServerClosed) {
+		if startErr := srv.Start(); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
 			log.Error("Server failed to start", "error", startErr)
 			panic("Server startup error")
 		}
