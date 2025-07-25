@@ -58,7 +58,7 @@ func main() {
 	go func() {
 		if startErr := srv.Start(); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
 			log.Error("Server failed to start", "error", startErr)
-			panic("Server startup error")
+			os.Exit(1)
 		}
 	}()
 
@@ -66,6 +66,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
 	defer cancel()
 	if shutdownErr := srv.Shutdown(ctx); shutdownErr != nil {
-		panic(shutdownErr)
+		log.Error("Server shutdown failed", "error", shutdownErr)
 	}
 }

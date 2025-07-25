@@ -27,24 +27,12 @@ linters:
     - perfsprint
     - testifylint
     - wastedassign
+    - gocritic
     # - depguard
     # - prealloc
   settings:
     exhaustive:
       default-signifies-exhaustive: true
-    gocritic:
-      disabled-checks:
-        - hugeParam # Micro-optimisations
-        - rangeValCopy # Micro-optimisations
-        - ifElseChain # Mostly false positives
-        - ptrToRefParam # False positives?
-        - importShadow # Probably not worth the hassle...
-      enabled-tags:
-        - diagnostic
-        - experimental
-        - opinionated
-        - performance
-        - style
     nakedret:
       max-func-lines: 60
     revive:
