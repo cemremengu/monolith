@@ -52,7 +52,7 @@ tasks:
     cmds:
       - golangci-lint fmt
       - golangci-lint run
-      - cd web && npm run lint
+      - cd web && npm run lint:fix
   install-tools:
     cmds:
       - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
