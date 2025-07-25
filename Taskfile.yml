@@ -21,14 +21,12 @@ tasks:
     cmds:
       - go test -v ./...
   build:web:
-    internal: true
     dir: web
     cmds:
-      - '{{.WEB_BUILD_CMD}}'
+      - "{{.WEB_BUILD_CMD}}"
   build:server:
-    internal: true
     cmds:
-      - '{{.GO_BUILD_CMD}} ./cmd/monolith'
+      - "{{.GO_BUILD_CMD}} ./cmd/monolith"
   build:win:
     cmds:
       - task: build:web
@@ -39,9 +37,9 @@ tasks:
   build:linux:
     cmds:
       - task: build:web
-      - '{{.GO_BUILD_CMD}} ./cmd/monolith'
+      - "{{.GO_BUILD_CMD}} ./cmd/monolith"
     env:
-      GOOS: linux 
+      GOOS: linux
       GOARCH: amd64
   build:docker:
     cmds:
