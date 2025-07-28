@@ -27,6 +27,12 @@ const router = createRouter({
   scrollRestoration: true,
   defaultPendingComponent: Loading,
   defaultNotFoundComponent: () => <NotFound />,
+  defaultErrorComponent: ({ error }) => (
+    <div>
+      <h2>Something went wrong!</h2>
+      <p>{error.message}</p>
+    </div>
+  ),
 });
 
 // Register the router instance for type safety
