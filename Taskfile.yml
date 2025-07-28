@@ -37,5 +37,5 @@ tasks:
   lint:
     desc: "Run linting and formatting for both Go and web code"
     deps:
-      - lint:go
-      - lint:web
+      - dev:lint:go
+      - dev:lint:web
