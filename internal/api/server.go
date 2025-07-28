@@ -17,6 +17,7 @@ import (
 	"monolith/internal/service/user"
 	"monolith/web"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -55,11 +56,23 @@ func NewHTTPServer(
 	}
 }
 
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i any) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return nil
+}
+
 // Setup configures the server with middleware and routes.
 func (hs *HTTPServer) Setup() {
 	e := hs.echo
 
 	e.HideBanner = true
+	e.Validator = &CustomValidator{validator: validator.New()}
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
