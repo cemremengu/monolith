@@ -23,6 +23,12 @@ tasks:
     cmds:
       - npm run lint:fix
 
+  router:generate:
+    desc: "Generate tanstack router file"
+    dir: web
+    cmds:
+      - npm run router:generate
+
   update:
     desc: "Update Go dependencies and tidy modules"
     cmds:
