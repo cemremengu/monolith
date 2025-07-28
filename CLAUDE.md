@@ -35,17 +35,16 @@ Keep code comments minimum and relevant to the code itself. Do not add comments 
 
 ## Backend Development
 
-- `task run` - Start backend with hot reload using wgo
+- `task server` - Start backend with hot reload using wgo
 - `task test:go` - Run Go tests
-- `task dev:lint` - Run lint
+- `task dev:lint:go` - Run lint
 - `task dev:update` - Update Go dependencies
 
 ## Frontend Development
 
 - `task web` - Start frontend dev server with hot reload
 - `cd web && npm run build` - Build frontend for production
-- `cd web && npm run lint` - Run ESLint
-- `cd web && npm run lint:fix` - Fix ESLint issues automatically
+- `task dev:lint:web` - Run ESLint on frontend code
 - `cd web && npm run router:generate` - Generate TanStack Router route tree
 
 ## Build Commands

@@ -4,19 +4,24 @@ tasks:
   server:
     desc: "Run the server in development mode with hot reload"
     cmds:
-      - wgo run ./cmd/monolith
+      - wgo run ./cmd/enok
 
   web:
     desc: "Run the web development server"
     cmds:
       - cd web && npm run dev
 
-  lint:
-    desc: "Run linting and formatting for both Go and web code"
+  lint:go:
+    desc: "Run Go linting and formatting"
     cmds:
       - golangci-lint fmt
       - golangci-lint run
-      - cd web && npm run lint:fix
+
+  lint:web:
+    desc: "Run web linting and formatting"
+    dir: web
+    cmds:
+      - npm run lint:fix
 
   update:
     desc: "Update Go dependencies and tidy modules"

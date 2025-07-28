@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  PACKAGE: monolith
+  PACKAGE: enok
   VERSION:
     sh: git describe --tags 2> /dev/null || echo "v0.0.0"
   COMMIT:
@@ -19,11 +19,23 @@ includes:
 tasks:
   # Quick aliases for common tasks
   run:
-    desc: "Run the server in development mode"
+    desc: "Run both server and web development servers"
+    deps:
+      - server
+      - web
+
+  server:
+    desc: "Run the server in development mode with hot reload"
     cmds:
       - task: dev:server
-  
+
   web:
     desc: "Run the web development server"
     cmds:
       - task: dev:web
+
+  lint:
+    desc: "Run linting and formatting for both Go and web code"
+    deps:
+      - lint:go
+      - lint:web
