@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"monolith/internal/service/account"
+	"monolith/internal/service/auth"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,12 +21,12 @@ func NewAccountHandler(accountService *account.Service) *AccountHandler {
 }
 
 func (h *AccountHandler) Profile(c echo.Context) error {
-	userID, ok := c.Get("user_id").(uuid.UUID)
+	user, ok := c.Get("user").(*auth.AuthUser)
 	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 
-	account, err := h.accountService.GetAccountByID(c.Request().Context(), userID)
+	account, err := h.accountService.GetAccountByID(c.Request().Context(), user.UserID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Account not found").SetInternal(err)
 	}
@@ -35,9 +35,9 @@ func (h *AccountHandler) Profile(c echo.Context) error {
 }
 
 func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
-	userID, ok := c.Get("user_id").(uuid.UUID)
+	user, ok := c.Get("user").(*auth.AuthUser)
 	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 
 	var req account.UpdatePreferencesRequest
@@ -45,7 +45,7 @@ func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
-	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), userID, req)
+	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), user.UserID, req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update preferences").SetInternal(err)
 	}

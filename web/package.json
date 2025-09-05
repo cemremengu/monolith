@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
+    "check-types": "tsc -b --noEmit",
     "router:generate": "tsr generate"
   },
   "dependencies": {

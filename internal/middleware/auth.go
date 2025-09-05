@@ -28,10 +28,14 @@ func SessionAuth(authService *auth.Service, accountService *account.Service, sec
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Failed to retrieve account"})
 			}
 
-			c.Set("user_id", account.ID)
-			c.Set("user_email", account.Email)
-			c.Set("is_admin", account.IsAdmin)
-			c.Set("session_id", session.ID)
+			user := &auth.AuthUser{
+				UserID:    account.ID,
+				UserEmail: account.Email,
+				IsAdmin:   account.IsAdmin,
+				SessionID: session.ID,
+			}
+
+			c.Set("user", user)
 
 			return next(c)
 		}

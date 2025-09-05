@@ -22,17 +22,12 @@ func NewSessionHandler(authService *authService.Service) *SessionHandler {
 }
 
 func (h *SessionHandler) GetSessions(c echo.Context) error {
-	userID, ok := c.Get("user_id").(uuid.UUID)
+	user, ok := c.Get("user").(*authService.AuthUser)
 	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 
-	currentSessionID, ok := c.Get("session_id").(uuid.UUID)
-	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid session ID")
-	}
-
-	sessions, err := h.authService.GetUserSessions(c.Request().Context(), userID)
+	sessions, err := h.authService.GetUserSessions(c.Request().Context(), user.UserID)
 	if err != nil {
 		if errors.Is(err, loginService.ErrInvalidUserID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
@@ -41,16 +36,16 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 	}
 
 	for i := range sessions {
-		sessions[i].IsCurrent = sessions[i].ID == currentSessionID
+		sessions[i].IsCurrent = sessions[i].ID == user.SessionID
 	}
 
 	return c.JSON(http.StatusOK, sessions)
 }
 
 func (h *SessionHandler) RevokeSession(c echo.Context) error {
-	userID, ok := c.Get("user_id").(uuid.UUID)
+	user, ok := c.Get("user").(*authService.AuthUser)
 	if !ok {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 	sessionIDParam := c.Param("sessionId")
 
@@ -63,7 +58,7 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").SetInternal(err)
 	}
 
-	err = h.authService.RevokeSession(c.Request().Context(), userID, sessionID)
+	err = h.authService.RevokeSession(c.Request().Context(), user.UserID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, loginService.ErrInvalidUserID):
