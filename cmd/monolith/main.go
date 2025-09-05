@@ -20,7 +20,6 @@ import (
 	"monolith/migrations"
 
 	"github.com/jackc/pgx/v5/stdlib"
-	_ "go.uber.org/automaxprocs"
 )
 
 const shutdownTimeout = 10

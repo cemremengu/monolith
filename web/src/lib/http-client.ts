@@ -22,7 +22,7 @@ class HttpClient {
       hooks: {
         beforeRequest: [
           (request) => {
-            if (!(request.body instanceof FormData)) {
+            if (request.body === null) {
               request.headers.set("Content-Type", "application/json");
             }
           },
