@@ -29,8 +29,8 @@ func SessionAuth(authService *auth.Service, accountService *account.Service, sec
 			}
 
 			user := &auth.AuthUser{
-				UserID:    account.ID,
-				UserEmail: account.Email,
+				AccountID: account.ID,
+				Email:     account.Email,
 				IsAdmin:   account.IsAdmin,
 				SessionID: session.ID,
 			}

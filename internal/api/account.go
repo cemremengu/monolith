@@ -26,7 +26,7 @@ func (h *AccountHandler) Profile(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 
-	account, err := h.accountService.GetAccountByID(c.Request().Context(), user.UserID)
+	account, err := h.accountService.GetAccountByID(c.Request().Context(), user.AccountID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Account not found").SetInternal(err)
 	}
@@ -45,7 +45,7 @@ func (h *AccountHandler) UpdatePreferences(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
 	}
 
-	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), user.UserID, req)
+	updatedAccount, err := h.accountService.UpdatePreferences(c.Request().Context(), user.AccountID, req)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update preferences").SetInternal(err)
 	}

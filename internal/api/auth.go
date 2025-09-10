@@ -27,7 +27,7 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
 	}
 
-	sessions, err := h.authService.GetUserSessions(c.Request().Context(), user.UserID)
+	sessions, err := h.authService.GetUserSessions(c.Request().Context(), user.AccountID)
 	if err != nil {
 		if errors.Is(err, loginService.ErrInvalidUserID) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
@@ -58,7 +58,7 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").SetInternal(err)
 	}
 
-	err = h.authService.RevokeSession(c.Request().Context(), user.UserID, sessionID)
+	err = h.authService.RevokeSession(c.Request().Context(), user.AccountID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, loginService.ErrInvalidUserID):

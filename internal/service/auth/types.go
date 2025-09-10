@@ -63,8 +63,8 @@ type RotateSessionRequest struct {
 
 // AuthUser holds the authenticated user information stored in the context
 type AuthUser struct {
-	UserID      uuid.UUID
-	UserEmail   string
+	AccountID   uuid.UUID
+	Email       string
 	IsAdmin     bool
 	SessionID   uuid.UUID
 	WorkspaceID uuid.UUID
