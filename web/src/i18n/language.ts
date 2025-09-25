@@ -1,4 +1,4 @@
 export const languages = [
-  { code: "en", name: "English", flag: "🇺🇸" },
-  { code: "tr", name: "Türkçe", flag: "🇹🇷" },
+  { code: "en-US", name: "English", flag: "🇺🇸" },
+  { code: "tr-TR", name: "Türkçe", flag: "🇹🇷" },
 ];

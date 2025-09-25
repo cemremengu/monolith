@@ -39,7 +39,7 @@ export function SettingsPage() {
     try {
       setTheme(theme as "light" | "dark" | "system");
       await updatePreferences.mutateAsync({
-        language: user?.language || "en",
+        language: user?.language || "en-US",
         theme,
         timezone: user?.timezone || "UTC",
       });
@@ -53,7 +53,7 @@ export function SettingsPage() {
   const handleTimezoneChange = async (timezone: string) => {
     try {
       await updatePreferences.mutateAsync({
-        language: user?.language || "en",
+        language: user?.language || "en-US",
         theme: user?.theme || "system",
         timezone,
       });
@@ -96,7 +96,7 @@ export function SettingsPage() {
                   </label>
                 </div>
                 <LanguageSwitcher
-                  value={user?.language || "en"}
+                  value={user?.language || "en-US"}
                   onChange={handleLanguageChange}
                 />
               </div>
