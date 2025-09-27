@@ -169,6 +169,7 @@ order_customer_id_created_at_idx
 - Check `package.json` for available packages
 - Use **shadcn/ui** for core components
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
+- Avoid barrel files (i.e., `index.ts` files that re-export other modules)
 
 ### Core Components
 
