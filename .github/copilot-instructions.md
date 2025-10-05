@@ -116,7 +116,7 @@ This repository is a monolithic application built with:
 
 # Project Structure
 
-- `/cmd/enok` - Main application entry point
+- `/cmd/monolith` - Main application entry point
 - `/internal` - Private application code
   - `/api` - API handlers
   - `/config` - Configuration loading
