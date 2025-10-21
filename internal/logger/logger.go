@@ -6,18 +6,19 @@ import (
 	"os"
 	"strings"
 
+	"monolith"
+
 	"github.com/lmittmann/tint"
 )
 
 type Config struct {
 	Level slog.Level
-	Env   string
 }
 
 func New(cfg Config) *slog.Logger {
 	var handler slog.Handler
 
-	if isDev(cfg.Env) {
+	if monolith.IsDevEnv() {
 		handler = tint.NewHandler(os.Stdout, &tint.Options{
 			Level:      cfg.Level,
 			TimeFormat: "15:04:05",
@@ -34,7 +35,7 @@ func New(cfg Config) *slog.Logger {
 func NewWithWriter(cfg Config, w io.Writer) *slog.Logger {
 	var handler slog.Handler
 
-	if isDev(cfg.Env) {
+	if monolith.IsDevEnv() {
 		handler = tint.NewHandler(w, &tint.Options{
 			Level:      cfg.Level,
 			TimeFormat: "15:04:05",

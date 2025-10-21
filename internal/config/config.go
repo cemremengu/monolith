@@ -34,7 +34,6 @@ type ServerConfig struct {
 
 type LoggingConfig struct {
 	Level slog.Level
-	Env   string
 }
 
 const (
@@ -45,7 +44,6 @@ const (
 	defaultDatabaseURL                  = "postgres://postgres:postgres@localhost:5432/my_db"
 	defaultPort                         = "3001"
 	defaultLogLevel                     = slog.LevelInfo
-	defaultEnv                          = "development"
 )
 
 func NewConfig() *Config {
@@ -67,7 +65,6 @@ func NewConfig() *Config {
 		},
 		Logging: LoggingConfig{
 			Level: parseLogLevelOrDefault("LOG_LEVEL", defaultLogLevel),
-			Env:   getEnvOrDefault("ENV", defaultEnv),
 		},
 	}
 }

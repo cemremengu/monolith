@@ -29,7 +29,6 @@ func main() {
 
 	log := logger.New(logger.Config{
 		Level: cfg.Logging.Level,
-		Env:   cfg.Logging.Env,
 	})
 
 	slog.SetDefault(log)

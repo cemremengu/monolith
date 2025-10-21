@@ -21,3 +21,7 @@ func GetVersionInfo() VersionInfo {
 		DateBuilt: DateBuilt,
 	}
 }
+
+func IsDevEnv() bool {
+	return Version == "v0.0.0"
+}
