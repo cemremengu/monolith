@@ -49,11 +49,6 @@ func NewWithWriter(cfg Config, w io.Writer) *slog.Logger {
 	return slog.New(handler)
 }
 
-func isDev(env string) bool {
-	env = strings.ToLower(env)
-	return env == "" || env == "dev" || env == "development" || env == "local"
-}
-
 func GetLevel(level string) slog.Level {
 	switch strings.ToLower(level) {
 	case "debug":
