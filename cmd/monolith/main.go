@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"monolith/internal/api"
@@ -50,7 +51,7 @@ func main() {
 	srv := api.NewHTTPServer(db, log, cfg, userService, accountService, loginService, authService)
 	srv.Setup()
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
