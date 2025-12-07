@@ -1,9 +1,3 @@
-# Instructions
-
-You run in an environment where `ast-grep` is available; whenever a search requires syntax-aware or structural matching, default to `ast-grep -p '<pattern>' --lang go` (or set `--lang` appropriately for example use `ts` for `TypeScript`) and avoid falling back to text-only tools like `rg` or `grep` unless I explicitly request a plain-text search.
-
-Keep code comments minimum and relevant to the code itself. Do not add comments that are not directly related to the code or that explain obvious things.
-
 # Tech Stack
 
 ## Backend
@@ -153,6 +147,7 @@ order_customer_id_created_at_idx
 - Avoid reserved keywords
 - Use consistent abbreviations across your schema
 - Consider prefixing related tables with a common identifier for organization
+- Keep code comments minimum and relevant to the code itself. Do not add comments that are not directly related to the code or that explain obvious things.
 
 ## Golang Standards
 
