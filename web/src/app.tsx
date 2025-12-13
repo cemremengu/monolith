@@ -3,10 +3,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Loading } from "@/components/loading";
 import { NotFound } from "@/components/not-found";
-import { ThemeProvider } from "@/context/theme";
 
 import { useAuth } from "./hooks/use-auth";
 import { routeTree } from "./routeTree.gen";
+import { ThemeProvider } from "./hooks/use-theme";
 
 const queryClient = new QueryClient({
   defaultOptions: {

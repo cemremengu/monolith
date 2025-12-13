@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTheme } from "@/context/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
 import { ThemeSwitcher } from "./theme-switcher";

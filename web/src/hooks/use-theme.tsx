@@ -3,6 +3,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -12,6 +13,7 @@ type Theme = "dark" | "light" | "system";
 type ThemeProviderContextValue = {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  isDarkTheme: boolean;
 };
 
 const ThemeProviderContext = createContext<
@@ -51,6 +53,16 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
+  const isDarkTheme = useMemo(() => {
+    if (theme === "dark") {
+      return true;
+    }
+    if (theme === "light") {
+      return false;
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }, [theme]);
+
   const value = {
     theme,
     setTheme: (newTheme: Theme) => {
@@ -58,6 +70,7 @@ export function ThemeProvider({
 
       localStorage.setItem(storageKey, newTheme);
     },
+    isDarkTheme,
   };
 
   return (
