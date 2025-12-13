@@ -1,5 +1,5 @@
-import * as React from "react";
 import { Home, Users, BarChart3, User } from "lucide-react";
+import type { ComponentProps } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { NavMain } from "@/components/nav-main";
@@ -12,7 +12,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
 
   const navMain = [
@@ -54,8 +54,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg">
-            <User className="h-4 w-4" />
+          <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg">
+            <User className="size-4" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">My App</span>
