@@ -58,6 +58,7 @@ export function NavUser({
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger
+            nativeButton={false}
             render={
               <SidebarMenuButton
                 size="lg"
