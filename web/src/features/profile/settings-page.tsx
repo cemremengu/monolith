@@ -3,6 +3,7 @@ import { Globe, Palette, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
+import { useTheme } from "@/context/theme";
 import {
   Card,
   CardContent,
@@ -10,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTheme } from "@/context/theme";
 
 import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
 import { ThemeSwitcher } from "./theme-switcher";

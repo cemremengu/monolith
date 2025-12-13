@@ -16,6 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { useProfile } from "./api/queries";
+
 import {
   Form,
   FormControl,
@@ -24,8 +27,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import { useProfile } from "./api/queries";
 
 const profileSchema = z.object({
   name: z

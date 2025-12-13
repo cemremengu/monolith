@@ -13,6 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import {
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useUsers,
+} from "./api/queries";
+
 import {
   Form,
   FormControl,
@@ -21,13 +29,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-import {
-  useCreateUser,
-  useUpdateUser,
-  useDeleteUser,
-  useUsers,
-} from "./api/queries";
 
 const userSchema = z.object({
   username: z
