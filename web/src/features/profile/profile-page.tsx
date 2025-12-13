@@ -68,8 +68,7 @@ export function ProfilePage() {
   const onSubmit = (data: ProfileFormData) => {
     try {
       // TODO: Update profile information API call
-      console.log("Profile update:", data);
-      toast.success(t("profile.messages.updateSuccess"));
+      toast.success(t("profile.messages.updateSuccess") + data.name);
     } catch (error) {
       console.error("Failed to update profile:", error);
       toast.error(t("profile.messages.updateError"));
