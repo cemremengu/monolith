@@ -4,7 +4,7 @@ tasks:
   server:
     desc: "Run the server in development mode with hot reload"
     cmds:
-      - wgo run ./cmd/enok
+      - wgo run ./cmd/monolith
 
   web:
     desc: "Run the web development server"
