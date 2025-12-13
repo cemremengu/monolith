@@ -24,6 +24,7 @@ export const cookieUtils = {
 export function useSessionRotation(onLogout?: () => void) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastExpiryRef = useRef<number>(0);
+  const scheduleRotationRef = useRef<(() => void) | undefined>(undefined);
 
   const rotateToken = useCallback(async () => {
     try {
@@ -70,14 +71,14 @@ export function useSessionRotation(onLogout?: () => void) {
 
       // Another tab already rotated the token
       if (currentExpiry > lastExpiryRef.current) {
-        scheduleRotation();
+        scheduleRotationRef.current?.();
         return;
       }
 
       const result = await rotateToken();
 
       if (result.success) {
-        scheduleRotation();
+        scheduleRotationRef.current?.();
       } else if (result.unauthorized) {
         if (onLogout) {
           onLogout();
@@ -85,6 +86,10 @@ export function useSessionRotation(onLogout?: () => void) {
       }
     }, nextRun);
   }, [rotateToken, onLogout]);
+
+  useEffect(() => {
+    scheduleRotationRef.current = scheduleRotation;
+  }, [scheduleRotation]);
 
   useEffect(() => {
     scheduleRotation();
