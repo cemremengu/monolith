@@ -1,33 +1,30 @@
-import eslint from "@eslint/js";
+import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
-import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
+import { defineConfig, globalIgnores } from "eslint/config";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import { importX } from "eslint-plugin-import-x";
 
-export default defineConfig(
-  { ignores: ["dist"] },
+export default defineConfig([
+  globalIgnores(["dist"]),
   {
+    files: ["**/*.{ts,tsx}"],
     extends: [
-      eslint.configs.recommended,
-      ...tseslint.configs.recommended,
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
       importX.flatConfigs.recommended,
       importX.flatConfigs.typescript,
       eslintPluginPrettierRecommended,
     ],
-    files: ["**/*.{ts,tsx}"],
     languageOptions: {
-      ecmaVersion: "latest",
+      ecmaVersion: 2023,
       globals: globals.browser,
     },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
     rules: {
-      ...reactHooks.configs.recommended.rules,
       "import-x/no-dynamic-require": "warn",
       "import-x/no-nodejs-modules": "off",
       "import-x/order": [
@@ -52,5 +49,5 @@ export default defineConfig(
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "@typescript-eslint/no-unused-vars": "error",
     },
-  }
-);
+  },
+]);
