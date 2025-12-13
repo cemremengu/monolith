@@ -47,11 +47,17 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={
-        <Button variant="outline" size="sm" className="w-full justify-start" />
-      }>
-          <span className="mr-2">{currentLanguage.flag}</span>
-          {currentLanguage.name}
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start"
+          />
+        }
+      >
+        <span className="mr-2">{currentLanguage.flag}</span>
+        {currentLanguage.name}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {languages.map((language) => (

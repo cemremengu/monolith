@@ -76,14 +76,16 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full justify-start gap-2"
-        />
-      }>
-          <span className="truncate">{getTimezoneLabel()}</span>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start gap-2"
+          />
+        }
+      >
+        <span className="truncate">{getTimezoneLabel()}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
         {TIMEZONES.map((timezone) => (
