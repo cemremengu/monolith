@@ -46,15 +46,15 @@ export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger render={
         <Button
           variant="outline"
           size="sm"
           className="w-full justify-start gap-2"
-        >
+        />
+      }>
           {getThemeIcon()}
           {getThemeLabel()}
-        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem

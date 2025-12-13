@@ -58,11 +58,12 @@ export function NavUser({
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger render={
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
+            />
+          }>
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
@@ -74,7 +75,6 @@ export function NavUser({
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
@@ -98,17 +98,13 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link to="/profile">
+              <DropdownMenuItem render={<Link to="/profile" />}>
                   <BadgeCheck />
                   Account
-                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/settings">
+              <DropdownMenuItem render={<Link to="/settings" />}>
                   <Settings />
                   Settings
-                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />
