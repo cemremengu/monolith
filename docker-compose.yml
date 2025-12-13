@@ -1,0 +1,43 @@
+services:
+  monolith-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-v0.0.0}
+        COMMIT: ${COMMIT:-unknown}
+        DATE_BUILT: ${DATE_BUILT}
+    container_name: monolith-app
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: my_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18-trixie
+    container_name: mypg
+    environment:
+      POSTGRES_DB: my_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    volumes:
+      - pg_data:/var/lib/postgresql
+
+volumes:
+  pg_data:
