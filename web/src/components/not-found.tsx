@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { Home, RotateCcw } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+
+import { Button } from "@/components/ui/button";
 
 export function NotFound() {
   const handleGoBack = () => {

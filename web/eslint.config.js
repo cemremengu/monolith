@@ -1,16 +1,17 @@
-import js from "@eslint/js";
+import eslint from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import { importX } from "eslint-plugin-import-x";
 
-export default tseslint.config(
+export default defineConfig(
   { ignores: ["dist"] },
   {
     extends: [
-      js.configs.recommended,
+      eslint.configs.recommended,
       ...tseslint.configs.recommended,
       importX.flatConfigs.recommended,
       importX.flatConfigs.typescript,
@@ -29,11 +30,27 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "import-x/no-dynamic-require": "warn",
       "import-x/no-nodejs-modules": "off",
+      "import-x/order": [
+        "error",
+        {
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+          ],
+          "newlines-between": "always",
+        },
+      ],
       "require-await": "error",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
       ],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "@typescript-eslint/no-unused-vars": "error",
     },
   }
 );

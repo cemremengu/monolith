@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  useCreateUser,
-  useUpdateUser,
-  useDeleteUser,
-  useUsers,
-} from "./api/queries";
+
 import type { User } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +21,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
+import {
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useUsers,
+} from "./api/queries";
 
 const userSchema = z.object({
   username: z

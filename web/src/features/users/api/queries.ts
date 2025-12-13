@@ -4,8 +4,10 @@ import {
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { usersApi } from "./index";
+
 import type { CreateUserRequest } from "@/types/api";
+
+import { usersApi } from "./index";
 
 export const userKeys = {
   all: ["users"] as const,

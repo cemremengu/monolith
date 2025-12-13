@@ -1,5 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
+import { Globe, Palette, Clock } from "lucide-react";
+import { toast } from "sonner";
+import { useSuspenseQuery } from "@tanstack/react-query";
+
 import {
   Card,
   CardContent,
@@ -7,13 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Globe, Palette, Clock } from "lucide-react";
+import { useTheme } from "@/context/theme";
+
+import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
 import { ThemeSwitcher } from "./theme-switcher";
 import { LanguageSwitcher } from "./language-switcher";
 import { TimezoneSelector } from "./timezone-selector";
-import { useTheme } from "@/context/theme";
-import { toast } from "sonner";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function SettingsPage() {
   const { data: user } = useSuspenseQuery(profileQueryOptions);

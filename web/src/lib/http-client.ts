@@ -1,5 +1,6 @@
-import { useAuth } from "@/hooks/use-auth";
 import ky, { type KyInstance, type Options } from "ky";
+
+import { useAuth } from "@/hooks/use-auth";
 
 const API_BASE = "/api";
 

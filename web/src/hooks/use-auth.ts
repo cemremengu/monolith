@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 import { authApi } from "@/features/auth/api";
 import { accountApi } from "@/features/profile/api";
 import type { User, LoginRequest } from "@/types/api";

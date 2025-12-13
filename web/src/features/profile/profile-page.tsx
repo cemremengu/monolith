@@ -2,7 +2,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { useProfile } from "./api/queries";
+import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
+import { toast } from "sonner";
+import { useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,9 +24,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
-import { toast } from "sonner";
-import { useEffect } from "react";
+
+import { useProfile } from "./api/queries";
 
 const profileSchema = z.object({
   name: z
