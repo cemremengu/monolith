@@ -4,13 +4,12 @@ import (
 	"net/http"
 
 	"monolith/internal/config"
-	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
 
 	"github.com/labstack/echo/v4"
 )
 
-func SessionAuth(authService *auth.Service, accountService *account.Service, securityConfig config.SecurityConfig) echo.MiddlewareFunc {
+func SessionAuth(authService *auth.Service, securityConfig config.SecurityConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(securityConfig.LoginCookieName)
@@ -18,21 +17,18 @@ func SessionAuth(authService *auth.Service, accountService *account.Service, sec
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Authentication required"})
 			}
 
-			session, err := authService.GetSessionByToken(c.Request().Context(), cookie.Value)
+			// Get all auth context in a single database query
+			authCtx, err := authService.GetAuthContextByToken(c.Request().Context(), cookie.Value)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Failed to retrieve session"})
 			}
 
-			account, err := accountService.GetAccountByID(c.Request().Context(), session.AccountID)
-			if err != nil {
-				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Failed to retrieve account"})
-			}
-
 			user := &auth.AuthUser{
-				AccountID: account.ID,
-				Email:     account.Email,
-				IsAdmin:   account.IsAdmin,
-				SessionID: session.ID,
+				AccountID:   authCtx.AccountID,
+				Email:       authCtx.AccountEmail,
+				IsAdmin:     authCtx.AccountIsAdmin,
+				SessionID:   authCtx.SessionID,
+				WorkspaceID: authCtx.WorkspaceID,
 			}
 
 			c.Set("user", user)

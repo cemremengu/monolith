@@ -29,7 +29,7 @@ func (hs *HTTPServer) RegisterRoutes() {
 	})
 
 	// Protected routes
-	protected := api.Group("", mw.SessionAuth(hs.authService, hs.accountService, hs.config.Security))
+	protected := api.Group("", mw.SessionAuth(hs.authService, hs.config.Security))
 
 	protected.GET("/account/sessions", authSessionHandler.GetSessions)
 	protected.DELETE("/account/sessions/:sessionId", authSessionHandler.RevokeSession)

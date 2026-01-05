@@ -187,6 +187,65 @@ func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (
 	return &session, nil
 }
 
+// GetAuthContextByToken retrieves all authentication context (session, account, workspace) in a single query.
+// It performs the following security validations:
+// - Session token validation (matches current or previous token)
+// - Account status verification (must be active)
+// - Session revocation check
+// - Session expiration check (both created and rotated timestamps)
+//
+// Note: The account status check is performed in the JOIN condition rather than a separate WHERE clause
+// for security purposes - this prevents information leakage about account states by returning a generic
+// "session not found" error for both non-existent sessions and inactive accounts.
+//
+// Returns:
+// - ErrSessionNotFound if session doesn't exist or account is not active
+// - ErrSessionRevoked if session has been revoked
+// - ErrSessionExpired if session has expired
+func (s *Service) GetAuthContextByToken(ctx context.Context, unhashedToken string) (*AuthContext, error) {
+	hashedtoken := hashToken(unhashedToken, s.securityConfig.TokenSecretKey)
+
+	query := `
+		SELECT 
+			s.id as session_id,
+			s.token as session_token,
+			s.account_id,
+			a.email as account_email,
+			a.is_admin as account_is_admin,
+			a.status as account_status,
+			wa.workspace_id,
+			s.created_at as session_created,
+			s.rotated_at as session_rotated,
+			s.revoked_at as session_revoked
+		FROM auth_session s
+		INNER JOIN account a ON s.account_id = a.id AND a.status = $3
+		INNER JOIN workspace_account wa ON a.id = wa.account_id AND wa.current = true
+		WHERE (s.token = $1 OR s.prev_token = $2)
+	`
+
+	var authCtx AuthContext
+	err := pgxscan.Get(ctx, s.db.Pool, &authCtx, query, hashedtoken, hashedtoken, AccountStatusActive)
+	if err != nil {
+		if errors.Is(err, database.ErrNoRows) {
+			// Return generic error to avoid leaking account state information
+			return nil, ErrSessionNotFound
+		}
+		return nil, err
+	}
+
+	// Check if session is revoked
+	if authCtx.SessionRevoked != nil {
+		return nil, ErrSessionRevoked
+	}
+
+	// Check if session is expired
+	if authCtx.SessionCreated.Before(s.createdAfterThreshold()) || authCtx.SessionRotated.Before(s.rotatedAfterThreshold()) {
+		return nil, ErrSessionExpired
+	}
+
+	return &authCtx, nil
+}
+
 func (s *Service) createdAfterThreshold() time.Time {
 	return time.Now().Add(-s.securityConfig.LoginMaximumLifetimeDuration)
 }

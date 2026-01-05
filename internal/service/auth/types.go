@@ -6,6 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// Account status constants
+const (
+	// AccountStatusActive indicates the account is fully active and can authenticate
+	AccountStatusActive = "active"
+	// AccountStatusPending indicates the account is created but not yet activated (e.g., awaiting email verification)
+	AccountStatusPending = "pending"
+)
+
 type UserSession struct {
 	ID        uuid.UUID `json:"id"`
 	UserAgent string    `json:"userAgent"`
@@ -68,4 +76,18 @@ type AuthUser struct {
 	IsAdmin     bool
 	SessionID   uuid.UUID
 	WorkspaceID uuid.UUID
+}
+
+// AuthContext holds the complete authentication context from a consolidated query
+type AuthContext struct {
+	SessionID      uuid.UUID
+	SessionToken   string
+	AccountID      uuid.UUID
+	AccountEmail   string
+	AccountIsAdmin bool
+	AccountStatus  string
+	WorkspaceID    uuid.UUID
+	SessionCreated time.Time
+	SessionRotated time.Time
+	SessionRevoked *time.Time
 }
