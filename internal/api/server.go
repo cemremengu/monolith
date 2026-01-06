@@ -85,9 +85,9 @@ func (hs *HTTPServer) Setup() {
 	}))
 
 	e.Use(mw.Logger())
-	e.Use(middleware.CORS())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
+	e.Use(middleware.Secure())
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: func(c echo.Context) bool {
