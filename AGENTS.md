@@ -156,6 +156,7 @@ order_customer_id_created_at_idx
 - Use singular package names (e.g., `user` instead of `users`)
 - Use pgxscan for scanning rows into structs
 - db tags are not required for struct fields, they are automatically inferred from struct field names
+- Prefer table-tests unless the change is extremely simple
 
 ## Frontend Standarts
 
@@ -165,6 +166,7 @@ order_customer_id_created_at_idx
 - Use **shadcn/ui** for core components
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
 - Avoid barrel files (i.e., `index.ts` files that re-export other modules)
+- Prefer named exports over default exports
 
 ### Core UI Components
 
