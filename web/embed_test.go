@@ -21,7 +21,6 @@ func TestAssets(t *testing.T) {
 func TestAssetsIsValidFS(t *testing.T) {
 	// Test that the returned filesystem implements fs.FS interface
 	assets := Assets()
-	var _ fs.FS = assets
 
 	// Test that we can read from the filesystem
 	// Note: This will only work if the dist directory exists
