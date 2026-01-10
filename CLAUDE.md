@@ -29,24 +29,24 @@
 
 ## Backend Development
 
-- `task server` - Start backend with hot reload using wgo
-- `task test:go` - Run Go tests
-- `task dev:lint:go` - Run lint
-- `task dev:update` - Update Go dependencies
+- `make server` - Start backend with hot reload using wgo
+- `make test-go` - Run Go tests
+- `make lint-go` - Run lint
+- `make update` - Update Go dependencies
 
 ## Frontend Development
 
-- `task web` - Start frontend dev server with hot reload
+- `make web` - Start frontend dev server with hot reload
 - `cd web && npm run build` - Build frontend for production
-- `task dev:lint:web` - Run ESLint on frontend code
-- `cd web && npm run router:generate` - Generate TanStack Router route tree
+- `make lint-web` - Run ESLint on frontend code
+- `make router-generate` - Generate TanStack Router route tree
 
 ## Build Commands
 
-- `task build:web` - Build frontend only
-- `task build:linux` - Build Linux binary with embedded frontend
-- `task build:win` - Build Windows binary with embedded frontend
-- `task build:docker` - Build Docker image
+- `make build-web` - Build frontend only
+- `make build-linux` - Build Linux binary with embedded frontend
+- `make build-win` - Build Windows binary with embedded frontend
+- `make build-docker` - Build Docker image
 
 # Architecture Overview
 

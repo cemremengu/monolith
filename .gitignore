@@ -48,6 +48,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Local caches
+.cache/
+
 # env file
 .env
 monolith

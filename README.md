@@ -51,7 +51,7 @@ go mod tidy
 2. Run the server:
 
 ```bash
-go run cmd/main.go
+go run ./cmd/monolith
 ```
 
 ### Frontend Setup
@@ -77,7 +77,7 @@ npm run build
 ### Running the Application
 
 1. Make sure PostgreSQL is running and migrations are applied
-2. Start the Go server: `go run cmd/main.go`
+2. Start the Go server: `go run ./cmd/monolith`
 3. Open your browser to `http://localhost:3001`
 4. Initial credentials for the admin user are:
    - Username: `admin`
@@ -85,15 +85,18 @@ npm run build
 
 ## Development
 
-For development you can use the provided `Taskfile` to run tasks easily. Besure to have the following dependecies installed:
+For development you can use the provided `Makefile` to run common tasks. Be sure to have the following dependencies installed:
 
-- [Task](https://taskfile.dev/installation/)
 - [wgo](https://github.com/bokwoon95/wgo)
 - [golangci-lint](https://golangci-lint.run/welcome/install/) (optional, for linting)
 
 For development, you can run the frontend and backend separately:
 
-1. Backend: `task run:server`
-2. Frontend: `task run:web`
+1. Backend: `make server`
+2. Frontend: `make web`
 
 This allows hot reloading for the frontend while developing.
+
+Alternatively, run both in parallel:
+
+- `make run`
