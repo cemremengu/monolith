@@ -51,3 +51,7 @@ Thumbs.db
 # env file
 .env
 monolith
+
+# Local build caches (sandbox-friendly Go runs)
+.gocache/
+.cache/
