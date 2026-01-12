@@ -81,7 +81,7 @@ npm run build
 3. Open your browser to `http://localhost:3001`
 4. Initial credentials for the admin user are:
    - Username: `admin`
-   - Password: `admin123`
+   - Password: `admin`
 
 ## Development
 
