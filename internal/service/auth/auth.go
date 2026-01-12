@@ -213,13 +213,11 @@ func (s *Service) GetAuthContextByToken(ctx context.Context, unhashedToken strin
 			a.email as account_email,
 			a.is_admin as account_is_admin,
 			a.status as account_status,
-			wa.workspace_id,
 			s.created_at as session_created,
 			s.rotated_at as session_rotated,
 			s.revoked_at as session_revoked
 		FROM auth_session s
 		INNER JOIN account a ON s.account_id = a.id AND a.status = $3
-		INNER JOIN workspace_account wa ON a.id = wa.account_id AND wa.current = true
 		WHERE (s.token = $1 OR s.prev_token = $2)
 	`
 

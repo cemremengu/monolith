@@ -12,6 +12,8 @@ const (
 	AccountStatusActive = "active"
 	// AccountStatusPending indicates the account is created but not yet activated (e.g., awaiting email verification)
 	AccountStatusPending = "pending"
+	// AccountStatusDisabled indicates the account is suspended/disabled and cannot authenticate
+	AccountStatusDisabled = "disabled"
 )
 
 type UserSession struct {
@@ -71,11 +73,10 @@ type RotateSessionRequest struct {
 
 // AuthUser holds the authenticated user information stored in the context
 type AuthUser struct {
-	AccountID   uuid.UUID
-	Email       string
-	IsAdmin     bool
-	SessionID   uuid.UUID
-	WorkspaceID uuid.UUID
+	AccountID uuid.UUID
+	Email     string
+	IsAdmin   bool
+	SessionID uuid.UUID
 }
 
 // AuthContext holds the complete authentication context from a consolidated query
@@ -86,7 +87,6 @@ type AuthContext struct {
 	AccountEmail   string
 	AccountIsAdmin bool
 	AccountStatus  string
-	WorkspaceID    uuid.UUID
 	SessionCreated time.Time
 	SessionRotated time.Time
 	SessionRevoked *time.Time
