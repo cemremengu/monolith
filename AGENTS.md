@@ -174,3 +174,4 @@ Refer to **shadcn/ui** for available components and documentation: `https://ui.s
 
 Before adding a new component, always check the `components/ui` directory to verify whether it already exists.
 Do not overwrite existing components.
+Never modify components under `components/ui` directly unless explicitly asked to do so.
