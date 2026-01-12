@@ -28,7 +28,7 @@ const router = createRouter({
   scrollRestoration: true,
   defaultPendingComponent: () => (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Spinner className="size-10 text-primary" />
+      <Spinner className="text-primary size-10" />
     </div>
   ),
   defaultNotFoundComponent: () => <NotFound />,
