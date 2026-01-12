@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Password } from "@/components/password";
 import type { LoginRequest } from "@/types/api";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -61,9 +62,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
+            <Password
               id="password"
-              type="password"
               placeholder="Enter your password"
               {...register("password", {
                 required: "Password is required",

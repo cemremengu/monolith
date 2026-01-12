@@ -28,7 +28,7 @@ func NewService(db *database.DB, cfg config.SecurityConfig) *Service {
 }
 
 func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) (*Session, error) {
-	token, hashedToken, err := createAndHashToken(s.securityConfig.SecretKey)
+	token, hashedToken, err := createAndHashToken(s.securityConfig.TokenSecretKey)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *Service) RotateSession(ctx context.Context, req *RotateSessionRequest) 
 		return nil, err
 	}
 
-	newToken, hashedToken, err := createAndHashToken(s.securityConfig.SecretKey)
+	newToken, hashedToken, err := createAndHashToken(s.securityConfig.TokenSecretKey)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID
 }
 
 func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (*Session, error) {
-	hashedtoken := hashToken(unhashedToken, s.securityConfig.SecretKey)
+	hashedtoken := hashToken(unhashedToken, s.securityConfig.TokenSecretKey)
 
 	query := `
 		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
@@ -213,13 +213,11 @@ func (s *Service) GetAuthContextByToken(ctx context.Context, unhashedToken strin
 			a.email as account_email,
 			a.is_admin as account_is_admin,
 			a.status as account_status,
-			wa.workspace_id,
 			s.created_at as session_created,
 			s.rotated_at as session_rotated,
 			s.revoked_at as session_revoked
 		FROM auth_session s
 		INNER JOIN account a ON s.account_id = a.id AND a.status = $3
-		INNER JOIN workspace_account wa ON a.id = wa.account_id AND wa.current = true
 		WHERE (s.token = $1 OR s.prev_token = $2)
 	`
 
