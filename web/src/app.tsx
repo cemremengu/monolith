@@ -1,8 +1,8 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { Loading } from "@/components/loading";
 import { NotFound } from "@/components/not-found";
+import { Spinner } from "@/components/ui/spinner";
 
 import { useAuth } from "./hooks/use-auth";
 import { routeTree } from "./routeTree.gen";
@@ -26,7 +26,11 @@ const router = createRouter({
   // This will ensure that the loader is always called when the route is preloaded or visited
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
-  defaultPendingComponent: Loading,
+  defaultPendingComponent: () => (
+    <div className="flex min-h-screen flex-col items-center justify-center">
+      <Spinner className="size-10 text-primary" />
+    </div>
+  ),
   defaultNotFoundComponent: () => <NotFound />,
   defaultErrorComponent: ({ error }) => (
     <div>
