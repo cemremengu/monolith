@@ -24,11 +24,10 @@ func SessionAuth(authService *auth.Service, securityConfig config.SecurityConfig
 			}
 
 			user := &auth.AuthUser{
-				AccountID:   authCtx.AccountID,
-				Email:       authCtx.AccountEmail,
-				IsAdmin:     authCtx.AccountIsAdmin,
-				SessionID:   authCtx.SessionID,
-				WorkspaceID: authCtx.WorkspaceID,
+				AccountID: authCtx.AccountID,
+				Email:     authCtx.AccountEmail,
+				IsAdmin:   authCtx.AccountIsAdmin,
+				SessionID: authCtx.SessionID,
 			}
 
 			c.Set("user", user)
