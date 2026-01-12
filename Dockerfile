@@ -12,7 +12,7 @@ COPY web/ ./
 RUN npm run build
 
 # Stage 2: Build Go application
-FROM golang:1.24-alpine AS go-builder
+FROM golang:1.25-alpine AS go-builder
 
 # Install git for go modules that might need it
 RUN apk add --no-cache git
