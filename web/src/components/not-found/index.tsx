@@ -29,13 +29,13 @@ export function NotFound() {
           <Button
             onClick={handleGoBack}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center"
           >
             <RotateCcw className="h-4 w-4" />
             Go Back
           </Button>
           <Link to="/">
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center">
               <Home className="h-4 w-4" />
               Start Over
             </Button>
