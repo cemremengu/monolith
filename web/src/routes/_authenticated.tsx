@@ -1,22 +1,9 @@
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 
-import { Button } from "@/components/ui/button";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { useSessionRotation } from "@/hooks/use-session-rotation";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { AppSidebar } from "@/components/sidebar";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context, location }) => {
@@ -45,29 +32,6 @@ function AuthenticatedLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Overview</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          <div className="flex-1" />
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              Welcome, {auth.user?.username}
-            </span>
-            <Button variant="outline" size="sm" onClick={auth.logout}>
-              Logout
-            </Button>
-          </div>
-        </header>
         <div className="flex-1">
           <Outlet />
         </div>
