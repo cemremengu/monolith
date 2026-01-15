@@ -61,7 +61,7 @@ export function UserTable({
             <TableHead>{t("admin.users.table.role")}</TableHead>
             <TableHead>{t("admin.users.table.status")}</TableHead>
             <TableHead>{t("admin.users.table.createdAt")}</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-12.5"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
