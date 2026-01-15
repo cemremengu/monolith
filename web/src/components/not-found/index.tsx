@@ -26,17 +26,13 @@ export function NotFound() {
 
         {/* Action Buttons */}
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
-          <Button
-            onClick={handleGoBack}
-            variant="outline"
-            className="flex items-center"
-          >
-            <RotateCcw className="h-4 w-4" />
+          <Button onClick={handleGoBack} variant="outline">
+            <RotateCcw className="size-4" />
             Go Back
           </Button>
           <Link to="/">
-            <Button className="flex items-center">
-              <Home className="h-4 w-4" />
+            <Button>
+              <Home className="size-4" />
               Start Over
             </Button>
           </Link>
