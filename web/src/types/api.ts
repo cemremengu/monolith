@@ -27,6 +27,7 @@ export type User = {
   theme?: string;
   timezone?: string;
   lastSeenAt?: string;
+  status: string;
   isDisabled: boolean;
   createdAt: string;
   updatedAt: string;

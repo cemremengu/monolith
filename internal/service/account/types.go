@@ -18,7 +18,7 @@ type Account struct {
 	Theme      *string    `json:"theme"`
 	Timezone   *string    `json:"timezone"`
 	LastSeenAt *time.Time `json:"lastSeenAt"`
-	IsDisabled bool       `json:"isDisabled"`
+	Status     string     `json:"status"`
 	CreatedAt  time.Time  `json:"createdAt"`
 	UpdatedAt  time.Time  `json:"updatedAt"`
 }
@@ -34,4 +34,38 @@ type UpdatePreferencesRequest struct {
 	Language *string `json:"language"`
 	Theme    *string `json:"theme"`
 	Timezone *string `json:"timezone"`
+}
+
+type CreateAccountRequest struct {
+	Username string  `json:"username" validate:"required"`
+	Name     string  `json:"name"     validate:"required"`
+	Email    string  `json:"email"    validate:"required,email"`
+	Password *string `json:"password"`
+	IsAdmin  *bool   `json:"isAdmin"`
+}
+
+type UpdateAccountRequest struct {
+	Username string `json:"username" validate:"required"`
+	Name     string `json:"name"     validate:"required"`
+	Email    string `json:"email"    validate:"required,email"`
+}
+
+type InviteUsersRequest struct {
+	Emails  []string `json:"emails" validate:"required,dive,email"`
+	IsAdmin bool     `json:"isAdmin"`
+}
+
+type InviteUsersResponse struct {
+	Success []Account           `json:"success"`
+	Failed  []InviteUserFailure `json:"failed"`
+}
+
+type InviteUserFailure struct {
+	Email  string `json:"email"`
+	Reason string `json:"reason"`
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"currentPassword" validate:"required"`
+	NewPassword     string `json:"newPassword"     validate:"required,min=8"`
 }

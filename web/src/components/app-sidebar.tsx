@@ -1,4 +1,4 @@
-import { Home, Users, BarChart3, User } from "lucide-react";
+import { Home, BarChart3, User } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import { useAuth } from "@/hooks/use-auth";
@@ -23,11 +23,6 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       isActive: true,
     },
     {
-      title: "Users",
-      url: "/users",
-      icon: Users,
-    },
-    {
       title: "Analytics",
       url: "#",
       icon: BarChart3,
@@ -48,6 +43,7 @@ export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
     name: user?.username || "User",
     email: user?.email || "user@example.com",
     avatar: user?.avatar || "",
+    isAdmin: user?.isAdmin || false,
   };
 
   return (

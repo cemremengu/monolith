@@ -5,6 +5,7 @@ import {
   Info,
   LogOut,
   Settings,
+  Shield,
 } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 
@@ -34,6 +35,7 @@ export function NavUser({
     name: string;
     email: string;
     avatar: string;
+    isAdmin: boolean;
   };
 }) {
   const { isMobile } = useSidebar();
@@ -112,6 +114,14 @@ export function NavUser({
                 <Bell />
                 Notifications
               </DropdownMenuItem>
+              {user.isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin">
+                    <Shield />
+                    Admin Panel
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <AboutDialog
                 trigger={
                   <DropdownMenuItem onSelect={(e) => e.preventDefault()}>

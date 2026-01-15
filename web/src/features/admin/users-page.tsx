@@ -20,7 +20,7 @@ import {
   useUpdateUser,
   useDeleteUser,
   useUsers,
-} from "./api/queries";
+} from "../admin/api/queries";
 
 const userSchema = z.object({
   username: z
