@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { Users, UserCheck, UserX } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { UsersPage } from "./users-page";
 import { useUsers } from "./api/queries";

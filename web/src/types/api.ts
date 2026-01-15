@@ -37,4 +37,21 @@ export type CreateUserRequest = {
   username: string;
   name: string;
   email: string;
+  password?: string;
+  isAdmin?: boolean;
+};
+
+export type InviteUsersRequest = {
+  emails: string[];
+  isAdmin: boolean;
+};
+
+export type InviteUserFailure = {
+  email: string;
+  reason: string;
+};
+
+export type InviteUsersResponse = {
+  success: User[];
+  failed: InviteUserFailure[];
 };

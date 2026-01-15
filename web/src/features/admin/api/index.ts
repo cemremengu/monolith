@@ -1,4 +1,9 @@
-import type { User, CreateUserRequest } from "@/types/api";
+import type {
+  User,
+  CreateUserRequest,
+  InviteUsersRequest,
+  InviteUsersResponse,
+} from "@/types/api";
 import { httpClient } from "@/lib/http-client";
 
 export const usersApi = {
@@ -6,22 +11,34 @@ export const usersApi = {
     filterBy?: string;
     sortBy?: "name" | "email";
   }): Promise<User[]> => {
-    return httpClient.get(`users`, params);
+    return httpClient.get(`accounts`, params);
   },
 
   getById: (id: string): Promise<User> => {
-    return httpClient.get(`users/${id}`);
+    return httpClient.get(`accounts/${id}`);
   },
 
   create: (data: CreateUserRequest): Promise<User> => {
-    return httpClient.post(`users`, data);
+    return httpClient.post(`accounts`, data);
+  },
+
+  invite: (data: InviteUsersRequest): Promise<InviteUsersResponse> => {
+    return httpClient.post(`accounts/invite`, data);
   },
 
   update: (id: string, data: CreateUserRequest): Promise<User> => {
-    return httpClient.put(`users/${id}`, data);
+    return httpClient.put(`accounts/${id}`, data);
+  },
+
+  disable: (id: string): Promise<void> => {
+    return httpClient.patch(`accounts/${id}/disable`);
+  },
+
+  enable: (id: string): Promise<void> => {
+    return httpClient.patch(`accounts/${id}/enable`);
   },
 
   delete: (id: string): Promise<void> => {
-    return httpClient.delete(`users/${id}`);
+    return httpClient.delete(`accounts/${id}`);
   },
 };

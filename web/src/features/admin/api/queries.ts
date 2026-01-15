@@ -5,7 +5,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import type { CreateUserRequest } from "@/types/api";
+import type { CreateUserRequest, InviteUsersRequest } from "@/types/api";
 
 import { usersApi } from "./index";
 
@@ -66,11 +66,44 @@ export const useUpdateUser = () => {
   });
 };
 
+export const useDisableUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: usersApi.disable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+    },
+  });
+};
+
+export const useEnableUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: usersApi.enable,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+    },
+  });
+};
+
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: usersApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+    },
+  });
+};
+
+export const useInviteUsers = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: InviteUsersRequest) => usersApi.invite(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
