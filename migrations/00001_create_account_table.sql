@@ -12,7 +12,6 @@ CREATE TABLE account
     theme        TEXT,
     timezone     TEXT,
     last_seen_at TIMESTAMPTZ DEFAULT NOW(),
-    is_disabled  BOOLEAN     DEFAULT FALSE not null,
     status       TEXT        DEFAULT 'disabled'::TEXT NOT NULL,
     created_at   TIMESTAMPTZ DEFAULT NOW(),
     updated_at   TIMESTAMPTZ DEFAULT NOW()
