@@ -12,7 +12,6 @@ import (
 	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
 	"monolith/internal/service/login"
-	"monolith/internal/service/user"
 	"monolith/web"
 
 	"github.com/go-playground/validator/v10"
@@ -26,7 +25,6 @@ type HTTPServer struct {
 	db             *database.DB
 	log            *slog.Logger
 	config         *config.Config
-	userService    *user.Service
 	accountService *account.Service
 	loginService   *login.Service
 	authService    *auth.Service
@@ -37,7 +35,6 @@ func NewHTTPServer(
 	db *database.DB,
 	log *slog.Logger,
 	cfg *config.Config,
-	userService *user.Service,
 	accountService *account.Service,
 	loginService *login.Service,
 	authService *auth.Service,
@@ -47,7 +44,6 @@ func NewHTTPServer(
 		db:             db,
 		log:            log,
 		config:         cfg,
-		userService:    userService,
 		accountService: accountService,
 		loginService:   loginService,
 		authService:    authService,

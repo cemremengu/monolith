@@ -11,7 +11,6 @@ import (
 
 // RegisterRoutes configures all the application routes.
 func (hs *HTTPServer) RegisterRoutes() {
-	userHandler := NewUserHandler(hs.userService)
 	authHandler := NewAuthHandler(hs.loginService, hs.authService)
 	accountHandler := NewAccountHandler(hs.accountService)
 	authSessionHandler := NewSessionHandler(hs.authService)
@@ -41,9 +40,12 @@ func (hs *HTTPServer) RegisterRoutes() {
 
 	// Admin-only routes
 	admin := protected.Group("", mw.AdminOnly())
-	admin.GET("/users", userHandler.GetUsers)
-	admin.GET("/users/:id", userHandler.GetUser)
-	admin.POST("/users", userHandler.CreateUser)
-	admin.PUT("/users/:id", userHandler.UpdateUser)
-	admin.DELETE("/users/:id", userHandler.DeleteUser)
+	admin.GET("/accounts", accountHandler.GetAccounts)
+	admin.POST("/accounts", accountHandler.CreateAccount)
+	admin.POST("/accounts/invite", accountHandler.InviteUsers)
+	admin.GET("/accounts/:id", accountHandler.GetAccount)
+	admin.PUT("/accounts/:id", accountHandler.UpdateAccount)
+	admin.PATCH("/accounts/:id/disable", accountHandler.DisableAccount)
+	admin.PATCH("/accounts/:id/enable", accountHandler.EnableAccount)
+	admin.DELETE("/accounts/:id", accountHandler.DeleteAccount)
 }
