@@ -20,6 +20,16 @@
       "languagePlaceholder": "English",
       "timezonePlaceholder": "UTC"
     },
+    "security": {
+      "title": "Security",
+      "subtitle": "Update your password and security settings",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPasswordPlaceholder": "Confirm new password"
+    },
     "accountStatus": {
       "title": "Account Status",
       "subtitle": "Current account information",
@@ -34,16 +44,128 @@
     },
     "actions": {
       "saveChanges": "Save Changes",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "changePassword": "Change Password"
     },
     "messages": {
-      "updateSuccess": "Profile updated successfully"
+      "updateSuccess": "Profile updated successfully",
+      "passwordChangeSuccess": "Password changed successfully",
+      "passwordChangeError": "Failed to change password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "invalidCurrentPassword": "Current password is incorrect"
+    },
+    "validation": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordRequired": "New password is required",
+      "newPasswordMinLength": "Password must be at least 8 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMustMatch": "Passwords must match"
     },
     "joined": "Joined",
     "loading": "Loading profile...",
     "updateSuccess": "Profile updated successfully",
     "updateError": "Failed to update profile",
     "saving": "Saving..."
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "subtitle": "Manage users and system settings",
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalUsersDesc": "All registered users",
+      "activeUsers": "Active Users",
+      "activeUsersDesc": "Currently enabled users",
+      "disabledUsers": "Inactive Users",
+      "disabledUsersDesc": "Disabled user accounts",
+      "activity": "Activity",
+      "activityDesc": "Recent activity period"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage user accounts and permissions",
+      "newUser": "New User",
+      "addNew": "Add New User",
+      "editUser": "Edit User",
+      "createDescription": "Create a new user",
+      "updateDescription": "Update user information",
+      "table": {
+        "username": "Username",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Created"
+      },
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "disabled": "Disabled"
+      },
+      "roles": {
+        "admin": "Admin",
+        "user": "User"
+      },
+      "dialog": {
+        "title": "New User",
+        "description": "Create a new user by inviting them or manually creating an account",
+        "tabs": {
+          "invite": "Invite Users",
+          "create": "Create Manually"
+        }
+      },
+      "form": {
+        "username": "Username",
+        "usernamePlaceholder": "Enter username",
+        "name": "Name",
+        "namePlaceholder": "Enter name",
+        "email": "Email",
+        "emailPlaceholder": "user@example.com",
+        "emails": "Email Addresses",
+        "emailsPlaceholder": "Enter email addresses (one per line or comma-separated)\nuser1@example.com, user2@example.com",
+        "role": "Role",
+        "selectRole": "Select role",
+        "password": "Password",
+        "passwordPlaceholder": "Enter password",
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Re-enter password",
+        "create": "Create",
+        "createUser": "Create User",
+        "update": "Update",
+        "cancel": "Cancel",
+        "inviteUsers": "Invite Users",
+        "saving": "Saving...",
+        "creating": "Creating...",
+        "inviting": "Inviting...",
+        "deleting": "Deleting..."
+      },
+      "actions": {
+        "edit": "Edit",
+        "disable": "Disable",
+        "enable": "Enable",
+        "delete": "Delete",
+        "openMenu": "Open menu"
+      },
+      "validation": {
+        "usernameMinLength": "Username must be at least 3 characters",
+        "usernameMaxLength": "Username must be less than 50 characters",
+        "nameRequired": "Name is required",
+        "nameMaxLength": "Name must be less than 100 characters",
+        "emailInvalid": "Please enter a valid email address",
+        "emailsRequired": "At least one email address is required",
+        "invalidEmails": "One or more email addresses are invalid",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordsMustMatch": "Passwords must match"
+      },
+      "messages": {
+        "noUsers": "No users found",
+        "created": "Created",
+        "userCreated": "User created successfully",
+        "usersInvited": "{{count}} user(s) invited successfully",
+        "usersInvited_one": "{{count}} user invited successfully",
+        "usersInvited_other": "{{count}} users invited successfully",
+        "createUserFailed": "Failed to create user",
+        "inviteUsersFailed": "Failed to invite users"
+      }
+    }
   },
   "common": {
     "english": "English",

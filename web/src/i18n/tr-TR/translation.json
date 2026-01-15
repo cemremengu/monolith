@@ -20,6 +20,16 @@
       "languagePlaceholder": "Türkçe",
       "timezonePlaceholder": "UTC"
     },
+    "security": {
+      "title": "Güvenlik",
+      "subtitle": "Şifrenizi ve güvenlik ayarlarınızı güncelleyin",
+      "currentPassword": "Mevcut Şifre",
+      "newPassword": "Yeni Şifre",
+      "confirmPassword": "Şifre Onayı",
+      "currentPasswordPlaceholder": "Mevcut şifrenizi girin",
+      "newPasswordPlaceholder": "Yeni şifrenizi girin",
+      "confirmPasswordPlaceholder": "Yeni şifrenizi onaylayın"
+    },
     "accountStatus": {
       "title": "Hesap Durumu",
       "subtitle": "Mevcut hesap bilgileri",
@@ -34,16 +44,128 @@
     },
     "actions": {
       "saveChanges": "Değişiklikleri Kaydet",
-      "cancel": "İptal"
+      "cancel": "İptal",
+      "changePassword": "Şifre Değiştir"
     },
     "messages": {
-      "updateSuccess": "Profil başarıyla güncellendi"
+      "updateSuccess": "Profil başarıyla güncellendi",
+      "passwordChangeSuccess": "Şifre başarıyla değiştirildi",
+      "passwordChangeError": "Şifre değiştirilemedi",
+      "passwordsDoNotMatch": "Şifreler eşleşmiyor",
+      "invalidCurrentPassword": "Mevcut şifre yanlış"
+    },
+    "validation": {
+      "currentPasswordRequired": "Mevcut şifre gereklidir",
+      "newPasswordRequired": "Yeni şifre gereklidir",
+      "newPasswordMinLength": "Şifre en az 8 karakter olmalıdır",
+      "confirmPasswordRequired": "Lütfen şifrenizi onaylayın",
+      "passwordsMustMatch": "Şifreler eşleşmelidir"
     },
     "joined": "Katılım",
     "loading": "Profil yükleniyor...",
     "updateSuccess": "Profil başarıyla güncellendi",
     "updateError": "Profil güncellenemedi",
     "saving": "Kaydediliyor..."
+  },
+  "admin": {
+    "title": "Yönetici Paneli",
+    "subtitle": "Kullanıcıları ve sistem ayarlarını yönetin",
+    "stats": {
+      "totalUsers": "Toplam Kullanıcı",
+      "totalUsersDesc": "Tüm kayıtlı kullanıcılar",
+      "activeUsers": "Aktif Kullanıcılar",
+      "activeUsersDesc": "Şu anda etkin kullanıcılar",
+      "disabledUsers": "Pasif Kullanıcılar",
+      "disabledUsersDesc": "Devre dışı kullanıcı hesapları",
+      "activity": "Aktivite",
+      "activityDesc": "Son aktivite dönemi"
+    },
+    "users": {
+      "title": "Kullanıcılar",
+      "description": "Kullanıcı hesaplarını ve izinleri yönetin",
+      "newUser": "Yeni Kullanıcı",
+      "addNew": "Yeni Kullanıcı Ekle",
+      "editUser": "Kullanıcı Düzenle",
+      "createDescription": "Yeni bir kullanıcı oluştur",
+      "updateDescription": "Kullanıcı bilgilerini güncelle",
+      "table": {
+        "username": "Kullanıcı Adı",
+        "email": "E-posta",
+        "role": "Rol",
+        "status": "Durum",
+        "createdAt": "Oluşturulma"
+      },
+      "status": {
+        "active": "Aktif",
+        "pending": "Beklemede",
+        "disabled": "Devre Dışı"
+      },
+      "roles": {
+        "admin": "Yönetici",
+        "user": "Kullanıcı"
+      },
+      "dialog": {
+        "title": "Yeni Kullanıcı",
+        "description": "Kullanıcıları davet ederek veya manuel olarak hesap oluşturarak yeni kullanıcı ekleyin",
+        "tabs": {
+          "invite": "Kullanıcı Davet Et",
+          "create": "Manuel Oluştur"
+        }
+      },
+      "form": {
+        "username": "Kullanıcı Adı",
+        "usernamePlaceholder": "Kullanıcı adı girin",
+        "name": "Ad Soyad",
+        "namePlaceholder": "Ad soyad girin",
+        "email": "E-posta",
+        "emailPlaceholder": "kullanici@ornek.com",
+        "emails": "E-posta Adresleri",
+        "emailsPlaceholder": "E-posta adreslerini girin (her satıra bir tane veya virgülle ayırın)\nkullanici1@ornek.com, kullanici2@ornek.com",
+        "role": "Rol",
+        "selectRole": "Rol seçin",
+        "password": "Şifre",
+        "passwordPlaceholder": "Şifre girin",
+        "confirmPassword": "Şifre Onayı",
+        "confirmPasswordPlaceholder": "Şifreyi tekrar girin",
+        "create": "Oluştur",
+        "createUser": "Kullanıcı Oluştur",
+        "update": "Güncelle",
+        "cancel": "İptal",
+        "inviteUsers": "Kullanıcıları Davet Et",
+        "saving": "Kaydediliyor...",
+        "creating": "Oluşturuluyor...",
+        "inviting": "Davet ediliyor...",
+        "deleting": "Siliniyor..."
+      },
+      "actions": {
+        "edit": "Düzenle",
+        "disable": "Devre Dışı Bırak",
+        "enable": "Etkinleştir",
+        "delete": "Sil",
+        "openMenu": "Menüyü aç"
+      },
+      "validation": {
+        "usernameMinLength": "Kullanıcı adı en az 3 karakter olmalıdır",
+        "usernameMaxLength": "Kullanıcı adı 50 karakterden az olmalıdır",
+        "nameRequired": "Ad soyad gereklidir",
+        "nameMaxLength": "Ad soyad 100 karakterden az olmalıdır",
+        "emailInvalid": "Geçerli bir e-posta adresi girin",
+        "emailsRequired": "En az bir e-posta adresi gereklidir",
+        "invalidEmails": "Bir veya daha fazla e-posta adresi geçersiz",
+        "passwordMinLength": "Şifre en az 8 karakter olmalıdır",
+        "passwordsMustMatch": "Şifreler eşleşmelidir"
+      },
+      "messages": {
+        "noUsers": "Kullanıcı bulunamadı",
+        "created": "Oluşturuldu",
+        "userCreated": "Kullanıcı başarıyla oluşturuldu",
+        "usersInvited": "{{count}} kullanıcı başarıyla davet edildi",
+        "usersInvited_one": "{{count}} kullanıcı başarıyla davet edildi",
+        "usersInvited_other": "{{count}} kullanıcı başarıyla davet edildi",
+        "createUserFailed": "Kullanıcı oluşturulamadı",
+        "inviteUsersFailed": "Kullanıcılar davet edilemedi"
+      }
+    }
   },
   "common": {
     "english": "English",

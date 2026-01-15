@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { useCreateUser, useInviteUsers } from "./api/queries";
 
@@ -211,209 +212,240 @@ export function CreateUserDialog({
           </TabsList>
 
           <TabsContent value="invite" className="space-y-4">
-            <Form {...inviteUsersForm}>
-              <form
-                onSubmit={inviteUsersForm.handleSubmit(onInviteUsers)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={inviteUsersForm.control}
-                  name="emails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.emails")}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t("admin.users.form.emailsPlaceholder")}
-                          className="min-h-[120px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={inviteUsersForm.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.role")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+            <form
+              onSubmit={inviteUsersForm.handleSubmit(onInviteUsers)}
+              className="space-y-4"
+            >
+              <Controller
+                name="emails"
+                control={inviteUsersForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.emails")}
+                    </FieldLabel>
+                    <Textarea
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t("admin.users.form.emailsPlaceholder")}
+                      className="min-h-[120px]"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="role"
+                control={inviteUsersForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`invite-${field.name}`}>
+                      {t("admin.users.form.role")}
+                    </FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id={`invite-${field.name}`}
+                        aria-invalid={fieldState.invalid}
                       >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("admin.users.form.selectRole")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="user">
-                            {t("admin.users.roles.user")}
-                          </SelectItem>
-                          <SelectItem value="admin">
-                            {t("admin.users.roles.admin")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={inviteUsersMutation.isPending}
-                >
-                  {inviteUsersMutation.isPending
-                    ? t("admin.users.form.inviting")
-                    : t("admin.users.form.inviteUsers")}
-                </Button>
-              </form>
-            </Form>
+                        <SelectValue
+                          placeholder={t("admin.users.form.selectRole")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">
+                          {t("admin.users.roles.user")}
+                        </SelectItem>
+                        <SelectItem value="admin">
+                          {t("admin.users.roles.admin")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={inviteUsersMutation.isPending}
+              >
+                {inviteUsersMutation.isPending
+                  ? t("admin.users.form.inviting")
+                  : t("admin.users.form.inviteUsers")}
+              </Button>
+            </form>
           </TabsContent>
 
           <TabsContent value="create" className="space-y-4">
-            <Form {...createUserForm}>
-              <form
-                onSubmit={createUserForm.handleSubmit(onCreateUser)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={createUserForm.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.username")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t(
-                            "admin.users.form.usernamePlaceholder",
-                          )}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={createUserForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.name")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t("admin.users.form.namePlaceholder")}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={createUserForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.email")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder={t("admin.users.form.emailPlaceholder")}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={createUserForm.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.role")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+            <form
+              onSubmit={createUserForm.handleSubmit(onCreateUser)}
+              className="space-y-4"
+            >
+              <Controller
+                name="username"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.username")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t("admin.users.form.usernamePlaceholder")}
+                      autoComplete="username"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="name"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.name")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t("admin.users.form.namePlaceholder")}
+                      autoComplete="name"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="email"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.email")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="email"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t("admin.users.form.emailPlaceholder")}
+                      autoComplete="email"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="role"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={`create-${field.name}`}>
+                      {t("admin.users.form.role")}
+                    </FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id={`create-${field.name}`}
+                        aria-invalid={fieldState.invalid}
                       >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={t("admin.users.form.selectRole")}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="user">
-                            {t("admin.users.roles.user")}
-                          </SelectItem>
-                          <SelectItem value="admin">
-                            {t("admin.users.roles.admin")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={createUserForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.users.form.password")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder={t(
-                            "admin.users.form.passwordPlaceholder",
-                          )}
-                          {...field}
+                        <SelectValue
+                          placeholder={t("admin.users.form.selectRole")}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={createUserForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        {t("admin.users.form.confirmPassword")}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder={t(
-                            "admin.users.form.confirmPasswordPlaceholder",
-                          )}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={createUserMutation.isPending}
-                >
-                  {createUserMutation.isPending
-                    ? t("admin.users.form.creating")
-                    : t("admin.users.form.createUser")}
-                </Button>
-              </form>
-            </Form>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">
+                          {t("admin.users.roles.user")}
+                        </SelectItem>
+                        <SelectItem value="admin">
+                          {t("admin.users.roles.admin")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="password"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.password")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="password"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t("admin.users.form.passwordPlaceholder")}
+                      autoComplete="new-password"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name="confirmPassword"
+                control={createUserForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      {t("admin.users.form.confirmPassword")}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id={field.name}
+                      type="password"
+                      aria-invalid={fieldState.invalid}
+                      placeholder={t(
+                        "admin.users.form.confirmPasswordPlaceholder",
+                      )}
+                      autoComplete="new-password"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={createUserMutation.isPending}
+              >
+                {createUserMutation.isPending
+                  ? t("admin.users.form.creating")
+                  : t("admin.users.form.createUser")}
+              </Button>
+            </form>
           </TabsContent>
         </Tabs>
       </DialogContent>

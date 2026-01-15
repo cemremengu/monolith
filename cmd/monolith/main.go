@@ -46,7 +46,7 @@ func main() {
 	loginService := login.NewService(db, accountService)
 	authService := auth.NewService(db, cfg.Security)
 
-	srv := api.NewHTTPServer(db, log, cfg,  accountService, loginService, authService)
+	srv := api.NewHTTPServer(db, log, cfg, accountService, loginService, authService)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
