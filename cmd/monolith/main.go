@@ -40,7 +40,7 @@ func main() {
 	}
 	defer db.Close()
 
-	migrations.Up(stdlib.OpenDBFromPool(db.Pool))
+	migrations.Up(stdlib.OpenDBFromPool(db.PgxPool()))
 
 	accountService := account.NewService(db)
 	loginService := login.NewService(db, accountService)

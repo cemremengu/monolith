@@ -38,3 +38,7 @@ func randomHex(n int) (string, error) {
 	}
 	return hex.EncodeToString(bytes), nil
 }
+
+func HashTokenForTest(token string, secretKey string) string {
+	return hashToken(token, secretKey)
+}
