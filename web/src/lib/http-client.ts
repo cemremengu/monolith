@@ -2,8 +2,6 @@ import ky, { type KyInstance, type Options } from "ky";
 
 import { useAuth } from "@/hooks/use-auth";
 
-const API_BASE = "/api";
-
 type HttpClientOptions = Pick<Options, "headers" | "retry" | "timeout">;
 
 export class AuthError extends Error {
@@ -13,35 +11,46 @@ export class AuthError extends Error {
   }
 }
 
-class HttpClient {
-  private client: KyInstance;
+// Use absolute URL to support both browser and Node.js test environments
+function getApiBase(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}/api`;
+  }
+  return "/api";
+}
 
-  constructor() {
-    this.client = ky.create({
-      prefixUrl: API_BASE,
-      credentials: "include",
-      hooks: {
-        beforeRequest: [
-          (request) => {
-            if (request.body === null) {
-              request.headers.set("Content-Type", "application/json");
-            }
-          },
-        ],
-        beforeError: [
-          (error) => {
-            if (
-              error.response?.status === 401 &&
-              useAuth.getState().isLoggedIn
-            ) {
-              useAuth.getState().logout();
-            }
-            return error;
-          },
-        ],
-      },
-      retry: 0,
-    });
+class HttpClient {
+  private _client: KyInstance | null = null;
+
+  private get client(): KyInstance {
+    if (!this._client) {
+      this._client = ky.create({
+        prefixUrl: getApiBase(),
+        credentials: "include",
+        hooks: {
+          beforeRequest: [
+            (request) => {
+              if (request.body === null) {
+                request.headers.set("Content-Type", "application/json");
+              }
+            },
+          ],
+          beforeError: [
+            (error) => {
+              if (
+                error.response?.status === 401 &&
+                useAuth.getState().isLoggedIn
+              ) {
+                useAuth.getState().logout();
+              }
+              return error;
+            },
+          ],
+        },
+        retry: 0,
+      });
+    }
+    return this._client;
   }
 
   get<T>(

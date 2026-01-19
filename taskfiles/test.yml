@@ -12,11 +12,17 @@ tasks:
     cmds:
       - npm test
 
-  coverage:
+  coverage:go:
     desc: "Run Go tests with coverage"
     cmds:
       - go test -v -coverprofile=coverage.out ./...
       - go tool cover -html=coverage.out -o coverage.html
+
+  coverage:web:
+    desc: "Run web tests with coverage"
+    dir: web
+    cmds:
+      - npm run test:coverage
 
   all:
     desc: "Run all tests"
@@ -24,8 +30,8 @@ tasks:
       - task: go
       - task: web
 
-  # Alias for backward compatibility
-  default:
-    desc: "Run Go tests (default behavior)"
+  coverage:
+    desc: "Run all tests with coverage"
     cmds:
-      - task: go
+      - task: coverage:go
+      - task: coverage:web

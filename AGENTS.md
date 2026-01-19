@@ -39,6 +39,7 @@
 - `task web` - Start frontend dev server with hot reload
 - `cd web && npm run build` - Build frontend for production
 - `task dev:lint:web` - Run ESLint on frontend code
+- `task test:web` - Run frontend tests
 - `cd web && npm run router:generate` - Generate TanStack Router route tree
 
 ## Build Commands
