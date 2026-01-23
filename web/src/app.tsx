@@ -47,7 +47,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-function Router() {
+export function App() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
@@ -56,5 +56,3 @@ function Router() {
     </ThemeProvider>
   );
 }
-
-export default Router;
