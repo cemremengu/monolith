@@ -62,6 +62,7 @@ Carefully read the issue and think hard about a plan to solve it before coding.
 - If tests fail, analyze failures and revise your patch.
 - Write additional tests if needed to capture important behaviors or edge cases.
 - Ensure all tests pass before finalizing.
+- Prefer table-driven tests for Golang unit tests when applicable
 
 ## 7. Final Verification
 

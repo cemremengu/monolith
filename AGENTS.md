@@ -157,7 +157,7 @@ order_customer_id_created_at_idx
 - Use singular package names (e.g., `user` instead of `users`)
 - Use pgxscan for scanning rows into structs
 - db tags are not required for struct fields, they are automatically inferred from struct field names
-- Prefer table-tests unless the change is extremely simple
+- Prefer table-driven tests for unit tests when applicable
 
 ## Frontend Standarts
 
