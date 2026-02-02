@@ -81,13 +81,6 @@ func getEnvOrDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-func parseStrOrDefault(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
-
 func parseDurationOrDefault(key string, defaultValue time.Duration) time.Duration {
 	if value := os.Getenv(key); value != "" {
 		if duration, err := time.ParseDuration(value); err == nil {
