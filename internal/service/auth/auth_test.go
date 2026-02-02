@@ -17,7 +17,6 @@ import (
 func newTestSecurityConfig() config.SecurityConfig {
 	return config.SecurityConfig{
 		SecretKey:                            "test-secret-key",
-		TokenSecretKey:                       "test-token-secret-key",
 		LoginMaximumLifetimeDuration:         30 * 24 * time.Hour,
 		LoginMaximumInactiveLifetimeDuration: 7 * 24 * time.Hour,
 		LoginCookieName:                      "session_token",
@@ -115,7 +114,7 @@ func TestService_GetAuthContextByToken(t *testing.T) {
 	now := time.Now()
 
 	cfg := newTestSecurityConfig()
-	hashedToken := hashToken("valid_token", cfg.TokenSecretKey)
+	hashedToken := hashToken("valid_token", cfg.SecretKey)
 
 	tests := []struct {
 		name      string
@@ -236,7 +235,7 @@ func TestService_GetSessionByToken(t *testing.T) {
 	now := time.Now()
 
 	cfg := newTestSecurityConfig()
-	hashedToken := hashToken("valid_token", cfg.TokenSecretKey)
+	hashedToken := hashToken("valid_token", cfg.SecretKey)
 
 	tests := []struct {
 		name      string
@@ -322,7 +321,7 @@ func TestService_RotateSession(t *testing.T) {
 	now := time.Now()
 
 	cfg := newTestSecurityConfig()
-	hashedToken := hashToken("old_token", cfg.TokenSecretKey)
+	hashedToken := hashToken("old_token", cfg.SecretKey)
 
 	tests := []struct {
 		name      string

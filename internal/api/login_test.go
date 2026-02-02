@@ -30,7 +30,6 @@ func stringPtr(s string) *string {
 func newTestSecurityConfig() config.SecurityConfig {
 	return config.SecurityConfig{
 		SecretKey:                            "test-secret-key",
-		TokenSecretKey:                       "test-token-secret-key",
 		LoginMaximumLifetimeDuration:         30 * 24 * time.Hour,
 		LoginMaximumInactiveLifetimeDuration: 7 * 24 * time.Hour,
 		LoginCookieName:                      "session_token",

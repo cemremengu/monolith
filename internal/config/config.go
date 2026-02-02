@@ -18,7 +18,6 @@ type Config struct {
 
 type SecurityConfig struct {
 	SecretKey                            string
-	TokenSecretKey                       string
 	LoginMaximumLifetimeDuration         time.Duration
 	LoginMaximumInactiveLifetimeDuration time.Duration
 	LoginCookieName                      string
@@ -53,7 +52,6 @@ func NewConfig() *Config {
 	return &Config{
 		Security: SecurityConfig{
 			SecretKey:                            getEnvOrDefault("SECRET_KEY", "VrrkYCoULJMS6hyCfPrf6ThBJqkpWrKn6O2IIMj1Z3s="),
-			TokenSecretKey:                       parseStrOrDefault("TOKEN_SECRET_KEY", "Zvfm2WtbYkJYIM7a5eJcOAudgiL4hOCL0wWAckZhlHI="),
 			LoginMaximumLifetimeDuration:         parseDurationOrDefault("LOGIN_MAXIMUM_LIFETIME_DURATION", defaultLoginMaximumLifetime),
 			LoginMaximumInactiveLifetimeDuration: parseDurationOrDefault("LOGIN_MAXIMUM_INACTIVE_LIFETIME_DURATION", defaultLoginInactiveLifetime),
 			LoginCookieName:                      getEnvOrDefault("LOGIN_COOKIE_NAME", defaultLoginCookieName),

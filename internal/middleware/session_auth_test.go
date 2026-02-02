@@ -20,7 +20,6 @@ import (
 func newTestSecurityConfig() config.SecurityConfig {
 	return config.SecurityConfig{
 		SecretKey:                            "test-secret-key",
-		TokenSecretKey:                       "test-token-secret-key",
 		LoginMaximumLifetimeDuration:         30 * 24 * time.Hour,
 		LoginMaximumInactiveLifetimeDuration: 7 * 24 * time.Hour,
 		LoginCookieName:                      "session_token",
@@ -34,7 +33,7 @@ func TestSessionAuth(t *testing.T) {
 	accountID := uuid.New()
 	now := time.Now()
 
-	hashedToken := auth.HashTokenForTest("valid_token", cfg.TokenSecretKey)
+	hashedToken := auth.HashTokenForTest("valid_token", cfg.SecretKey)
 
 	tests := []struct {
 		name         string
