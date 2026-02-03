@@ -158,6 +158,7 @@ order_customer_id_created_at_idx
 - Use pgxscan for scanning rows into structs
 - db tags are not required for struct fields, they are automatically inferred from struct field names
 - Prefer table-driven tests for unit tests when applicable
+- For JSONB columns, use the actual Go types directly in row structs instead of `[]byte`. pgx v5 handles JSONB serialization/deserialization automatically.
 
 ## Frontend Standarts
 
