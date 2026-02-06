@@ -159,6 +159,7 @@ order_customer_id_created_at_idx
 - db tags are not required for struct fields, they are automatically inferred from struct field names
 - Prefer table-driven tests for unit tests when applicable
 - For JSONB columns, use the actual Go types directly in row structs instead of `[]byte`. pgx v5 handles JSONB serialization/deserialization automatically.
+- Use restrictive permissions (0700 for dirs, 0600 for files) instead of world-readable (0755/0644) unless the content is genuinely public
 
 ## Frontend Standarts
 
