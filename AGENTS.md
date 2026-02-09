@@ -170,6 +170,7 @@ order_customer_id_created_at_idx
 - Create new components under `components` directory. `components/ui` directory is only reserved for components from **shadcn/ui**
 - Avoid barrel files (i.e., `index.ts` files that re-export other modules)
 - Prefer named exports over default exports
+- When width and height are the same (e.g., `w-5 h-5`), use the shorthand `size-5` instead for consistency. Do not apply this to components under `components/ui` as they follow shadcn/ui conventions.
 
 ### Core UI Components
 
