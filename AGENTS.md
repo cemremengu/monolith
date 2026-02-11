@@ -87,7 +87,7 @@ sessionService := session.NewService(db)
 
 ### Column Types
 
-- **Identity columns**: Always use `GENERATED ALWAYS AS IDENTITY` instead of `SERIAL` or `BIGSERIAL`
+- **Identity columns**: Always use `GENERATED ALWAYS AS IDENTITY` instead of `SERIAL` or `BIGSERIAL`. For UUIDs, use `UUID` type with `gen_random_uuid()` as the default value
 - **Timestamps**: Always use `TIMESTAMPTZ` for datetime columns to handle timezone-aware dates
 - **Text data**: Always use `TEXT` instead of `VARCHAR(N)` for variable-length strings
 - **JSON data**: Always use `JSONB` instead of `JSON` for better performance and indexing capabilities
