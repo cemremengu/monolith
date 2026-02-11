@@ -27,15 +27,13 @@ const shutdownTimeout = 10
 func main() {
 	cfg := config.NewConfig()
 
-	log := logger.New(logger.Config{
+	slog.SetDefault(logger.New(logger.Config{
 		Level: cfg.Logging.Level,
-	})
-
-	slog.SetDefault(log)
+	}))
 
 	db, err := database.New(cfg.Database.URL)
 	if err != nil {
-		log.Error("Failed to connect to database", "error", err)
+		slog.Error("Failed to connect to database", "error", err)
 		panic("Database connection error")
 	}
 	defer db.Close()
@@ -46,7 +44,7 @@ func main() {
 	loginService := login.NewService(db, accountService)
 	authService := auth.NewService(db, cfg.Security)
 
-	srv := api.NewHTTPServer(db, log, cfg, accountService, loginService, authService)
+	srv := api.NewHTTPServer(db, cfg, accountService, loginService, authService)
 	srv.Setup()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -54,7 +52,7 @@ func main() {
 
 	go func() {
 		if startErr := srv.Start(); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
-			log.Error("Server failed to start", "error", startErr)
+			slog.Error("Server failed to start", "error", startErr)
 			os.Exit(1)
 		}
 	}()
@@ -63,6 +61,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
 	defer cancel()
 	if shutdownErr := srv.Shutdown(ctx); shutdownErr != nil {
-		log.Error("Server shutdown failed", "error", shutdownErr)
+		slog.Error("Server shutdown failed", "error", shutdownErr)
 	}
 }

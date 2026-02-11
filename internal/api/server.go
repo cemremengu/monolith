@@ -23,7 +23,6 @@ import (
 type HTTPServer struct {
 	echo           *echo.Echo
 	db             *database.DB
-	log            *slog.Logger
 	config         *config.Config
 	accountService *account.Service
 	loginService   *login.Service
@@ -33,7 +32,6 @@ type HTTPServer struct {
 // NewHTTPServer creates a new server instance with the given database, logger, and services.
 func NewHTTPServer(
 	db *database.DB,
-	log *slog.Logger,
 	cfg *config.Config,
 	accountService *account.Service,
 	loginService *login.Service,
@@ -42,7 +40,6 @@ func NewHTTPServer(
 	return &HTTPServer{
 		echo:           echo.New(),
 		db:             db,
-		log:            log,
 		config:         cfg,
 		accountService: accountService,
 		loginService:   loginService,
@@ -100,7 +97,7 @@ func (hs *HTTPServer) Setup() {
 func (hs *HTTPServer) Start() error {
 	port := hs.config.Server.Port
 
-	hs.log.Info("Server starting", slog.String("port", port))
+	slog.Info("Server starting", "port", port)
 	return hs.echo.Start(":" + port)
 }
 
