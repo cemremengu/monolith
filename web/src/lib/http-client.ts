@@ -105,16 +105,8 @@ class HttpClient {
     return this.client.patch(url, { ...requestOptions, ...options }).json<T>();
   }
 
-  delete(url: string, options?: HttpClientOptions): Promise<void>;
-  delete<T>(url: string, options?: HttpClientOptions): Promise<T>;
-  async delete<T = void>(
-    url: string,
-    options?: HttpClientOptions,
-  ): Promise<T | void> {
-    const response = await this.client.delete(url, options);
-    const text = await response.text();
-    if (!text) return;
-    return JSON.parse(text) as T;
+  delete<T>(url: string, options?: HttpClientOptions): Promise<T> {
+    return this.client.delete(url, options).json<T>();
   }
 }
 
