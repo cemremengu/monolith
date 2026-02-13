@@ -41,7 +41,7 @@ class HttpClient {
                 error.response?.status === 401 &&
                 useAuth.getState().isLoggedIn
               ) {
-                useAuth.getState().logout();
+                useAuth.getState().logout({ redirectToLogin: true });
               }
               return error;
             },

@@ -1,7 +1,6 @@
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useAuth } from "@/hooks/use-auth";
 import { useSessionRotation } from "@/hooks/use-session-rotation";
 import { AppSidebar } from "@/components/sidebar";
 
@@ -24,9 +23,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-  const auth = useAuth();
-
-  useSessionRotation(auth.logout);
+  useSessionRotation();
 
   return (
     <SidebarProvider>

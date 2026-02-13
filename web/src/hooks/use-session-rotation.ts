@@ -21,7 +21,7 @@ export const cookieUtils = {
   },
 };
 
-export function useSessionRotation(onLogout?: () => void) {
+export function useSessionRotation() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastExpiryRef = useRef<number>(0);
   const scheduleRotationRef = useRef<(() => void) | undefined>(undefined);
@@ -79,13 +79,9 @@ export function useSessionRotation(onLogout?: () => void) {
 
       if (result.success) {
         scheduleRotationRef.current?.();
-      } else if (result.unauthorized) {
-        if (onLogout) {
-          onLogout();
-        }
       }
     }, nextRun);
-  }, [rotateToken, onLogout]);
+  }, [rotateToken]);
 
   useEffect(() => {
     scheduleRotationRef.current = scheduleRotation;

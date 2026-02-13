@@ -10,9 +10,13 @@ type AuthState = {
   isLoggedIn: boolean;
 };
 
+type LogoutOptions = {
+  redirectToLogin?: boolean;
+};
+
 type AuthActions = {
   login: (data: LoginRequest) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (options?: LogoutOptions) => Promise<void>;
   fetchUser: () => Promise<void>;
 };
 
@@ -31,7 +35,7 @@ export const useAuth = create<AuthStore>()(
         });
       },
 
-      logout: async () => {
+      logout: async (options?: LogoutOptions) => {
         try {
           await authApi.logout();
         } finally {
@@ -41,7 +45,9 @@ export const useAuth = create<AuthStore>()(
           });
         }
 
-        window.location.replace("/login");
+        if (options?.redirectToLogin) {
+          window.location.replace("/login");
+        }
       },
 
       fetchUser: async () => {
