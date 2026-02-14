@@ -171,6 +171,7 @@ order_customer_id_created_at_idx
 - Avoid barrel files (i.e., `index.ts` files that re-export other modules)
 - Prefer named exports over default exports
 - When width and height are the same (e.g., `w-5 h-5`), use the shorthand `size-5` instead for consistency. Do not apply this to components under `components/ui` as they follow shadcn/ui conventions.
+- For forms, the convention is to use react-hook-form + Controller with Field/FieldLabel/FieldError from components/ui/field
 
 ### Core UI Components
 
