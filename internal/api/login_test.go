@@ -60,11 +60,11 @@ func TestAuthHandler_Login(t *testing.T) {
 			setupMock: func(mock pgxmock.PgxPoolIface) {
 				accountRows := pgxmock.NewRows([]string{
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
+					"last_seen_at", "status", "auth_source", "created_at", "updated_at",
 				}).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -97,11 +97,11 @@ func TestAuthHandler_Login(t *testing.T) {
 			setupMock: func(mock pgxmock.PgxPoolIface) {
 				accountRows := pgxmock.NewRows([]string{
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
+					"last_seen_at", "status", "auth_source", "created_at", "updated_at",
 				}).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -142,7 +142,7 @@ func TestAuthHandler_Login(t *testing.T) {
 
 			db := &database.DB{Pool: mock}
 			accountService := account.NewService(db)
-			loginService := login.NewService(db, accountService)
+			loginService := login.NewService(db, accountService, nil)
 			authService := auth.NewService(db, cfg)
 			handler := NewAuthHandler(loginService, authService)
 
@@ -209,7 +209,7 @@ func TestAuthHandler_Logout(t *testing.T) {
 
 			db := &database.DB{Pool: mock}
 			accountService := account.NewService(db)
-			loginService := login.NewService(db, accountService)
+			loginService := login.NewService(db, accountService, nil)
 			authService := auth.NewService(db, cfg)
 			handler := NewAuthHandler(loginService, authService)
 

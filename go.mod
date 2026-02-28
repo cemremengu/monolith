@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/georgysavva/scany/v2 v2.1.4
+	github.com/go-ldap/ldap/v3 v3.4.10
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.8.0

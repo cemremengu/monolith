@@ -28,6 +28,7 @@ export type User = {
   timezone?: string;
   lastSeenAt?: string;
   status: string;
+  authSource: string;
   isDisabled: boolean;
   createdAt: string;
   updatedAt: string;
