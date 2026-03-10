@@ -19,6 +19,7 @@ type Account struct {
 	Timezone   *string    `json:"timezone"`
 	LastSeenAt *time.Time `json:"lastSeenAt"`
 	Status     string     `json:"status"`
+	AuthSource string     `json:"authSource"`
 	CreatedAt  time.Time  `json:"createdAt"`
 	UpdatedAt  time.Time  `json:"updatedAt"`
 }

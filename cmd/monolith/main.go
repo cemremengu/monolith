@@ -16,6 +16,7 @@ import (
 	"monolith/internal/logger"
 	"monolith/internal/service/account"
 	"monolith/internal/service/auth"
+	"monolith/internal/service/ldap"
 	"monolith/internal/service/login"
 	"monolith/migrations"
 
@@ -41,7 +42,8 @@ func main() {
 	migrations.Up(stdlib.OpenDBFromPool(db.PgxPool()))
 
 	accountService := account.NewService(db)
-	loginService := login.NewService(db, accountService)
+	ldapService := ldap.NewService(cfg.LDAP)
+	loginService := login.NewService(db, accountService, ldapService)
 	authService := auth.NewService(db, cfg.Security)
 
 	srv := api.NewHTTPServer(db, cfg, accountService, loginService, authService)

@@ -14,6 +14,23 @@ type Config struct {
 	Database DatabaseConfig
 	Server   ServerConfig
 	Logging  LoggingConfig
+	LDAP     LDAPConfig
+}
+
+type LDAPConfig struct {
+	Enabled           bool
+	Host              string
+	Port              int
+	BindDN            string
+	BindPassword      string
+	BaseDN            string
+	SearchFilter      string
+	UsernameAttribute string
+	EmailAttribute    string
+	NameAttribute     string
+	StartTLS          bool
+	SkipTLSVerify     bool
+	AutoProvision     bool
 }
 
 type SecurityConfig struct {
@@ -44,6 +61,11 @@ const (
 	defaultDatabaseURL                  = "postgres://postgres:postgres@localhost:5432/my_db"
 	defaultPort                         = "3001"
 	defaultLogLevel                     = slog.LevelInfo
+	defaultLDAPPort                     = 389
+	defaultLDAPSearchFilter             = "(|(uid=%s)(mail=%s))"
+	defaultLDAPUsernameAttribute        = "uid"
+	defaultLDAPEmailAttribute           = "mail"
+	defaultLDAPNameAttribute            = "cn"
 )
 
 func NewConfig() *Config {
@@ -65,6 +87,21 @@ func NewConfig() *Config {
 		},
 		Logging: LoggingConfig{
 			Level: parseLogLevelOrDefault("LOG_LEVEL", defaultLogLevel),
+		},
+		LDAP: LDAPConfig{
+			Enabled:           parseBoolOrDefault("LDAP_ENABLED", false),
+			Host:              getEnvOrDefault("LDAP_HOST", ""),
+			Port:              parseIntOrDefault("LDAP_PORT", defaultLDAPPort),
+			BindDN:            getEnvOrDefault("LDAP_BIND_DN", ""),
+			BindPassword:      getEnvOrDefault("LDAP_BIND_PASSWORD", ""),
+			BaseDN:            getEnvOrDefault("LDAP_BASE_DN", ""),
+			SearchFilter:      getEnvOrDefault("LDAP_SEARCH_FILTER", defaultLDAPSearchFilter),
+			UsernameAttribute: getEnvOrDefault("LDAP_USERNAME_ATTRIBUTE", defaultLDAPUsernameAttribute),
+			EmailAttribute:    getEnvOrDefault("LDAP_EMAIL_ATTRIBUTE", defaultLDAPEmailAttribute),
+			NameAttribute:     getEnvOrDefault("LDAP_NAME_ATTRIBUTE", defaultLDAPNameAttribute),
+			StartTLS:          parseBoolOrDefault("LDAP_START_TLS", false),
+			SkipTLSVerify:     parseBoolOrDefault("LDAP_SKIP_TLS_VERIFY", false),
+			AutoProvision:     parseBoolOrDefault("LDAP_AUTO_PROVISION", true),
 		},
 	}
 }
@@ -94,6 +131,15 @@ func parseIntOrDefault(key string, defaultValue int) int {
 	if value := os.Getenv(key); value != "" {
 		if intValue, err := strconv.Atoi(value); err == nil {
 			return intValue
+		}
+	}
+	return defaultValue
+}
+
+func parseBoolOrDefault(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return defaultValue

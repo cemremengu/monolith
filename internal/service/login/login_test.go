@@ -20,6 +20,11 @@ func stringPtr(s string) *string {
 	return &s
 }
 
+var accountColumns = []string{
+	"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
+	"last_seen_at", "status", "auth_source", "created_at", "updated_at",
+}
+
 func TestService_Login(t *testing.T) {
 	accountID := uuid.New()
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 12)
@@ -38,13 +43,10 @@ func TestService_Login(t *testing.T) {
 				Password: "password123",
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
-				rows := pgxmock.NewRows([]string{
-					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
-				}).AddRow(
+				rows := pgxmock.NewRows(accountColumns).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -76,13 +78,10 @@ func TestService_Login(t *testing.T) {
 				Password: "wrongpassword",
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
-				rows := pgxmock.NewRows([]string{
-					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
-				}).AddRow(
+				rows := pgxmock.NewRows(accountColumns).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -97,13 +96,10 @@ func TestService_Login(t *testing.T) {
 				Password: "password123",
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
-				rows := pgxmock.NewRows([]string{
-					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
-				}).AddRow(
+				rows := pgxmock.NewRows(accountColumns).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("testuser").
@@ -122,13 +118,10 @@ func TestService_Login(t *testing.T) {
 				Password: "password123",
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
-				rows := pgxmock.NewRows([]string{
-					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
-					"last_seen_at", "status", "created_at", "updated_at",
-				}).AddRow(
+				rows := pgxmock.NewRows(accountColumns).AddRow(
 					accountID, "testuser", "test@example.com", stringPtr("Test User"),
 					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					stringPtr("UTC"), nil, "active", "local", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -151,7 +144,7 @@ func TestService_Login(t *testing.T) {
 
 			db := &database.DB{Pool: mock}
 			accountSvc := account.NewService(db)
-			s := NewService(db, accountSvc)
+			s := NewService(db, accountSvc, nil)
 
 			acc, err := s.Login(context.Background(), tt.req)
 			if tt.wantErr != nil {

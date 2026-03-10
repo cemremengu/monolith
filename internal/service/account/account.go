@@ -68,7 +68,7 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, 
 		INSERT INTO account (username, email, name, password, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, NOW(), NOW())
 		RETURNING id, username, email, name, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
+		          last_seen_at, status, auth_source, created_at, updated_at
 	`, req.Username, req.Email, req.Name, hashedPassword)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*Account
 	var account Account
 	err := pgxscan.Get(ctx, s.db.Pool, &account, `
 		SELECT id, username, email, name, password, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
+		       last_seen_at, status, auth_source, created_at, updated_at
 		FROM account
 		WHERE (email = $1 OR username = $1) AND status = 'active'
 	`, login)
@@ -96,11 +96,36 @@ func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*Account
 	return &account, nil
 }
 
+func (s *Service) GetOrCreateLDAPAccount(ctx context.Context, username, email, name string) (*Account, error) {
+	existing, err := s.GetAccountByLogin(ctx, email)
+	if err == nil {
+		return existing, nil
+	}
+
+	existing, err = s.GetAccountByLogin(ctx, username)
+	if err == nil {
+		return existing, nil
+	}
+
+	var account Account
+	err = pgxscan.Get(ctx, s.db.Pool, &account, `
+		INSERT INTO account (username, email, name, auth_source, status, created_at, updated_at)
+		VALUES ($1, $2, $3, 'ldap', 'active', NOW(), NOW())
+		RETURNING id, username, email, name, is_admin, language, theme, timezone,
+		          last_seen_at, status, auth_source, created_at, updated_at
+	`, username, email, name)
+	if err != nil {
+		return nil, fmt.Errorf("create LDAP account: %w", err)
+	}
+
+	return &account, nil
+}
+
 func (s *Service) GetAccountByID(ctx context.Context, accountID uuid.UUID) (*Account, error) {
 	var account Account
 	err := pgxscan.Get(ctx, s.db.Pool, &account, `
 		SELECT id, username, email, name, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
+		       last_seen_at, status, auth_source, created_at, updated_at
 		FROM account
 		WHERE id = $1 AND status = 'active'
 	`, accountID)
@@ -128,7 +153,7 @@ func (s *Service) UpdatePreferences(
 		SET language = $1, theme = $2, timezone = $3, updated_at = NOW()
 		WHERE id = $4 AND status = 'active'
 		RETURNING id, username, email, name, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
+		          last_seen_at, status, auth_source, created_at, updated_at
 	`, req.Language, req.Theme, req.Timezone, accountID)
 	if err != nil {
 		return nil, err
@@ -140,7 +165,7 @@ func (s *Service) GetAccounts(ctx context.Context) ([]Account, error) {
 	var accounts []Account
 	err := pgxscan.Select(ctx, s.db.Pool, &accounts, `
 		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
+		       last_seen_at, status, auth_source, created_at, updated_at
 		FROM account
 		ORDER BY created_at DESC
 	`)
@@ -154,7 +179,7 @@ func (s *Service) GetAccount(ctx context.Context, id uuid.UUID) (*Account, error
 	var account Account
 	err := pgxscan.Get(ctx, s.db.Pool, &account, `
 		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
+		       last_seen_at, status, auth_source, created_at, updated_at
 		FROM account
 		WHERE id = $1 AND status = 'active'
 	`, id)
@@ -195,7 +220,7 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountRequest) (
 		INSERT INTO account (username, name, email, password, is_admin, status, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
 		RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
+		          last_seen_at, status, auth_source, created_at, updated_at
 	`, req.Username, req.Name, req.Email, hashedPassword, isAdmin, status)
 	if err != nil {
 		return nil, err
@@ -236,7 +261,7 @@ func (s *Service) InviteUsers(ctx context.Context, req InviteUsersRequest) (*Inv
 			INSERT INTO account (username, email, name, is_admin, status, created_at, updated_at)
 			VALUES ($1, $2, $3, $4, 'pending', NOW(), NOW())
 			RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-			          last_seen_at, status, created_at, updated_at
+			          last_seen_at, status, auth_source, created_at, updated_at
 		`, username, email, username, req.IsAdmin)
 		if err != nil {
 			response.Failed = append(response.Failed, InviteUserFailure{
@@ -259,7 +284,7 @@ func (s *Service) UpdateAccount(ctx context.Context, id uuid.UUID, req UpdateAcc
 		SET username = $1, name = $2, email = $3, updated_at = NOW()
 		WHERE id = $4 AND status = 'active'
 		RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
+		          last_seen_at, status, auth_source, created_at, updated_at
 	`, req.Username, req.Name, req.Email, id)
 	if err != nil {
 		return nil, err
