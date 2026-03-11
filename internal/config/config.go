@@ -41,7 +41,7 @@ const (
 	defaultLoginMaximumLifetime         = 30 * 24 * time.Hour
 	defaultLoginInactiveLifetime        = 7 * 24 * time.Hour
 	defaultLoginCookieName              = "session_token"
-	defaultDatabaseURL                  = "postgres://postgres:postgres@localhost:5432/my_db"
+	defaultDatabaseURL                  = "postgres://postgres:postgres@localhost:5432/my_db" //nolint:gosec
 	defaultPort                         = "3001"
 	defaultLogLevel                     = slog.LevelInfo
 )

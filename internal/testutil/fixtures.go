@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//nolint:gosec
 func NewTestAccount(opts ...func(*account.Account)) *account.Account {
 	acc := &account.Account{
 		ID:        uuid.New(),
@@ -68,6 +69,7 @@ func WithStatus(status string) func(*account.Account) {
 	}
 }
 
+//nolint:gosec
 func NewTestSession(opts ...func(*auth.Session)) *auth.Session {
 	now := time.Now()
 	session := &auth.Session{
