@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "./hooks/use-auth";
 import { routeTree } from "./routeTree.gen";
 import { ThemeProvider } from "./hooks/use-theme";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,9 +51,11 @@ declare module "@tanstack/react-router" {
 export function App() {
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} context={{ auth: useAuth() }} />
-      </QueryClientProvider>
+      <TooltipProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} context={{ auth: useAuth() }} />
+        </QueryClientProvider>
+      </TooltipProvider>
     </ThemeProvider>
   );
 }
