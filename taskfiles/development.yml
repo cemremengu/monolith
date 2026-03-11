@@ -15,6 +15,7 @@ tasks:
     desc: "Run Go linting and formatting"
     cmds:
       - golangci-lint fmt
+      - go fix ./...
       - golangci-lint run
 
   lint:web:

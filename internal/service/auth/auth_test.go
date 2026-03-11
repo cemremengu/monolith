@@ -30,10 +30,6 @@ func newTestService(mock pgxmock.PgxPoolIface) *Service {
 	return NewService(db, cfg)
 }
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func TestService_CreateSession(t *testing.T) {
 	accountID := uuid.New()
 	sessionID := uuid.New()
@@ -57,7 +53,7 @@ func TestService_CreateSession(t *testing.T) {
 					"id", "token", "prev_token", "account_id", "user_agent", "client_ip",
 					"token_seen", "seen_at", "created_at", "rotated_at", "revoked_at",
 				}).AddRow(
-					sessionID, "hashed_token", stringPtr("hashed_token"), accountID,
+					sessionID, "hashed_token", new("hashed_token"), accountID,
 					"Mozilla/5.0 Test Browser", "127.0.0.1",
 					false, (*time.Time)(nil), now, now, (*time.Time)(nil),
 				)
@@ -353,7 +349,7 @@ func TestService_RotateSession(t *testing.T) {
 					"id", "token", "prev_token", "account_id", "user_agent", "client_ip",
 					"token_seen", "seen_at", "created_at", "rotated_at", "revoked_at",
 				}).AddRow(
-					sessionID, "new_hashed_token", stringPtr(hashedToken), accountID,
+					sessionID, "new_hashed_token", new(hashedToken), accountID,
 					"Mozilla/5.0 Test Browser", "127.0.0.1",
 					false, (*time.Time)(nil), now, time.Now(), (*time.Time)(nil),
 				)

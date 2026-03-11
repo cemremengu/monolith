@@ -14,10 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func TestService_ValidatePassword(t *testing.T) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 12)
 
@@ -217,9 +213,9 @@ func TestService_GetAccountByLogin(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					"hashedpassword", false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					"hashedpassword", false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -241,9 +237,9 @@ func TestService_GetAccountByLogin(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					"hashedpassword", false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					"hashedpassword", false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("testuser").
@@ -314,9 +310,9 @@ func TestService_GetAccountByID(t *testing.T) {
 					"id", "username", "email", "name", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE id = \$1 AND status = 'active'`).
 					WithArgs(accountID).
@@ -473,21 +469,21 @@ func TestService_UpdatePreferences(t *testing.T) {
 			name:      "successful update",
 			accountID: accountID,
 			req: UpdatePreferencesRequest{
-				Language: stringPtr("fr"),
-				Theme:    stringPtr("dark"),
-				Timezone: stringPtr("Europe/Paris"),
+				Language: new("fr"),
+				Theme:    new("dark"),
+				Timezone: new("Europe/Paris"),
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
 				rows := pgxmock.NewRows([]string{
 					"id", "username", "email", "name", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					false, stringPtr("fr"), stringPtr("dark"),
-					stringPtr("Europe/Paris"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					false, new("fr"), new("dark"),
+					new("Europe/Paris"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`UPDATE account SET language = \$1, theme = \$2, timezone = \$3, updated_at = NOW\(\) WHERE id = \$4 AND status = 'active' RETURNING`).
-					WithArgs(stringPtr("fr"), stringPtr("dark"), stringPtr("Europe/Paris"), accountID).
+					WithArgs(new("fr"), new("dark"), new("Europe/Paris"), accountID).
 					WillReturnRows(rows)
 			},
 			wantErr: false,
@@ -496,7 +492,7 @@ func TestService_UpdatePreferences(t *testing.T) {
 			name:      "account not found",
 			accountID: uuid.New(),
 			req: UpdatePreferencesRequest{
-				Language: stringPtr("fr"),
+				Language: new("fr"),
 			},
 			setupMock: func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(`UPDATE account SET language = \$1, theme = \$2, timezone = \$3, updated_at = NOW\(\) WHERE id = \$4 AND status = 'active' RETURNING`).

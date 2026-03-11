@@ -16,10 +16,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func TestService_Login(t *testing.T) {
 	accountID := uuid.New()
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), 12)
@@ -42,9 +38,9 @@ func TestService_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -80,9 +76,9 @@ func TestService_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -101,9 +97,9 @@ func TestService_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("testuser").
@@ -126,9 +122,9 @@ func TestService_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").

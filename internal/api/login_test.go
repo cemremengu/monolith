@@ -23,10 +23,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func stringPtr(s string) *string {
-	return &s
-}
-
 func newTestSecurityConfig() config.SecurityConfig {
 	return config.SecurityConfig{
 		SecretKey:                            "test-secret-key",
@@ -62,9 +58,9 @@ func TestAuthHandler_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").
@@ -78,7 +74,7 @@ func TestAuthHandler_Login(t *testing.T) {
 					"id", "token", "prev_token", "account_id", "user_agent", "client_ip",
 					"token_seen", "seen_at", "created_at", "rotated_at", "revoked_at",
 				}).AddRow(
-					sessionID, "hashed_token", stringPtr("hashed_token"), accountID,
+					sessionID, "hashed_token", new("hashed_token"), accountID,
 					"", "", false, (*time.Time)(nil), now, now, (*time.Time)(nil),
 				)
 				mock.ExpectQuery(`INSERT INTO auth_session`).
@@ -99,9 +95,9 @@ func TestAuthHandler_Login(t *testing.T) {
 					"id", "username", "email", "name", "password", "is_admin", "language", "theme", "timezone",
 					"last_seen_at", "status", "created_at", "updated_at",
 				}).AddRow(
-					accountID, "testuser", "test@example.com", stringPtr("Test User"),
-					string(hashedPassword), false, stringPtr("en"), stringPtr("light"),
-					stringPtr("UTC"), nil, "active", now, now,
+					accountID, "testuser", "test@example.com", new("Test User"),
+					string(hashedPassword), false, new("en"), new("light"),
+					new("UTC"), nil, "active", now, now,
 				)
 				mock.ExpectQuery(`SELECT .+ FROM account WHERE \(email = \$1 OR username = \$1\) AND status = 'active'`).
 					WithArgs("test@example.com").

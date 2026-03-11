@@ -14,12 +14,12 @@ func NewTestAccount(opts ...func(*account.Account)) *account.Account {
 		ID:        uuid.New(),
 		Username:  "testuser",
 		Email:     "test@example.com",
-		Name:      StringPtr("Test User"),
+		Name:      new("Test User"),
 		Password:  "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X.xnWfOJZqjXX6K2K", // "password123"
 		IsAdmin:   false,
-		Language:  StringPtr("en"),
-		Theme:     StringPtr("light"),
-		Timezone:  StringPtr("UTC"),
+		Language:  new("en"),
+		Theme:     new("light"),
+		Timezone:  new("UTC"),
 		Status:    "active",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -200,12 +200,4 @@ func WithAuthContextSessionRotated(t time.Time) func(*auth.AuthContext) {
 	return func(c *auth.AuthContext) {
 		c.SessionRotated = t
 	}
-}
-
-func StringPtr(s string) *string {
-	return &s
-}
-
-func BoolPtr(b bool) *bool {
-	return &b
 }
