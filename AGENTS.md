@@ -211,3 +211,18 @@ Keep explanations proportional to complexity. Simple changes need one sentence, 
 - Markdown tables: use minimum separator (`|-|-|`). Never pad with repeated hyphens (`|---|---|`).
 - NEVER use box-drawing / ASCII-art tables with characters like `┌`, `┬`, `─`, `│`, `└`, `┘`, `├`, `┤`, `┼`. These are completely banned.
 - No exceptions. Not for "clarity", not for alignment, not for terminal output.
+
+## Code Intelligence
+
+Prefer LSP over ast-grep over Grep/Read for code navigation — it's faster, precise, and avoids reading entire files:
+
+- `workspaceSymbol` to find where something is defined
+- `findReferences` to see all usages across the codebase
+- `goToDefinition` / `goToImplementation` to jump to source
+- `hover` for type info without reading the file
+
+When LSP isn't available, fall back to ast-grep for structural code searches — it understands syntax trees and matches code patterns more accurately than text-based grep (e.g., finding function definitions, call sites, or specific AST node types).
+
+Use Grep only as a last resort or for plain text/pattern searches (comments, strings, config files) where syntax awareness isn't needed.
+
+After writing or editing code, check LSP diagnostics and fix errors before proceeding.
