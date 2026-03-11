@@ -81,6 +81,8 @@ func (hs *HTTPServer) Setup() {
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Secure())
+	e.Use(middleware.CORS())
+	e.Use(middleware.BodyLimit("2M"))
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: func(c echo.Context) bool {
