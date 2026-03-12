@@ -47,7 +47,7 @@ export function UsersPage() {
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <PlusIcon className="mr-2 h-4 w-4" />
+          <PlusIcon className="h-4 w-4" />
           {t("admin.users.newUser")}
         </Button>
       </div>
