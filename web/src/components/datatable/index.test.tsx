@@ -1,43 +1,35 @@
 import { describe, expect, it } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { render } from "@/test/test-utils";
 
 import { DataTable } from "./index";
 
 type TestRow = {
-  key: string;
   name: string;
   age: number;
   address: string;
 };
 
-const columns = [
+const columns: ColumnDef<TestRow>[] = [
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
+    accessorKey: "name",
+    header: "Name",
   },
   {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
+    accessorKey: "age",
+    header: "Age",
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    accessorKey: "address",
+    header: "Address",
   },
-] satisfies Array<{
-  title: string;
-  dataIndex: keyof TestRow;
-  key: string;
-}>;
+];
 
 function createRows(count: number): TestRow[] {
   return Array.from({ length: count }, (_, index) => ({
-    key: String(index + 1),
     name: `User ${index + 1}`,
     age: 20 + index,
     address: `Street ${index + 1}`,
@@ -52,22 +44,12 @@ function getBodyRows() {
 }
 
 describe("DataTable", () => {
-  it("renders rows from dataSource", () => {
+  it("renders rows from data", () => {
     render(
       <DataTable
-        dataSource={[
-          {
-            key: "1",
-            name: "Mike",
-            age: 32,
-            address: "10 Downing Street",
-          },
-          {
-            key: "2",
-            name: "John",
-            age: 42,
-            address: "11 Downing Street",
-          },
+        data={[
+          { name: "Mike", age: 32, address: "10 Downing Street" },
+          { name: "John", age: 42, address: "11 Downing Street" },
         ]}
         columns={columns}
       />,
@@ -78,77 +60,89 @@ describe("DataTable", () => {
     expect(screen.getByText("42")).toBeInTheDocument();
   });
 
-  it("filters rows with the search input", async () => {
+  it("filters rows with the filter input (global)", async () => {
     const user = userEvent.setup();
 
     render(
       <DataTable
-        dataSource={[
-          {
-            key: "1",
-            name: "Mike",
-            age: 32,
-            address: "10 Downing Street",
-          },
-          {
-            key: "2",
-            name: "John",
-            age: 42,
-            address: "11 Downing Street",
-          },
+        data={[
+          { name: "Mike", age: 32, address: "10 Downing Street" },
+          { name: "John", age: 42, address: "11 Downing Street" },
         ]}
         columns={columns}
       />,
     );
 
-    await user.type(screen.getByLabelText("Search table"), "john");
+    await user.type(screen.getByLabelText("Filter table"), "john");
 
     expect(screen.queryByText("Mike")).not.toBeInTheDocument();
     expect(screen.getByText("John")).toBeInTheDocument();
-    expect(screen.getByText("1-1 of 1")).toBeInTheDocument();
+  });
+
+  it("filters rows by a specific column", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DataTable
+        data={[
+          { name: "Mike", age: 32, address: "10 Downing Street" },
+          { name: "John", age: 42, address: "11 Downing Street" },
+        ]}
+        columns={columns}
+        filterColumn="name"
+        filterPlaceholder="Filter names..."
+      />,
+    );
+
+    await user.type(screen.getByLabelText("Filter table"), "John");
+
+    expect(screen.queryByText("Mike")).not.toBeInTheDocument();
+    expect(screen.getByText("John")).toBeInTheDocument();
   });
 
   it("sorts rows when clicking a column header", async () => {
     const user = userEvent.setup();
 
+    const sortableColumns: ColumnDef<TestRow>[] = [
+      { accessorKey: "name", header: "Name" },
+      {
+        accessorKey: "age",
+        header: ({ column }) => (
+          <button onClick={() => column.toggleSorting()}>Age</button>
+        ),
+      },
+      { accessorKey: "address", header: "Address" },
+    ];
+
     render(
       <DataTable
-        dataSource={[
-          {
-            key: "1",
-            name: "Mike",
-            age: 32,
-            address: "10 Downing Street",
-          },
-          {
-            key: "2",
-            name: "John",
-            age: 42,
-            address: "11 Downing Street",
-          },
+        data={[
+          { name: "Mike", age: 32, address: "10 Downing Street" },
+          { name: "John", age: 42, address: "11 Downing Street" },
         ]}
-        columns={columns}
+        columns={sortableColumns}
       />,
     );
+
+    // TanStack auto-detects numeric columns and sorts descending first
+    await user.click(screen.getByRole("button", { name: /^age$/i }));
+
+    const descendingRows = getBodyRows();
+    expect(within(descendingRows[0]).getByText("42")).toBeInTheDocument();
+    expect(within(descendingRows[1]).getByText("32")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /^age$/i }));
 
     const ascendingRows = getBodyRows();
     expect(within(ascendingRows[0]).getByText("32")).toBeInTheDocument();
     expect(within(ascendingRows[1]).getByText("42")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /^age$/i }));
-
-    const descendingRows = getBodyRows();
-    expect(within(descendingRows[0]).getByText("42")).toBeInTheDocument();
-    expect(within(descendingRows[1]).getByText("32")).toBeInTheDocument();
   });
 
   it("paginates rows on the client", async () => {
     const user = userEvent.setup();
 
     render(
-      <DataTable dataSource={createRows(12)} columns={columns} pageSize={5} />,
+      <DataTable data={createRows(12)} columns={columns} pageSize={5} />,
     );
 
     expect(screen.getByText("User 1")).toBeInTheDocument();
@@ -163,25 +157,20 @@ describe("DataTable", () => {
   });
 
   it("supports custom cell rendering", () => {
+    const customColumns: ColumnDef<TestRow>[] = [
+      { accessorKey: "name", header: "Name" },
+      { accessorKey: "age", header: "Age" },
+      {
+        accessorKey: "address",
+        header: "Address",
+        cell: ({ getValue }) => <span>Location: {getValue<string>()}</span>,
+      },
+    ];
+
     render(
       <DataTable
-        dataSource={[
-          {
-            key: "1",
-            name: "Mike",
-            age: 32,
-            address: "10 Downing Street",
-          },
-        ]}
-        columns={[
-          ...columns.slice(0, 2),
-          {
-            title: "Address",
-            dataIndex: "address",
-            key: "address",
-            render: (value) => <span>Location: {String(value)}</span>,
-          },
-        ]}
+        data={[{ name: "Mike", age: 32, address: "10 Downing Street" }]}
+        columns={customColumns}
       />,
     );
 
@@ -193,20 +182,13 @@ describe("DataTable", () => {
 
     render(
       <DataTable
-        dataSource={[
-          {
-            key: "1",
-            name: "Mike",
-            age: 32,
-            address: "10 Downing Street",
-          },
-        ]}
+        data={[{ name: "Mike", age: 32, address: "10 Downing Street" }]}
         columns={columns}
         emptyText="Nothing here"
       />,
     );
 
-    await user.type(screen.getByLabelText("Search table"), "missing");
+    await user.type(screen.getByLabelText("Filter table"), "missing");
 
     expect(screen.getByText("Nothing here")).toBeInTheDocument();
   });
