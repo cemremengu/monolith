@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+// import logoImage from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,21 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="flex size-16 items-center justify-center overflow-hidden rounded-lg">
+              {/* <img
+                src={logoImage}
+                alt="TaskMachine Logo"
+                className="h-full w-full object-contain"
+              /> */}
+            </div>
+            <span className="text-2xl font-semibold">Welcome to Monolith</span>
+          </div>
+          <CardTitle className="text-muted-foreground text-center">
+            Please sign in to continue
+          </CardTitle>
+        </div>{" "}
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
