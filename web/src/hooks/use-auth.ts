@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 import { authApi } from "@/features/auth/api";
 import { accountApi } from "@/features/profile/api";
+import i18n from "@/i18n";
 import type { User, LoginRequest } from "@/types/api";
 
 type AuthState = {
@@ -53,6 +54,9 @@ export const useAuth = create<AuthStore>()(
       fetchUser: async () => {
         try {
           const user = await accountApi.profile();
+          if (user.language) {
+            i18n.changeLanguage(user.language);
+          }
           set({
             user,
           });
