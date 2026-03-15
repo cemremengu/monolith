@@ -13,18 +13,22 @@ const resources = {
   },
 };
 
+const LANGUAGE_STORAGE_KEY = "language";
+
+const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+
 // eslint-disable-next-line import-x/no-named-as-default-member
 i18next.use(initReactI18next).init({
   resources,
-  lng: "en-US",
+  lng: savedLanguage && savedLanguage in resources ? savedLanguage : "en-US",
   fallbackLng: "en-US",
   interpolation: {
     escapeValue: false,
   },
 });
 
-// Ensure the HTML lang attribute is set to the full BCP 47 code
 i18next.on("languageChanged", (lng) => {
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
   document.documentElement.setAttribute("lang", lng);
 });
 
