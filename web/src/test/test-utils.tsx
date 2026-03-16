@@ -30,9 +30,7 @@ function AllProviders({ children }: AllProvidersProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <ThemeProvider defaultTheme="system" storageKey="test-theme">
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );

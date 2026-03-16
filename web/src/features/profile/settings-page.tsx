@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTheme } from "@/hooks/use-theme";
+import { usePreferences } from "@/hooks/use-preferences";
 
 import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
 import { ThemeSwitcher } from "./theme-switcher";
@@ -21,7 +21,6 @@ export function SettingsPage() {
   const { data: user } = useSuspenseQuery(profileQueryOptions);
   const { t } = useTranslation();
   const updatePreferences = useUpdatePreferences();
-  const { setTheme } = useTheme();
 
   const handleLanguageChange = async (language: string) => {
     try {
@@ -39,7 +38,7 @@ export function SettingsPage() {
 
   const handleThemeChange = async (theme: string) => {
     try {
-      setTheme(theme as "light" | "dark" | "system");
+      usePreferences.getState().setTheme(theme as "light" | "dark" | "system");
       await updatePreferences.mutateAsync({
         language: user?.language || "en-US",
         theme,
@@ -54,6 +53,7 @@ export function SettingsPage() {
 
   const handleTimezoneChange = async (timezone: string) => {
     try {
+      usePreferences.getState().setTimezone(timezone);
       await updatePreferences.mutateAsync({
         language: user?.language || "en-US",
         theme: user?.theme || "system",

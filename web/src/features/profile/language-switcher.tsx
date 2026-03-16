@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { accountApi } from "@/features/profile/api";
 import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
 import { languages } from "@/i18n/language";
 
 type LanguageSwitcherProps = {
@@ -21,7 +22,7 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
   const { isLoggedIn, user } = useAuth();
 
   const changeLanguage = async (languageCode: string) => {
-    i18n.changeLanguage(languageCode);
+    usePreferences.getState().setLanguage(languageCode);
 
     if (onChange) {
       onChange(languageCode);
@@ -30,10 +31,11 @@ export function LanguageSwitcher({ value, onChange }: LanguageSwitcherProps) {
 
     if (isLoggedIn && user) {
       try {
+        const { theme, timezone } = usePreferences.getState();
         await accountApi.updatePreferences({
           language: languageCode,
-          theme: "system",
-          timezone: "UTC",
+          theme,
+          timezone,
         });
       } catch (error) {
         console.error("Failed to update language preference:", error);

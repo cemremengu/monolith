@@ -4,11 +4,10 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
 
-type Theme = "dark" | "light" | "system";
+import { usePreferences, type Theme } from "./use-preferences";
 
 type ThemeProviderContextValue = {
   theme: Theme;
@@ -22,18 +21,11 @@ const ThemeProviderContext = createContext<
 
 type ThemeProviderProps = {
   children: ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
 };
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = "theme",
-}: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
-  });
+export function ThemeProvider({ children }: ThemeProviderProps) {
+  const theme = usePreferences((s) => s.theme);
+  const setTheme = usePreferences((s) => s.setTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -63,15 +55,10 @@ export function ThemeProvider({
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   }, [theme]);
 
-  const value = {
-    theme,
-    setTheme: (newTheme: Theme) => {
-      setTheme(newTheme);
-
-      localStorage.setItem(storageKey, newTheme);
-    },
-    isDarkTheme,
-  };
+  const value = useMemo(
+    () => ({ theme, setTheme, isDarkTheme }),
+    [theme, setTheme, isDarkTheme],
+  );
 
   return (
     <ThemeProviderContext.Provider value={value}>

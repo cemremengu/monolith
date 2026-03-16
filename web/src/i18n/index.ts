@@ -13,10 +13,20 @@ const resources = {
   },
 };
 
+let persistedLanguage = "en-US";
+try {
+  const stored = localStorage.getItem("preferences");
+  if (stored) {
+    persistedLanguage = JSON.parse(stored)?.state?.language || "en-US";
+  }
+} catch {
+  // ignore parse errors
+}
+
 // eslint-disable-next-line import-x/no-named-as-default-member
 i18next.use(initReactI18next).init({
   resources,
-  lng: "en-US",
+  lng: persistedLanguage,
   fallbackLng: "en-US",
   interpolation: {
     escapeValue: false,

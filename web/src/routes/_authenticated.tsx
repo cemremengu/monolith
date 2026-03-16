@@ -1,7 +1,10 @@
+import { useEffect } from "react";
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSessionRotation } from "@/hooks/use-session-rotation";
+import { usePreferences } from "@/hooks/use-preferences";
+import { useAuth } from "@/hooks/use-auth";
 import { AppSidebar } from "@/components/sidebar";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -24,6 +27,18 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   useSessionRotation();
+  const { user } = useAuth();
+  const syncPreferences = usePreferences((s) => s.syncPreferences);
+
+  useEffect(() => {
+    if (user) {
+      syncPreferences({
+        theme: (user.theme as "light" | "dark" | "system") || "system",
+        language: user.language || "en-US",
+        timezone: user.timezone || "UTC",
+      });
+    }
+  }, [user, syncPreferences]);
 
   return (
     <SidebarProvider>

@@ -141,9 +141,7 @@ describe("DataTable", () => {
   it("paginates rows on the client", async () => {
     const user = userEvent.setup();
 
-    render(
-      <DataTable data={createRows(12)} columns={columns} pageSize={5} />,
-    );
+    render(<DataTable data={createRows(12)} columns={columns} pageSize={5} />);
 
     expect(screen.getByText("User 1")).toBeInTheDocument();
     expect(screen.getByText("User 5")).toBeInTheDocument();
