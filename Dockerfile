@@ -27,6 +27,8 @@ COPY --from=builder --chown=monolith:monolith /app/monolith /app/monolith
 USER monolith
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
+
+EXPOSE 3001
 
 ENTRYPOINT ["/app/monolith"]
