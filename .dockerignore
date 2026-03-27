@@ -1,0 +1,11 @@
+.cache
+.gocache
+.env
+.vscode
+.idea
+.claude
+.github
+*.exe
+monolith
+web/node_modules
+web/dist
