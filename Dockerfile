@@ -17,7 +17,7 @@ RUN task build:linux
 
 FROM debian:trixie-slim AS runtime
 
-RUN apt-get update && apt-get install -y ca-certificates tzdata && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ca-certificates tzdata wget && rm -rf /var/lib/apt/lists/*
 RUN groupadd --gid 1001 monolith && useradd --uid 1001 --gid monolith --no-create-home --shell /bin/false monolith
 
 WORKDIR /app
