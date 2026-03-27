@@ -4,9 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VERSION: ${VERSION:-v0.0.0}
-        COMMIT: ${COMMIT:-unknown}
-        DATE_BUILT: ${DATE_BUILT}
+        VERSION: ${VERSION:-dev}
+        COMMIT: ${COMMIT:-dev}
+        BUILD_TIME: ${BUILD_TIME}
     container_name: monolith-app
     ports:
       - "3001:3001"

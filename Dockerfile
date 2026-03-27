@@ -30,15 +30,15 @@ COPY . .
 COPY --from=web-builder /app/web/dist ./web/dist
 
 # Build the Go application
-ARG VERSION=v0.0.0
-ARG COMMIT=unknown
-ARG DATE_BUILT
+ARG VERSION=dev
+ARG COMMIT=dev
+ARG BUILD_TIME
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
 
 RUN go build \
-  -ldflags "-w -s -X monolith.Version=${VERSION} -X monolith.Commit=${COMMIT} -X monolith.DateBuilt=${DATE_BUILT}" \
+  -ldflags "-w -s -X monolith.Version=${VERSION} -X monolith.Commit=${COMMIT} -X monolith.BuildTime=${BUILD_TIME}" \
   -o monolith \
   ./cmd/monolith
 

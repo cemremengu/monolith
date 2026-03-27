@@ -1,7 +1,7 @@
 export type VersionInfo = {
   version: string;
   commit: string;
-  dateBuilt: string;
+  buildTime: string;
 };
 
 export const getVersionInfo = async (): Promise<VersionInfo> => {

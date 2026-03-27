@@ -68,8 +68,8 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
               <Skeleton className="h-4 w-40" />
             ) : (
               <div className="text-muted-foreground font-mono text-sm">
-                {versionInfo?.dateBuilt
-                  ? new Date(versionInfo.dateBuilt).toLocaleString()
+                {versionInfo?.buildTime
+                  ? new Date(versionInfo.buildTime).toLocaleString()
                   : "Unknown"}
               </div>
             )}
