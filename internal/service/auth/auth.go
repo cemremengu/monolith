@@ -9,20 +9,23 @@ import (
 
 	"monolith/internal/config"
 	"monolith/internal/database"
+	"monolith/internal/database/dbsqlc"
 
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
 type Service struct {
 	db             *database.DB
+	queries        *dbsqlc.Queries
 	securityConfig config.SecurityConfig
 }
 
 func NewService(db *database.DB, cfg config.SecurityConfig) *Service {
 	return &Service{
 		db:             db,
+		queries:        db.Queries(),
 		securityConfig: cfg,
 	}
 }
@@ -33,18 +36,18 @@ func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) 
 		return nil, err
 	}
 
-	query := `
-		INSERT INTO auth_session (token, prev_token, account_id, user_agent, client_ip)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING *
-	`
-
-	var session Session
-	err = pgxscan.Get(ctx, s.db.Pool, &session, query, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
+	row, err := s.queries.CreateSession(ctx, dbsqlc.CreateSessionParams{
+		Token:     hashedToken,
+		PrevToken: hashedToken,
+		AccountID: req.AccountID,
+		UserAgent: req.UserAgent,
+		ClientIp:  req.ClientIP,
+	})
 	if err != nil {
 		return nil, err
 	}
 
+	session := sessionFromAuthSession(row)
 	session.UnhashedToken = token
 
 	return &session, nil
@@ -85,19 +88,16 @@ func (s *Service) RotateSession(ctx context.Context, req *RotateSessionRequest) 
 		return nil, err
 	}
 
-	query := `
-		UPDATE auth_session
-		SET token = $1, prev_token = $2, rotated_at = NOW(), token_seen = FALSE, seen_at = NULL
-		WHERE id = $3
-		RETURNING *
-	`
-
-	var session Session
-	err = pgxscan.Get(ctx, s.db.Pool, &session, query, hashedToken, currentSession.Token, currentSession.ID)
+	row, err := s.queries.RotateSession(ctx, dbsqlc.RotateSessionParams{
+		Token:     hashedToken,
+		PrevToken: currentSession.Token,
+		ID:        currentSession.ID,
+	})
 	if err != nil {
 		return nil, err
 	}
 
+	session := sessionFromAuthSession(row)
 	session.UnhashedToken = newToken
 
 	return &session, nil
@@ -146,30 +146,35 @@ func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]User
 }
 
 func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
-	query := `
-		UPDATE auth_session
-		SET revoked_at = NOW()
-		WHERE id = $1 and account_id = $2
-	`
-	_, err := s.db.Pool.Exec(ctx, query, sessionID, userID)
-	return err
+	return s.queries.RevokeSession(ctx, dbsqlc.RevokeSessionParams{
+		ID:        sessionID,
+		AccountID: userID,
+	})
 }
 
 func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (*Session, error) {
 	hashedtoken := hashToken(unhashedToken, s.securityConfig.SecretKey)
 
-	query := `
-		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
-		FROM auth_session
-		WHERE token = $1 OR prev_token = $2
-	`
-	var session Session
-	err := pgxscan.Get(ctx, s.db.Pool, &session, query, hashedtoken, hashedtoken)
+	row, err := s.queries.GetSessionByToken(ctx, dbsqlc.GetSessionByTokenParams{
+		Token:     hashedtoken,
+		PrevToken: hashedtoken,
+	})
 	if err != nil {
 		if errors.Is(err, database.ErrNoRows) {
 			return nil, ErrSessionNotFound
 		}
 		return nil, err
+	}
+
+	session := Session{
+		ID:        row.ID,
+		Token:     row.Token,
+		AccountID: row.AccountID,
+		UserAgent: row.UserAgent,
+		ClientIP:  row.ClientIp,
+		CreatedAt: row.CreatedAt,
+		RotatedAt: row.RotatedAt,
+		RevokedAt: row.RevokedAt,
 	}
 
 	if session.RevokedAt != nil {
@@ -179,10 +184,6 @@ func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (
 	if session.CreatedAt.Before(s.createdAfterThreshold()) || session.RotatedAt.Before(s.rotatedAfterThreshold()) {
 		return nil, ErrSessionExpired
 	}
-
-	// if session.NeedsRotation(time.Duration(s.securityConfig.TokenRotationIntervalMinutes) * time.Minute) {
-	// 	return nil, ErrSessionNeedsRotation
-	// }
 
 	return &session, nil
 }
@@ -205,38 +206,34 @@ func (s *Service) GetSessionByToken(ctx context.Context, unhashedToken string) (
 func (s *Service) GetAuthContextByToken(ctx context.Context, unhashedToken string) (*AuthContext, error) {
 	hashedtoken := hashToken(unhashedToken, s.securityConfig.SecretKey)
 
-	query := `
-		SELECT 
-			s.id as session_id,
-			s.token as session_token,
-			s.account_id,
-			a.email as account_email,
-			a.is_admin as account_is_admin,
-			a.status as account_status,
-			s.created_at as session_created,
-			s.rotated_at as session_rotated,
-			s.revoked_at as session_revoked
-		FROM auth_session s
-		INNER JOIN account a ON s.account_id = a.id AND a.status = $3
-		WHERE (s.token = $1 OR s.prev_token = $2)
-	`
-
-	var authCtx AuthContext
-	err := pgxscan.Get(ctx, s.db.Pool, &authCtx, query, hashedtoken, hashedtoken, AccountStatusActive)
+	row, err := s.queries.GetAuthContextByToken(ctx, dbsqlc.GetAuthContextByTokenParams{
+		Token:     hashedtoken,
+		PrevToken: hashedtoken,
+		Status:    AccountStatusActive,
+	})
 	if err != nil {
 		if errors.Is(err, database.ErrNoRows) {
-			// Return generic error to avoid leaking account state information
 			return nil, ErrSessionNotFound
 		}
 		return nil, err
 	}
 
-	// Check if session is revoked
+	authCtx := AuthContext{
+		SessionID:      row.SessionID,
+		SessionToken:   row.SessionToken,
+		AccountID:      row.AccountID,
+		AccountEmail:   row.AccountEmail,
+		AccountIsAdmin: boolFromPgBool(row.AccountIsAdmin),
+		AccountStatus:  row.AccountStatus,
+		SessionCreated: row.SessionCreated,
+		SessionRotated: row.SessionRotated,
+		SessionRevoked: row.SessionRevoked,
+	}
+
 	if authCtx.SessionRevoked != nil {
 		return nil, ErrSessionRevoked
 	}
 
-	// Check if session is expired
 	if authCtx.SessionCreated.Before(s.createdAfterThreshold()) || authCtx.SessionRotated.Before(s.rotatedAfterThreshold()) {
 		return nil, ErrSessionExpired
 	}
@@ -253,35 +250,54 @@ func (s *Service) rotatedAfterThreshold() time.Time {
 }
 
 func (s *Service) RevokeAllUserSessions(ctx context.Context, accountID uuid.UUID) error {
-	query := `
-		UPDATE auth_session
-		SET revoked_at = NOW()
-		WHERE account_id = $1 AND revoked_at IS NULL
-	`
-	_, err := s.db.Pool.Exec(ctx, query, accountID)
-	return err
+	return s.queries.RevokeAllUserSessions(ctx, accountID)
 }
 
 func (s *Service) GetSessionsByAccountID(ctx context.Context, accountID uuid.UUID) ([]Session, error) {
-	query := `
-		SELECT id, token, account_id, user_agent, client_ip, created_at, rotated_at, revoked_at
-		FROM auth_session
-		WHERE account_id = $1 AND revoked_at IS NULL
-		ORDER BY rotated_at DESC
-	`
-	var sessions []Session
-	err := pgxscan.Select(ctx, s.db.Pool, &sessions, query, accountID)
+	rows, err := s.queries.GetSessionsByAccountID(ctx, accountID)
 	if err != nil {
 		return nil, err
+	}
+
+	sessions := make([]Session, len(rows))
+	for i, row := range rows {
+		sessions[i] = Session{
+			ID:        row.ID,
+			Token:     row.Token,
+			AccountID: row.AccountID,
+			UserAgent: row.UserAgent,
+			ClientIP:  row.ClientIp,
+			CreatedAt: row.CreatedAt,
+			RotatedAt: row.RotatedAt,
+			RevokedAt: row.RevokedAt,
+		}
 	}
 	return sessions, nil
 }
 
 func (s *Service) CleanupSessions(ctx context.Context) error {
-	query := `
-		DELETE FROM auth_session
-		WHERE revoked_at IS NOT NULL
-	`
-	_, err := s.db.Pool.Exec(ctx, query)
-	return err
+	return s.queries.CleanupSessions(ctx)
+}
+
+func sessionFromAuthSession(row dbsqlc.AuthSession) Session {
+	return Session{
+		ID:        row.ID,
+		Token:     row.Token,
+		PrevToken: &row.PrevToken,
+		AccountID: row.AccountID,
+		UserAgent: row.UserAgent,
+		ClientIP:  row.ClientIp,
+		TokenSeen: row.TokenSeen,
+		SeenAt:    row.SeenAt,
+		CreatedAt: row.CreatedAt,
+		RotatedAt: row.RotatedAt,
+		RevokedAt: row.RevokedAt,
+	}
+}
+
+func boolFromPgBool(b pgtype.Bool) bool {
+	if !b.Valid {
+		return false
+	}
+	return b.Bool
 }

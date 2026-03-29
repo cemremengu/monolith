@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"monolith/internal/database/dbsqlc"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -35,6 +37,10 @@ func New(databaseURL string) (*DB, error) {
 	}
 
 	return &DB{Pool: pool, pgxPool: pool}, nil
+}
+
+func (db *DB) Queries() *dbsqlc.Queries {
+	return dbsqlc.New(db.Pool)
 }
 
 func (db *DB) PgxPool() *pgxpool.Pool {

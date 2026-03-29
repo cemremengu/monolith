@@ -4,21 +4,25 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"monolith/internal/database"
+	"monolith/internal/database/dbsqlc"
 
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Service struct {
-	db *database.DB
+	db      *database.DB
+	queries *dbsqlc.Queries
 }
 
 func NewService(db *database.DB) *Service {
 	return &Service{
-		db: db,
+		db:      db,
+		queries: db.Queries(),
 	}
 }
 
@@ -27,10 +31,10 @@ func (s *Service) ValidatePassword(hashedPassword, password string) error {
 }
 
 func (s *Service) UserExists(ctx context.Context, email, username string) (bool, error) {
-	var existingAccount Account
-	err := pgxscan.Get(ctx, s.db.Pool, &existingAccount, `
-		SELECT id FROM account WHERE email = $1 OR username = $2
-	`, email, username)
+	_, err := s.queries.UserExists(ctx, dbsqlc.UserExistsParams{
+		Email:    email,
+		Username: username,
+	})
 	if err != nil {
 		return false, err
 	}
@@ -63,13 +67,12 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, 
 		_ = tx.Rollback(ctx)
 	}()
 
-	var account Account
-	err = pgxscan.Get(ctx, tx, &account, `
-		INSERT INTO account (username, email, name, password, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, NOW(), NOW())
-		RETURNING id, username, email, name, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
-	`, req.Username, req.Email, req.Name, hashedPassword)
+	row, err := s.queries.WithTx(tx).RegisterAccount(ctx, dbsqlc.RegisterAccountParams{
+		Username: req.Username,
+		Email:    req.Email,
+		Name:     textFromString(req.Name),
+		Password: textFromStringPtr(&hashedPassword),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -79,42 +82,59 @@ func (s *Service) Register(ctx context.Context, req RegisterRequest) (*Account, 
 		return nil, err
 	}
 
+	account := accountFromRegisterRow(row)
 	return &account, nil
 }
 
 func (s *Service) GetAccountByLogin(ctx context.Context, login string) (*Account, error) {
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		SELECT id, username, email, name, password, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
-		FROM account
-		WHERE (email = $1 OR username = $1) AND status = 'active'
-	`, login)
+	row, err := s.queries.GetAccountByLogin(ctx, login)
 	if err != nil {
 		return nil, err
+	}
+
+	account := Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		Password:   stringFromText(row.Password),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
 	}
 	return &account, nil
 }
 
 func (s *Service) GetAccountByID(ctx context.Context, accountID uuid.UUID) (*Account, error) {
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		SELECT id, username, email, name, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
-		FROM account
-		WHERE id = $1 AND status = 'active'
-	`, accountID)
+	row, err := s.queries.GetAccountByID(ctx, accountID)
 	if err != nil {
 		return nil, err
+	}
+
+	account := Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
 	}
 	return &account, nil
 }
 
 func (s *Service) UpdateLastSeen(ctx context.Context, accountID uuid.UUID) error {
-	_, err := s.db.Pool.Exec(ctx, `
-		UPDATE account SET last_seen_at = NOW() WHERE id = $1
-	`, accountID)
-	return err
+	return s.queries.UpdateLastSeen(ctx, accountID)
 }
 
 func (s *Service) UpdatePreferences(
@@ -122,50 +142,85 @@ func (s *Service) UpdatePreferences(
 	accountID uuid.UUID,
 	req UpdatePreferencesRequest,
 ) (*Account, error) {
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		UPDATE account
-		SET language = $1, theme = $2, timezone = $3, updated_at = NOW()
-		WHERE id = $4 AND status = 'active'
-		RETURNING id, username, email, name, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
-	`, req.Language, req.Theme, req.Timezone, accountID)
+	row, err := s.queries.UpdatePreferences(ctx, dbsqlc.UpdatePreferencesParams{
+		Language: textFromStringPtr(req.Language),
+		Theme:    textFromStringPtr(req.Theme),
+		Timezone: textFromStringPtr(req.Timezone),
+		ID:       accountID,
+	})
 	if err != nil {
 		return nil, err
+	}
+
+	account := Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
 	}
 	return &account, nil
 }
 
 func (s *Service) GetAccounts(ctx context.Context) ([]Account, error) {
-	var accounts []Account
-	err := pgxscan.Select(ctx, s.db.Pool, &accounts, `
-		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
-		FROM account
-		ORDER BY created_at DESC
-	`)
+	rows, err := s.queries.GetAccounts(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	accounts := make([]Account, len(rows))
+	for i, row := range rows {
+		accounts[i] = Account{
+			ID:         row.ID,
+			Username:   row.Username,
+			Email:      row.Email,
+			Name:       stringPtrFromText(row.Name),
+			Avatar:     stringPtrFromText(row.Avatar),
+			IsAdmin:    boolFromPgBool(row.IsAdmin),
+			Language:   stringPtrFromText(row.Language),
+			Theme:      stringPtrFromText(row.Theme),
+			Timezone:   stringPtrFromText(row.Timezone),
+			LastSeenAt: row.LastSeenAt,
+			Status:     row.Status,
+			CreatedAt:  timeFromPtr(row.CreatedAt),
+			UpdatedAt:  timeFromPtr(row.UpdatedAt),
+		}
 	}
 	return accounts, nil
 }
 
 func (s *Service) GetAccount(ctx context.Context, id uuid.UUID) (*Account, error) {
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		SELECT id, username, email, name, avatar, is_admin, language, theme, timezone,
-		       last_seen_at, status, created_at, updated_at
-		FROM account
-		WHERE id = $1 AND status = 'active'
-	`, id)
+	row, err := s.queries.GetAccount(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+
+	account := Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		Avatar:     stringPtrFromText(row.Avatar),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
 	}
 	return &account, nil
 }
 
 func (s *Service) CreateAccount(ctx context.Context, req CreateAccountRequest) (*Account, error) {
-	var account Account
 	var hashedPassword *string
 	status := "pending"
 	isAdmin := false
@@ -191,12 +246,14 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountRequest) (
 		_ = tx.Rollback(ctx)
 	}()
 
-	err = pgxscan.Get(ctx, tx, &account, `
-		INSERT INTO account (username, name, email, password, is_admin, status, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
-		RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
-	`, req.Username, req.Name, req.Email, hashedPassword, isAdmin, status)
+	row, err := s.queries.WithTx(tx).CreateAccount(ctx, dbsqlc.CreateAccountParams{
+		Username: req.Username,
+		Name:     textFromString(req.Name),
+		Email:    req.Email,
+		Password: textFromStringPtr(hashedPassword),
+		IsAdmin:  pgtype.Bool{Bool: isAdmin, Valid: true},
+		Status:   status,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -206,6 +263,7 @@ func (s *Service) CreateAccount(ctx context.Context, req CreateAccountRequest) (
 		return nil, err
 	}
 
+	account := accountFromCreateRow(row)
 	return &account, nil
 }
 
@@ -218,10 +276,10 @@ func (s *Service) InviteUsers(ctx context.Context, req InviteUsersRequest) (*Inv
 	for _, email := range req.Emails {
 		username := deriveUsernameFromEmail(email)
 
-		var existingAccount Account
-		err := pgxscan.Get(ctx, s.db.Pool, &existingAccount, `
-			SELECT id FROM account WHERE email = $1 OR username = $2
-		`, email, username)
+		_, err := s.queries.UserExists(ctx, dbsqlc.UserExistsParams{
+			Email:    email,
+			Username: username,
+		})
 
 		if err == nil {
 			response.Failed = append(response.Failed, InviteUserFailure{
@@ -231,13 +289,12 @@ func (s *Service) InviteUsers(ctx context.Context, req InviteUsersRequest) (*Inv
 			continue
 		}
 
-		var account Account
-		err = pgxscan.Get(ctx, s.db.Pool, &account, `
-			INSERT INTO account (username, email, name, is_admin, status, created_at, updated_at)
-			VALUES ($1, $2, $3, $4, 'pending', NOW(), NOW())
-			RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-			          last_seen_at, status, created_at, updated_at
-		`, username, email, username, req.IsAdmin)
+		row, err := s.queries.CreateInvitedAccount(ctx, dbsqlc.CreateInvitedAccountParams{
+			Username: username,
+			Email:    email,
+			Name:     textFromString(username),
+			IsAdmin:  pgtype.Bool{Bool: req.IsAdmin, Valid: true},
+		})
 		if err != nil {
 			response.Failed = append(response.Failed, InviteUserFailure{
 				Email:  email,
@@ -246,47 +303,52 @@ func (s *Service) InviteUsers(ctx context.Context, req InviteUsersRequest) (*Inv
 			continue
 		}
 
-		response.Success = append(response.Success, account)
+		response.Success = append(response.Success, accountFromInvitedRow(row))
 	}
 
 	return response, nil
 }
 
 func (s *Service) UpdateAccount(ctx context.Context, id uuid.UUID, req UpdateAccountRequest) (*Account, error) {
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		UPDATE account
-		SET username = $1, name = $2, email = $3, updated_at = NOW()
-		WHERE id = $4 AND status = 'active'
-		RETURNING id, username, email, name, avatar, is_admin, language, theme, timezone,
-		          last_seen_at, status, created_at, updated_at
-	`, req.Username, req.Name, req.Email, id)
+	row, err := s.queries.UpdateAccount(ctx, dbsqlc.UpdateAccountParams{
+		Username: req.Username,
+		Name:     textFromString(req.Name),
+		Email:    req.Email,
+		ID:       id,
+	})
 	if err != nil {
 		return nil, err
+	}
+
+	account := Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		Avatar:     stringPtrFromText(row.Avatar),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
 	}
 	return &account, nil
 }
 
 func (s *Service) DisableAccount(ctx context.Context, id uuid.UUID) error {
-	_, err := s.db.Pool.Exec(ctx, `
-		UPDATE account SET status = 'disabled', updated_at = NOW() WHERE id = $1
-	`, id)
-	return err
+	return s.queries.DisableAccount(ctx, id)
 }
 
 func (s *Service) EnableAccount(ctx context.Context, id uuid.UUID) error {
-	_, err := s.db.Pool.Exec(ctx, `
-		UPDATE account SET status = 'active', updated_at = NOW() WHERE id = $1
-	`, id)
-	return err
+	return s.queries.EnableAccount(ctx, id)
 }
 
 // TODO: this should trigger deleting other stuff
 func (s *Service) DeleteAccount(ctx context.Context, id uuid.UUID) error {
-	_, err := s.db.Pool.Exec(ctx, `
-		DELETE FROM account WHERE id = $1
-	`, id)
-	return err
+	return s.queries.DeleteAccount(ctx, id)
 }
 
 func hashPassword(password string) (string, error) {
@@ -313,17 +375,12 @@ func (s *Service) ChangePassword(ctx context.Context, accountID uuid.UUID, req C
 		return ErrPasswordTooShort
 	}
 
-	var account Account
-	err := pgxscan.Get(ctx, s.db.Pool, &account, `
-		SELECT id, password
-		FROM account
-		WHERE id = $1 AND status = 'active'
-	`, accountID)
+	row, err := s.queries.GetAccountByIDWithPassword(ctx, accountID)
 	if err != nil {
 		return err
 	}
 
-	if err := s.ValidatePassword(account.Password, req.CurrentPassword); err != nil {
+	if err := s.ValidatePassword(stringFromText(row.Password), req.CurrentPassword); err != nil {
 		return ErrInvalidPassword
 	}
 
@@ -332,8 +389,103 @@ func (s *Service) ChangePassword(ctx context.Context, accountID uuid.UUID, req C
 		return err
 	}
 
-	_, err = s.db.Pool.Exec(ctx, `
-		UPDATE account SET password = $1, updated_at = NOW() WHERE id = $2
-	`, hashedPassword, accountID)
-	return err
+	return s.queries.UpdatePassword(ctx, dbsqlc.UpdatePasswordParams{
+		Password: textFromStringPtr(&hashedPassword),
+		ID:       accountID,
+	})
+}
+
+func textFromString(s string) pgtype.Text {
+	if s == "" {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: s, Valid: true}
+}
+
+func textFromStringPtr(s *string) pgtype.Text {
+	if s == nil {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: *s, Valid: true}
+}
+
+func stringPtrFromText(t pgtype.Text) *string {
+	if !t.Valid {
+		return nil
+	}
+	return &t.String
+}
+
+func stringFromText(t pgtype.Text) string {
+	if !t.Valid {
+		return ""
+	}
+	return t.String
+}
+
+func boolFromPgBool(b pgtype.Bool) bool {
+	if !b.Valid {
+		return false
+	}
+	return b.Bool
+}
+
+func timeFromPtr(t *time.Time) time.Time {
+	if t == nil {
+		return time.Time{}
+	}
+	return *t
+}
+
+func accountFromRegisterRow(row dbsqlc.RegisterAccountRow) Account {
+	return Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
+	}
+}
+
+func accountFromCreateRow(row dbsqlc.CreateAccountRow) Account {
+	return Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		Avatar:     stringPtrFromText(row.Avatar),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
+	}
+}
+
+func accountFromInvitedRow(row dbsqlc.CreateInvitedAccountRow) Account {
+	return Account{
+		ID:         row.ID,
+		Username:   row.Username,
+		Email:      row.Email,
+		Name:       stringPtrFromText(row.Name),
+		Avatar:     stringPtrFromText(row.Avatar),
+		IsAdmin:    boolFromPgBool(row.IsAdmin),
+		Language:   stringPtrFromText(row.Language),
+		Theme:      stringPtrFromText(row.Theme),
+		Timezone:   stringPtrFromText(row.Timezone),
+		LastSeenAt: row.LastSeenAt,
+		Status:     row.Status,
+		CreatedAt:  timeFromPtr(row.CreatedAt),
+		UpdatedAt:  timeFromPtr(row.UpdatedAt),
+	}
 }
