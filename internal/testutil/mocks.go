@@ -84,14 +84,22 @@ func (m *MockAccountService) GetAccountByLogin(ctx context.Context, loginStr str
 	return NewTestAccount(), nil
 }
 
-func (m *MockAccountService) UpdatePreferences(ctx context.Context, accountID uuid.UUID, req account.UpdatePreferencesRequest) (*account.Account, error) {
+func (m *MockAccountService) UpdatePreferences(
+	ctx context.Context,
+	accountID uuid.UUID,
+	req account.UpdatePreferencesRequest,
+) (*account.Account, error) {
 	if m.UpdatePreferencesFn != nil {
 		return m.UpdatePreferencesFn(ctx, accountID, req)
 	}
 	return NewTestAccount(WithAccountID(accountID)), nil
 }
 
-func (m *MockAccountService) ChangePassword(ctx context.Context, accountID uuid.UUID, req account.ChangePasswordRequest) error {
+func (m *MockAccountService) ChangePassword(
+	ctx context.Context,
+	accountID uuid.UUID,
+	req account.ChangePasswordRequest,
+) error {
 	if m.ChangePasswordFn != nil {
 		return m.ChangePasswordFn(ctx, accountID, req)
 	}
@@ -119,14 +127,21 @@ func (m *MockAccountService) GetAccount(ctx context.Context, id uuid.UUID) (*acc
 	return NewTestAccount(WithAccountID(id)), nil
 }
 
-func (m *MockAccountService) CreateAccount(ctx context.Context, req account.CreateAccountRequest) (*account.Account, error) {
+func (m *MockAccountService) CreateAccount(
+	ctx context.Context,
+	req account.CreateAccountRequest,
+) (*account.Account, error) {
 	if m.CreateAccountFn != nil {
 		return m.CreateAccountFn(ctx, req)
 	}
 	return NewTestAccount(), nil
 }
 
-func (m *MockAccountService) UpdateAccount(ctx context.Context, id uuid.UUID, req account.UpdateAccountRequest) (*account.Account, error) {
+func (m *MockAccountService) UpdateAccount(
+	ctx context.Context,
+	id uuid.UUID,
+	req account.UpdateAccountRequest,
+) (*account.Account, error) {
 	if m.UpdateAccountFn != nil {
 		return m.UpdateAccountFn(ctx, id, req)
 	}
@@ -154,7 +169,10 @@ func (m *MockAccountService) DeleteAccount(ctx context.Context, id uuid.UUID) er
 	return nil
 }
 
-func (m *MockAccountService) InviteUsers(ctx context.Context, req account.InviteUsersRequest) (*account.InviteUsersResponse, error) {
+func (m *MockAccountService) InviteUsers(
+	ctx context.Context,
+	req account.InviteUsersRequest,
+) (*account.InviteUsersResponse, error) {
 	if m.InviteUsersFn != nil {
 		return m.InviteUsersFn(ctx, req)
 	}

@@ -51,7 +51,7 @@ type UpdateAccountRequest struct {
 }
 
 type InviteUsersRequest struct {
-	Emails  []string `json:"emails" validate:"required,dive,email"`
+	Emails  []string `json:"emails"  validate:"required,dive,email"`
 	IsAdmin bool     `json:"isAdmin"`
 }
 

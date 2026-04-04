@@ -40,7 +40,17 @@ func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) 
 	`
 
 	var session Session
-	err = pgxscan.Get(ctx, s.db.Pool, &session, query, hashedToken, hashedToken, req.AccountID, req.UserAgent, req.ClientIP)
+	err = pgxscan.Get(
+		ctx,
+		s.db.Pool,
+		&session,
+		query,
+		hashedToken,
+		hashedToken,
+		req.AccountID,
+		req.UserAgent,
+		req.ClientIP,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +247,8 @@ func (s *Service) GetAuthContextByToken(ctx context.Context, unhashedToken strin
 	}
 
 	// Check if session is expired
-	if authCtx.SessionCreated.Before(s.createdAfterThreshold()) || authCtx.SessionRotated.Before(s.rotatedAfterThreshold()) {
+	if authCtx.SessionCreated.Before(s.createdAfterThreshold()) ||
+		authCtx.SessionRotated.Before(s.rotatedAfterThreshold()) {
 		return nil, ErrSessionExpired
 	}
 

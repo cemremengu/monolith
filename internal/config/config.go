@@ -51,11 +51,23 @@ func NewConfig() *Config {
 
 	return &Config{
 		Security: SecurityConfig{
-			SecretKey:                            getEnvOrDefault("SECRET_KEY", "VrrkYCoULJMS6hyCfPrf6ThBJqkpWrKn6O2IIMj1Z3s="),
-			LoginMaximumLifetimeDuration:         parseDurationOrDefault("LOGIN_MAXIMUM_LIFETIME_DURATION", defaultLoginMaximumLifetime),
-			LoginMaximumInactiveLifetimeDuration: parseDurationOrDefault("LOGIN_MAXIMUM_INACTIVE_LIFETIME_DURATION", defaultLoginInactiveLifetime),
-			LoginCookieName:                      getEnvOrDefault("LOGIN_COOKIE_NAME", defaultLoginCookieName),
-			TokenRotationIntervalMinutes:         parseIntOrDefault("TOKEN_ROTATION_INTERVAL_MINUTES", defaultTokenRotationIntervalMinutes),
+			SecretKey: getEnvOrDefault(
+				"SECRET_KEY",
+				"VrrkYCoULJMS6hyCfPrf6ThBJqkpWrKn6O2IIMj1Z3s=",
+			),
+			LoginMaximumLifetimeDuration: parseDurationOrDefault(
+				"LOGIN_MAXIMUM_LIFETIME_DURATION",
+				defaultLoginMaximumLifetime,
+			),
+			LoginMaximumInactiveLifetimeDuration: parseDurationOrDefault(
+				"LOGIN_MAXIMUM_INACTIVE_LIFETIME_DURATION",
+				defaultLoginInactiveLifetime,
+			),
+			LoginCookieName: getEnvOrDefault("LOGIN_COOKIE_NAME", defaultLoginCookieName),
+			TokenRotationIntervalMinutes: parseIntOrDefault(
+				"TOKEN_ROTATION_INTERVAL_MINUTES",
+				defaultTokenRotationIntervalMinutes,
+			),
 		},
 		Database: DatabaseConfig{
 			URL: getEnvOrDefault("DATABASE_URL", defaultDatabaseURL),
