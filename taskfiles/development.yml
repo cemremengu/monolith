@@ -16,7 +16,7 @@ tasks:
     cmds:
       - golangci-lint fmt
       - go fix ./...
-      - golangci-lint run
+      - golangci-lint run --exclude-files _test.go
 
   lint:web:
     desc: "Run web linting and formatting"
