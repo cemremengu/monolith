@@ -19,7 +19,6 @@ linters:
     - ineffassign
     - misspell
     - nakedret
-    - revive
     - staticcheck
     - unconvert
     - unused
@@ -28,6 +27,7 @@ linters:
     - testifylint
     - wastedassign
     - gocritic
+    - unparam
     # - depguard
     # - prealloc
   settings:
@@ -35,9 +35,6 @@ linters:
       default-signifies-exhaustive: true
     nakedret:
       max-func-lines: 60
-    revive:
-      confidence: 3
-      severity: warning
     testifylint:
       disable-all: true
       enable:
