@@ -55,7 +55,7 @@ linters:
     paths:
       - third_party$
       - builtin$
-      - examples$
+      - examples/
       - _test\.go$
 issues:
   max-same-issues: 0
