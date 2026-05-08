@@ -6,12 +6,12 @@ import (
 	"monolith/internal/config"
 	"monolith/internal/service/auth"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 func SessionAuth(authService *auth.Service, securityConfig config.SecurityConfig) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(c *echo.Context) error {
 			cookie, err := c.Cookie(securityConfig.LoginCookieName)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Authentication required"})

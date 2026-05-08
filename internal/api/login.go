@@ -7,7 +7,7 @@ import (
 	authService "monolith/internal/service/auth"
 	loginService "monolith/internal/service/login"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type AuthHandler struct {
@@ -22,18 +22,18 @@ func NewAuthHandler(loginService *loginService.Service, authService *authService
 	}
 }
 
-func (h *AuthHandler) Login(c echo.Context) error {
+func (h *AuthHandler) Login(c *echo.Context) error {
 	var req loginService.UserLoginRequest
 	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").SetInternal(err)
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body").Wrap(err)
 	}
 
 	user, err := h.loginService.Login(c.Request().Context(), req)
 	if err != nil {
 		if errors.Is(err, loginService.ErrInvalidCredentials) {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials").SetInternal(err)
+			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid credentials").Wrap(err)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to login").SetInternal(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to login").Wrap(err)
 	}
 
 	session, tokenErr := h.authService.CreateSession(c.Request().Context(), &authService.CreateSessionRequest{
@@ -43,7 +43,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	})
 
 	if tokenErr != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create session").SetInternal(tokenErr)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create session").Wrap(tokenErr)
 	}
 
 	h.authService.SetSessionCookies(c, session)
@@ -57,7 +57,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 // Logout revokes the current session and clears authentication cookies.
 // Ignore any errors and act as a no-op on failure.
-func (h *AuthHandler) Logout(c echo.Context) error {
+func (h *AuthHandler) Logout(c *echo.Context) error {
 	// For logout, just clear the cookie
 	// The session will eventually be cleaned up by the cleanup process
 	h.authService.ClearAuthCookies(c)

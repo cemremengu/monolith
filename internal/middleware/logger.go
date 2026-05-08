@@ -3,8 +3,8 @@ package middleware
 import (
 	"log/slog"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 func Logger() echo.MiddlewareFunc {
@@ -14,11 +14,10 @@ func Logger() echo.MiddlewareFunc {
 		LogLatency:      true,
 		LogRemoteIP:     true,
 		LogUserAgent:    true,
-		LogError:        true,
 		LogMethod:       true,
 		LogResponseSize: true,
 		HandleError:     true,
-		LogValuesFunc: func(_ echo.Context, v middleware.RequestLoggerValues) error {
+		LogValuesFunc: func(_ *echo.Context, v middleware.RequestLoggerValues) error {
 			fields := []any{
 				"remote_ip", v.RemoteIP,
 				"method", v.Method,

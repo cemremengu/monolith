@@ -11,7 +11,7 @@ import (
 	"monolith/internal/service/auth"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -132,7 +132,7 @@ func TestSessionAuth(t *testing.T) {
 			c := e.NewContext(req, rec)
 
 			handlerCalled := 0
-			handler := func(c echo.Context) error {
+			handler := func(c *echo.Context) error {
 				handlerCalled++
 				return c.String(http.StatusOK, "OK")
 			}

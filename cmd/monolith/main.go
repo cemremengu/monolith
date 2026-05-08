@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"monolith/internal/api"
 	"monolith/internal/config"
@@ -21,8 +20,6 @@ import (
 
 	"github.com/jackc/pgx/v5/stdlib"
 )
-
-const shutdownTimeout = 10
 
 func main() {
 	cfg := config.NewConfig()
@@ -50,17 +47,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	go func() {
-		if startErr := srv.Start(); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
-			slog.Error("Server failed to start", "error", startErr)
-			os.Exit(1)
-		}
-	}()
-
-	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout*time.Second)
-	defer cancel()
-	if shutdownErr := srv.Shutdown(ctx); shutdownErr != nil {
-		slog.Error("Server shutdown failed", "error", shutdownErr)
+	if startErr := srv.Start(ctx); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
+		slog.Error("Server failed to start", "error", startErr)
 	}
 }

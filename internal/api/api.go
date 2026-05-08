@@ -6,7 +6,7 @@ import (
 	"monolith"
 	mw "monolith/internal/middleware"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 // RegisterRoutes configures all the application routes.
@@ -20,10 +20,10 @@ func (hs *HTTPServer) RegisterRoutes() {
 	// Public auth routes
 	api.POST("/login", authHandler.Login)
 	api.POST("/logout", authHandler.Logout)
-	api.GET("/version", func(c echo.Context) error {
+	api.GET("/version", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, monolith.GetVersionInfo())
 	})
-	api.GET("/health", func(c echo.Context) error {
+	api.GET("/health", func(c *echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 	})
 

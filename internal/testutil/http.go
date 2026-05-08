@@ -8,12 +8,12 @@ import (
 
 	"monolith/internal/service/auth"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type TestContext struct {
 	Echo     *echo.Echo
-	Context  echo.Context
+	Context  *echo.Context
 	Request  *http.Request
 	Recorder *httptest.ResponseRecorder
 }
@@ -53,14 +53,14 @@ func (tc *TestContext) SetCookie(name, value string) {
 }
 
 func (tc *TestContext) SetPathParams(params map[string]string) {
-	names := make([]string, 0, len(params))
-	values := make([]string, 0, len(params))
+	pathValues := make(echo.PathValues, 0, len(params))
 	for name, value := range params {
-		names = append(names, name)
-		values = append(values, value)
+		pathValues = append(pathValues, echo.PathValue{
+			Name:  name,
+			Value: value,
+		})
 	}
-	tc.Context.SetParamNames(names...)
-	tc.Context.SetParamValues(values...)
+	tc.Context.SetPathValues(pathValues)
 }
 
 func (tc *TestContext) ResponseBody() map[string]any {

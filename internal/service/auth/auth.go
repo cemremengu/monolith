@@ -12,7 +12,7 @@ import (
 
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type Service struct {
@@ -60,7 +60,7 @@ func (s *Service) CreateSession(ctx context.Context, req *CreateSessionRequest) 
 	return &session, nil
 }
 
-func (s *Service) SetSessionCookies(c echo.Context, session *Session) {
+func (s *Service) SetSessionCookies(c *echo.Context, session *Session) {
 	c.SetCookie(&http.Cookie{
 		Name:     s.securityConfig.LoginCookieName,
 		Value:    session.UnhashedToken,
@@ -113,7 +113,7 @@ func (s *Service) RotateSession(ctx context.Context, req *RotateSessionRequest) 
 	return &session, nil
 }
 
-func (s *Service) ClearAuthCookies(c echo.Context) {
+func (s *Service) ClearAuthCookies(c *echo.Context) {
 	c.SetCookie(&http.Cookie{
 		Name:     s.securityConfig.LoginCookieName,
 		Value:    "",

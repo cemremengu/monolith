@@ -9,7 +9,7 @@ import (
 	"monolith/internal/service/auth"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -63,7 +63,7 @@ func TestAdminOnly(t *testing.T) {
 			}
 
 			handlerCalled := 0
-			handler := func(c echo.Context) error {
+			handler := func(c *echo.Context) error {
 				handlerCalled++
 				return c.String(http.StatusOK, "OK")
 			}
@@ -94,7 +94,7 @@ func TestAdminOnly_WrongUserType(t *testing.T) {
 	c.Set("user", "not an AuthUser")
 
 	handlerCalled := false
-	handler := func(c echo.Context) error {
+	handler := func(c *echo.Context) error {
 		handlerCalled = true
 		return c.String(http.StatusOK, "OK")
 	}

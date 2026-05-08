@@ -8,7 +8,7 @@ import (
 	loginService "monolith/internal/service/login"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 )
 
 type SessionHandler struct {
@@ -21,7 +21,7 @@ func NewSessionHandler(authService *authService.Service) *SessionHandler {
 	}
 }
 
-func (h *SessionHandler) GetSessions(c echo.Context) error {
+func (h *SessionHandler) GetSessions(c *echo.Context) error {
 	user, ok := c.Get("user").(*authService.AuthUser)
 	if !ok {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
@@ -30,9 +30,9 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 	sessions, err := h.authService.GetUserSessions(c.Request().Context(), user.AccountID)
 	if err != nil {
 		if errors.Is(err, loginService.ErrInvalidUserID) {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").Wrap(err)
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve sessions").SetInternal(err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve sessions").Wrap(err)
 	}
 
 	for i := range sessions {
@@ -42,7 +42,7 @@ func (h *SessionHandler) GetSessions(c echo.Context) error {
 	return c.JSON(http.StatusOK, sessions)
 }
 
-func (h *SessionHandler) RevokeSession(c echo.Context) error {
+func (h *SessionHandler) RevokeSession(c *echo.Context) error {
 	user, ok := c.Get("user").(*authService.AuthUser)
 	if !ok {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Authentication required")
@@ -55,28 +55,28 @@ func (h *SessionHandler) RevokeSession(c echo.Context) error {
 
 	sessionID, err := uuid.Parse(sessionIDParam)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").SetInternal(err)
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid session ID format").Wrap(err)
 	}
 
 	err = h.authService.RevokeSession(c.Request().Context(), user.AccountID, sessionID)
 	if err != nil {
 		switch {
 		case errors.Is(err, loginService.ErrInvalidUserID):
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").SetInternal(err)
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid user ID").Wrap(err)
 		case errors.Is(err, authService.ErrSessionNotFound):
-			return echo.NewHTTPError(http.StatusNotFound, "Session not found").SetInternal(err)
+			return echo.NewHTTPError(http.StatusNotFound, "Session not found").Wrap(err)
 		default:
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke session").SetInternal(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to revoke session").Wrap(err)
 		}
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Session revoked successfully"})
 }
 
-func (h *SessionHandler) RotateSession(c echo.Context) error {
+func (h *SessionHandler) RotateSession(c *echo.Context) error {
 	sessionTokenCookie, err := c.Cookie("session_token")
 	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Session token cookie not found").SetInternal(err)
+		return echo.NewHTTPError(http.StatusUnauthorized, "Session token cookie not found").Wrap(err)
 	}
 
 	session, err := h.authService.RotateSession(c.Request().Context(), &authService.RotateSessionRequest{
@@ -89,11 +89,11 @@ func (h *SessionHandler) RotateSession(c echo.Context) error {
 
 		switch {
 		case errors.Is(err, authService.ErrSessionExpired):
-			return echo.NewHTTPError(http.StatusUnauthorized, "Session expired").SetInternal(err)
+			return echo.NewHTTPError(http.StatusUnauthorized, "Session expired").Wrap(err)
 		case errors.Is(err, loginService.ErrUserNotFound):
-			return echo.NewHTTPError(http.StatusUnauthorized, "User not found").SetInternal(err)
+			return echo.NewHTTPError(http.StatusUnauthorized, "User not found").Wrap(err)
 		default:
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to rotate session").SetInternal(err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to rotate session").Wrap(err)
 		}
 	}
 

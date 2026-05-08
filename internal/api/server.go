@@ -15,8 +15,8 @@ import (
 	"monolith/web"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 // HTTPServer wraps the Echo server and provides methods for setup and startup.
@@ -37,8 +37,11 @@ func NewHTTPServer(
 	loginService *login.Service,
 	authService *auth.Service,
 ) *HTTPServer {
+	e := echo.New()
+	e.Logger = slog.Default()
+
 	return &HTTPServer{
-		echo:           echo.New(),
+		echo:           e,
 		db:             db,
 		config:         cfg,
 		accountService: accountService,
@@ -62,7 +65,6 @@ func (cv *CustomValidator) Validate(i any) error {
 func (hs *HTTPServer) Setup() {
 	e := hs.echo
 
-	e.HideBanner = true
 	e.Validator = &CustomValidator{validator: validator.New()}
 
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -70,25 +72,20 @@ func (hs *HTTPServer) Setup() {
 	// Middleware
 	// the order of the middleware is important in most cases
 
-	e.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
-		LogErrorFunc: func(_ echo.Context, err error, stack []byte) error {
-			slog.Error("[PANIC RECOVER]", "error", err, "stack", string(stack))
-			return err
-		},
-	}))
+	e.Use(middleware.Recover())
 
 	e.Use(mw.Logger())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Secure())
-	e.Use(middleware.CORS())
-	e.Use(middleware.BodyLimit("2M"))
+	e.Use(middleware.CORS("*"))
+	e.Use(middleware.BodyLimit(2 * middleware.MB))
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
-		Skipper: func(c echo.Context) bool {
+		Skipper: func(c *echo.Context) bool {
 			return strings.HasPrefix(c.Request().URL.Path, "/api")
 		},
-		Filesystem: http.FS(web.Assets()),
+		Filesystem: web.Assets(),
 		HTML5:      true,
 	}))
 
@@ -96,14 +93,12 @@ func (hs *HTTPServer) Setup() {
 }
 
 // Start starts the server on the specified port.
-func (hs *HTTPServer) Start() error {
+func (hs *HTTPServer) Start(ctx context.Context) error {
 	port := hs.config.Server.Port
 
 	slog.Info("Server starting", "port", port)
-	return hs.echo.Start(":" + port)
-}
-
-// Shutdown gracefully shuts down the server.
-func (hs *HTTPServer) Shutdown(ctx context.Context) error {
-	return hs.echo.Shutdown(ctx)
+	return echo.StartConfig{
+		Address:    ":" + port,
+		HideBanner: true,
+	}.Start(ctx, hs.echo)
 }
