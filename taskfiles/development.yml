@@ -31,6 +31,12 @@ tasks:
     cmds:
       - npm run router:generate
 
+  shadcn:update:
+    desc: "Reinstall existing shadcn/ui components"
+    dir: web
+    cmds:
+      - npx shadcn@latest init --reinstall --yes
+
   update:
     desc: "Update Go dependencies and tidy modules"
     cmds:
