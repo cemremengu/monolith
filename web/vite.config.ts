@@ -4,6 +4,15 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 
+const manualChunks = {
+  vendor: ["react", "react-dom"],
+  router: ["@tanstack/react-router"],
+  query: ["@tanstack/react-query"],
+  ui: ["radix-ui"],
+  forms: ["react-hook-form", "@hookform/resolvers", "zod"],
+  icons: ["lucide-react"],
+};
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, "../");
@@ -26,14 +35,18 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Vendor chunks
-            vendor: ["react", "react-dom"],
-            router: ["@tanstack/react-router"],
-            query: ["@tanstack/react-query"],
-            ui: ["radix-ui"],
-            forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-            icons: ["lucide-react"],
+          manualChunks(id) {
+            const normalizedId = id.replaceAll("\\", "/");
+
+            for (const [chunkName, packages] of Object.entries(manualChunks)) {
+              if (
+                packages.some((packageName) =>
+                  normalizedId.includes(`/node_modules/${packageName}/`),
+                )
+              ) {
+                return chunkName;
+              }
+            }
           },
         },
       },

@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
+    pool: "threads",
     globals: true,
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     exclude: ["node_modules", "dist", "src/components/ui/**"],

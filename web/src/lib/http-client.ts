@@ -1,4 +1,4 @@
-import ky, { type KyInstance, type Options } from "ky";
+import ky, { isHTTPError, type KyInstance, type Options } from "ky";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -25,20 +25,21 @@ class HttpClient {
   private get client(): KyInstance {
     if (!this._client) {
       this._client = ky.create({
-        prefixUrl: getApiBase(),
+        prefix: getApiBase(),
         credentials: "include",
         hooks: {
           beforeRequest: [
-            (request) => {
+            ({ request }) => {
               if (request.body === null) {
                 request.headers.set("Content-Type", "application/json");
               }
             },
           ],
           beforeError: [
-            (error) => {
+            ({ error }) => {
               if (
-                error.response?.status === 401 &&
+                isHTTPError(error) &&
+                error.response.status === 401 &&
                 useAuth.getState().isLoggedIn
               ) {
                 useAuth.getState().logout({ redirectToLogin: true });
@@ -48,6 +49,7 @@ class HttpClient {
           ],
         },
         retry: 0,
+        timeout: 120000,
       });
     }
     return this._client;

@@ -74,7 +74,7 @@ describe("useAuth", () => {
       });
 
       // Then logout
-      await useAuth.getState().logout();
+      await useAuth.getState().logout({ redirectToLogin: true });
 
       await waitFor(() => {
         expect(window.location.replace).toHaveBeenCalledWith("/login");
