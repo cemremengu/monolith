@@ -57,14 +57,10 @@ class HttpClient {
 
   get<T>(
     url: string,
-    searchParams?: Record<
-      string,
-      string | number | boolean | (string | number | boolean)[]
-    >,
+    searchParams?: Record<string, string | number | boolean | (string | number | boolean)[]>,
     options?: HttpClientOptions,
   ): Promise<T> {
-    const hasSearchParams =
-      searchParams && Object.keys(searchParams).length > 0;
+    const hasSearchParams = searchParams && Object.keys(searchParams).length > 0;
 
     if (!hasSearchParams) {
       return this.client.get(url, options).json<T>();
@@ -78,31 +74,20 @@ class HttpClient {
     return this.client.get(url, { searchParams: p, ...options }).json<T>();
   }
 
-  post<T>(
-    url: string,
-    data?: unknown,
-    options?: HttpClientOptions,
-  ): Promise<T> {
-    const requestOptions =
-      data instanceof FormData ? { body: data } : { json: data };
+  post<T>(url: string, data?: unknown, options?: HttpClientOptions): Promise<T> {
+    const requestOptions = data instanceof FormData ? { body: data } : { json: data };
 
     return this.client.post(url, { ...requestOptions, ...options }).json<T>();
   }
 
   put<T>(url: string, data?: unknown, options?: HttpClientOptions): Promise<T> {
-    const requestOptions =
-      data instanceof FormData ? { body: data } : { json: data };
+    const requestOptions = data instanceof FormData ? { body: data } : { json: data };
 
     return this.client.put(url, { ...requestOptions, ...options }).json<T>();
   }
 
-  patch<T>(
-    url: string,
-    data?: unknown,
-    options?: HttpClientOptions,
-  ): Promise<T> {
-    const requestOptions =
-      data instanceof FormData ? { body: data } : { json: data };
+  patch<T>(url: string, data?: unknown, options?: HttpClientOptions): Promise<T> {
+    const requestOptions = data instanceof FormData ? { body: data } : { json: data };
 
     return this.client.patch(url, { ...requestOptions, ...options }).json<T>();
   }

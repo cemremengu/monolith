@@ -1,4 +1,5 @@
 import type { LoginRequest } from "@/types/api";
+
 import { httpClient } from "@/lib/http-client";
 
 export const authApi = {

@@ -1,13 +1,13 @@
-import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 
 import { NotFound } from "@/components/not-found";
 import { Spinner } from "@/components/ui/spinner";
 
-import { useAuth } from "./hooks/use-auth";
-import { routeTree } from "./routeTree.gen";
-import { ThemeProvider } from "./hooks/use-theme";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { useAuth } from "./hooks/use-auth";
+import { ThemeProvider } from "./hooks/use-theme";
+import { routeTree } from "./routeTree.gen";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +29,7 @@ const router = createRouter({
   scrollRestoration: true,
   defaultPendingComponent: () => (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <Spinner className="text-primary size-10" />
+      <Spinner className="size-10 text-primary" />
     </div>
   ),
   defaultNotFoundComponent: () => <NotFound />,

@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen, waitFor, act } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { render } from "@/test/test-utils";
 import { useAuth } from "@/hooks/use-auth";
+import { render } from "@/test/test-utils";
 
 import { LanguageSwitcher } from "./language-switcher";
 
@@ -51,12 +51,8 @@ describe("LanguageSwitcher", () => {
     await user.click(trigger);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("menuitem", { name: /english/i }),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("menuitem", { name: /türkçe/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("menuitem", { name: /english/i })).toBeInTheDocument();
+      expect(screen.getByRole("menuitem", { name: /türkçe/i })).toBeInTheDocument();
     });
   });
 
@@ -69,9 +65,7 @@ describe("LanguageSwitcher", () => {
     await user.click(trigger);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole("menuitem", { name: /türkçe/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("menuitem", { name: /türkçe/i })).toBeInTheDocument();
     });
 
     await user.click(screen.getByRole("menuitem", { name: /türkçe/i }));

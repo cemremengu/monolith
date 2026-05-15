@@ -1,30 +1,21 @@
-import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useTranslation } from "react-i18next";
 import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
-import { toast } from "sonner";
 import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { z } from "zod";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 import { useProfile } from "./api/queries";
 
 const profileSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name must be less than 100 characters"),
+  name: z.string().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().email("Please enter a valid email address"),
   username: z
     .string()
@@ -93,25 +84,19 @@ export function ProfilePage() {
           <CardContent className="p-6">
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
-                <AvatarImage
-                  src={user.avatar}
-                  alt={user.name || user.username}
-                />
+                <AvatarImage src={user.avatar} alt={user.name || user.username} />
                 <AvatarFallback className="text-lg">
                   {getInitials(user.name || "", user.username)}
                 </AvatarFallback>
               </Avatar>
               <div className="space-y-1">
-                <h2 className="text-2xl font-semibold">
-                  {user.name || user.username}
-                </h2>
+                <h2 className="text-2xl font-semibold">{user.name || user.username}</h2>
                 <p className="text-muted-foreground">@{user.username}</p>
-                <div className="text-muted-foreground flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <div className="flex items-center space-x-1">
                     <Calendar className="h-3 w-3" />
                     <span>
-                      {t("profile.joined")}{" "}
-                      {new Date(user.createdAt).toLocaleDateString()}
+                      {t("profile.joined")} {new Date(user.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   {user.isAdmin && (
@@ -130,9 +115,7 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>{t("profile.information.title")}</CardTitle>
-            <CardDescription>
-              {t("profile.information.subtitle")}
-            </CardDescription>
+            <CardDescription>{t("profile.information.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -149,14 +132,10 @@ export function ProfilePage() {
                         {...field}
                         id={field.name}
                         aria-invalid={fieldState.invalid}
-                        placeholder={t(
-                          "profile.information.fullNamePlaceholder",
-                        )}
+                        placeholder={t("profile.information.fullNamePlaceholder")}
                         autoComplete="name"
                       />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
@@ -173,14 +152,10 @@ export function ProfilePage() {
                         {...field}
                         id={field.name}
                         aria-invalid={fieldState.invalid}
-                        placeholder={t(
-                          "profile.information.usernamePlaceholder",
-                        )}
+                        placeholder={t("profile.information.usernamePlaceholder")}
                         autoComplete="username"
                       />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
@@ -191,9 +166,7 @@ export function ProfilePage() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("profile.information.email")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("profile.information.email")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -202,22 +175,14 @@ export function ProfilePage() {
                       placeholder={t("profile.information.emailPlaceholder")}
                       autoComplete="email"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
 
               <div className="flex space-x-2">
-                <Button type="submit">
-                  {t("profile.actions.saveChanges")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => form.reset()}
-                >
+                <Button type="submit">{t("profile.actions.saveChanges")}</Button>
+                <Button type="button" variant="outline" onClick={() => form.reset()}>
                   {t("profile.actions.cancel")}
                 </Button>
               </div>
@@ -229,20 +194,18 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>{t("profile.accountStatus.title")}</CardTitle>
-            <CardDescription>
-              {t("profile.accountStatus.subtitle")}
-            </CardDescription>
+            <CardDescription>{t("profile.accountStatus.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <User className="text-muted-foreground h-4 w-4" />
+                  <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
                     {t("profile.accountStatus.accountType")}
                   </span>
                 </div>
-                <p className="text-muted-foreground pl-6 text-sm">
+                <p className="pl-6 text-sm text-muted-foreground">
                   {user.isAdmin
                     ? t("profile.accountStatus.administrator")
                     : t("profile.accountStatus.regularUser")}
@@ -250,12 +213,10 @@ export function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Mail className="text-muted-foreground h-4 w-4" />
-                  <span className="text-sm font-medium">
-                    {t("profile.accountStatus.status")}
-                  </span>
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">{t("profile.accountStatus.status")}</span>
                 </div>
-                <p className="text-muted-foreground pl-6 text-sm">
+                <p className="pl-6 text-sm text-muted-foreground">
                   {user.isDisabled
                     ? t("profile.accountStatus.disabled")
                     : t("profile.accountStatus.active")}
@@ -263,24 +224,24 @@ export function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="text-muted-foreground h-4 w-4" />
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
                     {t("profile.accountStatus.lastUpdated")}
                   </span>
                 </div>
-                <p className="text-muted-foreground pl-6 text-sm">
+                <p className="pl-6 text-sm text-muted-foreground">
                   {new Date(user.updatedAt).toLocaleDateString()}
                 </p>
               </div>
               {user.lastSeenAt && (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Clock className="text-muted-foreground h-4 w-4" />
+                    <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">
                       {t("profile.accountStatus.lastSeen")}
                     </span>
                   </div>
-                  <p className="text-muted-foreground pl-6 text-sm">
+                  <p className="pl-6 text-sm text-muted-foreground">
                     {new Date(user.lastSeenAt).toLocaleDateString()}
                   </p>
                 </div>

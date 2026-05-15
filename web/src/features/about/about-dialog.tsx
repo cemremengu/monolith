@@ -1,7 +1,8 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Info } from "lucide-react";
+import { useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { getVersionInfo } from "./api";
@@ -47,9 +47,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             {isLoading ? (
               <Skeleton className="h-4 w-20" />
             ) : (
-              <div className="text-muted-foreground font-mono text-sm">
-                {versionInfo?.version}
-              </div>
+              <div className="font-mono text-sm text-muted-foreground">{versionInfo?.version}</div>
             )}
           </div>
           <div className="space-y-2">
@@ -57,9 +55,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             {isLoading ? (
               <Skeleton className="h-4 w-32" />
             ) : (
-              <div className="text-muted-foreground font-mono text-sm">
-                {versionInfo?.commit}
-              </div>
+              <div className="font-mono text-sm text-muted-foreground">{versionInfo?.commit}</div>
             )}
           </div>
           <div className="space-y-2">
@@ -67,7 +63,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             {isLoading ? (
               <Skeleton className="h-4 w-40" />
             ) : (
-              <div className="text-muted-foreground font-mono text-sm">
+              <div className="font-mono text-sm text-muted-foreground">
                 {versionInfo?.buildTime
                   ? new Date(versionInfo.buildTime).toLocaleString()
                   : "Unknown"}

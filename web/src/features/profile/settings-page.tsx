@@ -1,20 +1,14 @@
-import { useTranslation } from "react-i18next";
-import { Globe, Palette, Clock } from "lucide-react";
-import { toast } from "sonner";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Globe, Palette, Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePreferences } from "@/hooks/use-preferences";
 
 import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
-import { ThemeSwitcher } from "./theme-switcher";
 import { LanguageSwitcher } from "./language-switcher";
+import { ThemeSwitcher } from "./theme-switcher";
 import { TimezoneSelector } from "./timezone-selector";
 
 export function SettingsPage() {
@@ -70,9 +64,7 @@ export function SettingsPage() {
     <div className="px-6 py-3">
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">
-            {t("settings.title", "Settings")}
-          </h1>
+          <h1 className="text-3xl font-bold">{t("settings.title", "Settings")}</h1>
           <p className="text-muted-foreground">
             {t("settings.subtitle", "Manage your preferences and settings")}
           </p>
@@ -93,9 +85,7 @@ export function SettingsPage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Globe className="h-4 w-4" />
-                  <label className="text-sm font-medium">
-                    {t("profile.preferences.language")}
-                  </label>
+                  <label className="text-sm font-medium">{t("profile.preferences.language")}</label>
                 </div>
                 <LanguageSwitcher
                   value={user?.language || "en-US"}
@@ -105,26 +95,16 @@ export function SettingsPage() {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Palette className="h-4 w-4" />
-                  <label className="text-sm font-medium">
-                    {t("profile.preferences.theme")}
-                  </label>
+                  <label className="text-sm font-medium">{t("profile.preferences.theme")}</label>
                 </div>
-                <ThemeSwitcher
-                  value={user?.theme || "system"}
-                  onChange={handleThemeChange}
-                />
+                <ThemeSwitcher value={user?.theme || "system"} onChange={handleThemeChange} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4" />
-                  <label className="text-sm font-medium">
-                    {t("profile.preferences.timezone")}
-                  </label>
+                  <label className="text-sm font-medium">{t("profile.preferences.timezone")}</label>
                 </div>
-                <TimezoneSelector
-                  value={user?.timezone || "UTC"}
-                  onChange={handleTimezoneChange}
-                />
+                <TimezoneSelector value={user?.timezone || "UTC"} onChange={handleTimezoneChange} />
               </div>
             </div>
           </CardContent>

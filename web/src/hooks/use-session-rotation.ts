@@ -15,9 +15,7 @@ export const cookieUtils = {
   },
 
   hasSessionExpiry: () => {
-    return document.cookie
-      .split("; ")
-      .some((row) => row.startsWith("session_expiry="));
+    return document.cookie.split("; ").some((row) => row.startsWith("session_expiry="));
   },
 };
 
@@ -61,10 +59,7 @@ export function useSessionRotation() {
     const expiresWithDistribution = expires - randomDelay;
 
     // nextRun is when the job should be scheduled for in ms. setTimeout ms has a max value of 2147483647.
-    const nextRun = Math.min(
-      expiresWithDistribution * 1000 - Date.now(),
-      2147483647,
-    );
+    const nextRun = Math.min(expiresWithDistribution * 1000 - Date.now(), 2147483647);
 
     timeoutRef.current = setTimeout(async () => {
       const currentExpiry = cookieUtils.getSessionExpiry();

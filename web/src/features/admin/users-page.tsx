@@ -1,19 +1,16 @@
+import type { VariantProps } from "class-variance-authority";
+
+import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { VariantProps } from "class-variance-authority";
-import { PlusIcon } from "lucide-react";
 
 import type { User } from "@/types/api";
+
 import { DataTable, type ColumnDef } from "@/components/datatable";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import {
-  useDeleteUser,
-  useDisableUser,
-  useEnableUser,
-  useUsers,
-} from "./api/queries";
+import { useDeleteUser, useDisableUser, useEnableUser, useUsers } from "./api/queries";
 import { CreateUserDialog } from "./create-user-dialog";
 import { UserActionsDropdown } from "./user-actions-dropdown";
 
@@ -59,9 +56,7 @@ export function UsersPage() {
     {
       accessorKey: "username",
       header: t("admin.users.table.username"),
-      cell: ({ row }) => (
-        <span className="font-medium">{row.original.username}</span>
-      ),
+      cell: ({ row }) => <span className="font-medium">{row.original.username}</span>,
     },
     {
       accessorKey: "email",
@@ -70,15 +65,11 @@ export function UsersPage() {
     {
       id: "role",
       accessorFn: (user) =>
-        user.isAdmin
-          ? t("admin.users.roles.admin")
-          : t("admin.users.roles.user"),
+        user.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user"),
       header: t("admin.users.table.role"),
       cell: ({ row }) => (
         <Badge variant="outline">
-          {row.original.isAdmin
-            ? t("admin.users.roles.admin")
-            : t("admin.users.roles.user")}
+          {row.original.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user")}
         </Badge>
       ),
     },
@@ -120,9 +111,7 @@ export function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-muted-foreground text-sm">
-            {t("admin.users.description")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("admin.users.description")}</p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <PlusIcon className="h-4 w-4" />
@@ -130,16 +119,9 @@ export function UsersPage() {
         </Button>
       </div>
 
-      <DataTable
-        data={users}
-        columns={columns}
-        emptyText={t("admin.users.messages.noUsers")}
-      />
+      <DataTable data={users} columns={columns} emptyText={t("admin.users.messages.noUsers")} />
 
-      <CreateUserDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-      />
+      <CreateUserDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
     </div>
   );
 }

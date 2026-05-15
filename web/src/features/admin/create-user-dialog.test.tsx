@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { describe, it, expect, vi } from "vitest";
 
 import { render } from "@/test/test-utils";
 
@@ -114,10 +114,7 @@ describe("CreateUserDialog", () => {
       await user.type(screen.getByLabelText(/^name$/i), "New User");
       await user.type(screen.getByLabelText(/email/i), "new@example.com");
       await user.type(screen.getByLabelText(/^password$/i), "password123");
-      await user.type(
-        screen.getByLabelText(/confirm password/i),
-        "differentpassword",
-      );
+      await user.type(screen.getByLabelText(/confirm password/i), "differentpassword");
 
       const submitButton = screen.getByRole("button", { name: /create user/i });
       await user.click(submitButton);

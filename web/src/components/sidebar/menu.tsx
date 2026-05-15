@@ -1,11 +1,7 @@
-import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
+import { ChevronRight, type LucideIcon } from "lucide-react";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
   SidebarMenu,
@@ -75,11 +71,7 @@ export function Menu({
 
           return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                isActive={isActive}
-              >
+              <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
                 <Link to={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

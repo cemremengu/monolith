@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import type { LoginRequest } from "@/types/api";
+
+import { Password } from "@/components/password";
 // import logoImage from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Password } from "@/components/password";
-import type { LoginRequest } from "@/types/api";
 import { useAuth } from "@/hooks/use-auth";
 
 interface LoginFormProps {
@@ -53,7 +54,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             </div>
             <span className="text-2xl font-semibold">Welcome to Monolith</span>
           </div>
-          <CardTitle className="text-muted-foreground text-center">
+          <CardTitle className="text-center text-muted-foreground">
             Please sign in to continue
           </CardTitle>
         </div>{" "}
@@ -70,9 +71,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 required: "Username or email is required",
               })}
             />
-            {errors.login && (
-              <p className="text-sm text-red-500">{errors.login.message}</p>
-            )}
+            {errors.login && <p className="text-sm text-red-500">{errors.login.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -84,9 +83,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 required: "Password is required",
               })}
             />
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
+            {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}

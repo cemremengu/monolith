@@ -1,10 +1,11 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 
 import { useCreateUser, useInviteUsers } from "./api/queries";
 
@@ -35,13 +35,9 @@ const createUserSchema = (t: (key: string) => string) =>
         .min(3, t("admin.users.validation.usernameMinLength"))
         .max(50, t("admin.users.validation.usernameMaxLength")),
       name: z.string().min(1, t("admin.users.validation.nameRequired")),
-      email: z
-        .string()
-        .email({ message: t("admin.users.validation.emailInvalid") }),
+      email: z.string().email({ message: t("admin.users.validation.emailInvalid") }),
       role: z.enum(["admin", "user"]),
-      password: z
-        .string()
-        .min(8, t("admin.users.validation.passwordMinLength")),
+      password: z.string().min(8, t("admin.users.validation.passwordMinLength")),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -61,8 +57,7 @@ const inviteUsersSchema = (t: (key: string) => string) =>
             .map((e) => e.trim())
             .filter(Boolean);
           return emails.every(
-            (email) =>
-              z.string().email({ message: "" }).safeParse(email).success,
+            (email) => z.string().email({ message: "" }).safeParse(email).success,
           );
         },
         {
@@ -91,10 +86,7 @@ type CreateUserDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-export function CreateUserDialog({
-  open,
-  onOpenChange,
-}: CreateUserDialogProps) {
+export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"invite" | "create">("invite");
 
@@ -193,37 +185,23 @@ export function CreateUserDialog({
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>{t("admin.users.dialog.title")}</DialogTitle>
-          <DialogDescription>
-            {t("admin.users.dialog.description")}
-          </DialogDescription>
+          <DialogDescription>{t("admin.users.dialog.description")}</DialogDescription>
         </DialogHeader>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "invite" | "create")}
-        >
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "invite" | "create")}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="invite">
-              {t("admin.users.dialog.tabs.invite")}
-            </TabsTrigger>
-            <TabsTrigger value="create">
-              {t("admin.users.dialog.tabs.create")}
-            </TabsTrigger>
+            <TabsTrigger value="invite">{t("admin.users.dialog.tabs.invite")}</TabsTrigger>
+            <TabsTrigger value="create">{t("admin.users.dialog.tabs.create")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="invite" className="space-y-4">
-            <form
-              onSubmit={inviteUsersForm.handleSubmit(onInviteUsers)}
-              className="space-y-4"
-            >
+            <form onSubmit={inviteUsersForm.handleSubmit(onInviteUsers)} className="space-y-4">
               <Controller
                 name="emails"
                 control={inviteUsersForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("admin.users.form.emails")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("admin.users.form.emails")}</FieldLabel>
                     <Textarea
                       {...field}
                       id={field.name}
@@ -231,9 +209,7 @@ export function CreateUserDialog({
                       placeholder={t("admin.users.form.emailsPlaceholder")}
                       className="min-h-[120px]"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -245,39 +221,20 @@ export function CreateUserDialog({
                     <FieldLabel htmlFor={`invite-${field.name}`}>
                       {t("admin.users.form.role")}
                     </FieldLabel>
-                    <Select
-                      name={field.name}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id={`invite-${field.name}`}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue
-                          placeholder={t("admin.users.form.selectRole")}
-                        />
+                    <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id={`invite-${field.name}`} aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder={t("admin.users.form.selectRole")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="user">
-                          {t("admin.users.roles.user")}
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          {t("admin.users.roles.admin")}
-                        </SelectItem>
+                        <SelectItem value="user">{t("admin.users.roles.user")}</SelectItem>
+                        <SelectItem value="admin">{t("admin.users.roles.admin")}</SelectItem>
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={inviteUsersMutation.isPending}
-              >
+              <Button type="submit" className="w-full" disabled={inviteUsersMutation.isPending}>
                 {inviteUsersMutation.isPending
                   ? t("admin.users.form.inviting")
                   : t("admin.users.form.inviteUsers")}
@@ -286,18 +243,13 @@ export function CreateUserDialog({
           </TabsContent>
 
           <TabsContent value="create" className="space-y-4">
-            <form
-              onSubmit={createUserForm.handleSubmit(onCreateUser)}
-              className="space-y-4"
-            >
+            <form onSubmit={createUserForm.handleSubmit(onCreateUser)} className="space-y-4">
               <Controller
                 name="username"
                 control={createUserForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("admin.users.form.username")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("admin.users.form.username")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -305,9 +257,7 @@ export function CreateUserDialog({
                       placeholder={t("admin.users.form.usernamePlaceholder")}
                       autoComplete="username"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -316,9 +266,7 @@ export function CreateUserDialog({
                 control={createUserForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("admin.users.form.name")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("admin.users.form.name")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -326,9 +274,7 @@ export function CreateUserDialog({
                       placeholder={t("admin.users.form.namePlaceholder")}
                       autoComplete="name"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -337,9 +283,7 @@ export function CreateUserDialog({
                 control={createUserForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("admin.users.form.email")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("admin.users.form.email")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -348,9 +292,7 @@ export function CreateUserDialog({
                       placeholder={t("admin.users.form.emailPlaceholder")}
                       autoComplete="email"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -362,31 +304,16 @@ export function CreateUserDialog({
                     <FieldLabel htmlFor={`create-${field.name}`}>
                       {t("admin.users.form.role")}
                     </FieldLabel>
-                    <Select
-                      name={field.name}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger
-                        id={`create-${field.name}`}
-                        aria-invalid={fieldState.invalid}
-                      >
-                        <SelectValue
-                          placeholder={t("admin.users.form.selectRole")}
-                        />
+                    <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id={`create-${field.name}`} aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder={t("admin.users.form.selectRole")} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="user">
-                          {t("admin.users.roles.user")}
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          {t("admin.users.roles.admin")}
-                        </SelectItem>
+                        <SelectItem value="user">{t("admin.users.roles.user")}</SelectItem>
+                        <SelectItem value="admin">{t("admin.users.roles.admin")}</SelectItem>
                       </SelectContent>
                     </Select>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -395,9 +322,7 @@ export function CreateUserDialog({
                 control={createUserForm.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      {t("admin.users.form.password")}
-                    </FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("admin.users.form.password")}</FieldLabel>
                     <Input
                       {...field}
                       id={field.name}
@@ -406,9 +331,7 @@ export function CreateUserDialog({
                       placeholder={t("admin.users.form.passwordPlaceholder")}
                       autoComplete="new-password"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
@@ -425,22 +348,14 @@ export function CreateUserDialog({
                       id={field.name}
                       type="password"
                       aria-invalid={fieldState.invalid}
-                      placeholder={t(
-                        "admin.users.form.confirmPasswordPlaceholder",
-                      )}
+                      placeholder={t("admin.users.form.confirmPasswordPlaceholder")}
                       autoComplete="new-password"
                     />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={createUserMutation.isPending}
-              >
+              <Button type="submit" className="w-full" disabled={createUserMutation.isPending}>
                 {createUserMutation.isPending
                   ? t("admin.users.form.creating")
                   : t("admin.users.form.createUser")}
