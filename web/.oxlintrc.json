@@ -8,6 +8,12 @@
   "env": {
     "browser": true
   },
+  "jsPlugins": [
+    {
+      "name": "react-hooks-js",
+      "specifier": "eslint-plugin-react-hooks"
+    }
+  ],
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "require-await": "error",
@@ -15,6 +21,7 @@
     "react/exhaustive-deps": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
     "import/no-dynamic-require": "warn",
-    "import/no-nodejs-modules": "off"
+    "import/no-nodejs-modules": "off",
+    "react-hooks-js/set-state-in-effect": "error"
   }
 }
