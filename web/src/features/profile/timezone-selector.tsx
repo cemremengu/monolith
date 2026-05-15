@@ -77,20 +77,13 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full justify-start gap-2"
-        >
+        <Button variant="outline" size="sm" className="w-full justify-start gap-2">
           <span className="truncate">{getTimezoneLabel()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
         {TIMEZONES.map((timezone) => (
-          <DropdownMenuItem
-            key={timezone.value}
-            onClick={() => onChange(timezone.value)}
-          >
+          <DropdownMenuItem key={timezone.value} onClick={() => onChange(timezone.value)}>
             <Clock className="mr-2 h-4 w-4" />
             <span>{timezone.label}</span>
           </DropdownMenuItem>

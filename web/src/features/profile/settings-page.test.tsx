@@ -1,6 +1,6 @@
+import { screen, waitFor } from "@testing-library/react";
 import { Suspense } from "react";
 import { describe, it, expect } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
 
 import { render } from "@/test/test-utils";
 

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
 import { waitFor } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
 
 import { mockUser } from "@/test/mocks/handlers";
 

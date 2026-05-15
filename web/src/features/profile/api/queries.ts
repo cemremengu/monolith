@@ -1,9 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  queryOptions,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import { accountApi } from "./index";
 

@@ -7,8 +7,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Inter Variable', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: "Inter Variable", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -122,13 +122,13 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
-    @apply font-sans bg-background text-foreground;
-    }
+    @apply bg-background font-sans text-foreground;
+  }
   html {
     @apply font-sans;
-    }
+  }
 }
 
 @layer base {

@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import type { ColumnDef } from "@tanstack/react-table";
+
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ColumnDef } from "@tanstack/react-table";
+import { describe, expect, it } from "vitest";
 
 import { render } from "@/test/test-utils";
 
@@ -107,9 +108,7 @@ describe("DataTable", () => {
       { accessorKey: "name", header: "Name" },
       {
         accessorKey: "age",
-        header: ({ column }) => (
-          <button onClick={() => column.toggleSorting()}>Age</button>
-        ),
+        header: ({ column }) => <button onClick={() => column.toggleSorting()}>Age</button>,
       },
       { accessorKey: "address", header: "Address" },
     ];

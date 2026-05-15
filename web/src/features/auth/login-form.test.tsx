@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor, act } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { render } from "@/test/test-utils";
 import { useAuth } from "@/hooks/use-auth";
+import { render } from "@/test/test-utils";
 
 import { LoginForm } from "./login-form";
 
@@ -37,9 +37,7 @@ describe("LoginForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/username or email is required/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/username or email is required/i)).toBeInTheDocument();
     });
   });
 
@@ -90,9 +88,7 @@ describe("LoginForm", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/invalid username\/email or password/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/invalid username\/email or password/i)).toBeInTheDocument();
     });
 
     expect(mockOnSuccess).not.toHaveBeenCalled();

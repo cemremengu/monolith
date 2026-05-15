@@ -1,11 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 
 import { usePreferences, type Theme } from "./use-preferences";
 
@@ -15,9 +9,7 @@ type ThemeProviderContextValue = {
   isDarkTheme: boolean;
 };
 
-const ThemeProviderContext = createContext<
-  ThemeProviderContextValue | undefined
->(undefined);
+const ThemeProviderContext = createContext<ThemeProviderContextValue | undefined>(undefined);
 
 type ThemeProviderProps = {
   children: ReactNode;
@@ -33,8 +25,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
 
@@ -55,16 +46,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   }, [theme]);
 
-  const value = useMemo(
-    () => ({ theme, setTheme, isDarkTheme }),
-    [theme, setTheme, isDarkTheme],
-  );
+  const value = useMemo(() => ({ theme, setTheme, isDarkTheme }), [theme, setTheme, isDarkTheme]);
 
-  return (
-    <ThemeProviderContext.Provider value={value}>
-      {children}
-    </ThemeProviderContext.Provider>
-  );
+  return <ThemeProviderContext.Provider value={value}>{children}</ThemeProviderContext.Provider>;
 }
 
 export const useTheme = () => {

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { userEvent } from "@testing-library/user-event";
 import { screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { describe, it, expect, vi } from "vitest";
 
 import { mockUser } from "@/test/mocks/handlers";
 import { render } from "@/test/test-utils";
@@ -123,13 +123,7 @@ describe("UserActionsDropdown", () => {
     it("should call onEnable when enable is clicked", async () => {
       const user = userEvent.setup();
       const onEnable = vi.fn();
-      render(
-        <UserActionsDropdown
-          {...defaultProps}
-          user={disabledUser}
-          onEnable={onEnable}
-        />,
-      );
+      render(<UserActionsDropdown {...defaultProps} user={disabledUser} onEnable={onEnable} />);
 
       const trigger = screen.getByRole("button");
       await user.click(trigger);

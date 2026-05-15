@@ -3,27 +3,19 @@ export function DashboardPage() {
     <div className="flex flex-1 flex-col px-2 py-4">
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div className="bg-muted/50 aspect-video rounded-xl" />
-          <div className="bg-muted/50 aspect-video rounded-xl" />
-          <div className="bg-muted/50 aspect-video rounded-xl" />
+          <div className="aspect-video rounded-xl bg-muted/50" />
+          <div className="aspect-video rounded-xl bg-muted/50" />
+          <div className="aspect-video rounded-xl bg-muted/50" />
         </div>
-        <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min" />
+        <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
         <div className="space-y-2">
-          <p className="font-light">
-            Whereas recognition of the inherent dignity. Light (300)
-          </p>
-          <p className="font-normal">
-            Whereas recognition of the inherent dignity. Normal (400)
-          </p>
-          <p className="font-medium">
-            Whereas recognition of the inherent dignity. Medium (500)
-          </p>
+          <p className="font-light">Whereas recognition of the inherent dignity. Light (300)</p>
+          <p className="font-normal">Whereas recognition of the inherent dignity. Normal (400)</p>
+          <p className="font-medium">Whereas recognition of the inherent dignity. Medium (500)</p>
           <p className="font-semibold">
             Whereas recognition of the inherent dignity. SemiBold (600)
           </p>
-          <p className="font-bold">
-            Whereas recognition of the inherent dignity. Bold (700)
-          </p>
+          <p className="font-bold">Whereas recognition of the inherent dignity. Bold (700)</p>
           <p style={{ fontWeight: 450 }}>
             Whereas recognition of the inherent dignity. Custom (450)
           </p>

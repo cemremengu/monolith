@@ -2,6 +2,7 @@ import { Ban, CheckCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { User } from "@/types/api";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,18 +62,12 @@ export function UserActionsDropdown({
               {t("admin.users.actions.edit")}
             </DropdownMenuItem>
             {isActive ? (
-              <DropdownMenuItem
-                onClick={() => onDisable(user.id)}
-                disabled={isDisabling}
-              >
+              <DropdownMenuItem onClick={() => onDisable(user.id)} disabled={isDisabling}>
                 <Ban className="mr-2 h-4 w-4" />
                 {t("admin.users.actions.disable")}
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem
-                onClick={() => onEnable(user.id)}
-                disabled={isEnabling}
-              >
+              <DropdownMenuItem onClick={() => onEnable(user.id)} disabled={isEnabling}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 {t("admin.users.actions.enable")}
               </DropdownMenuItem>

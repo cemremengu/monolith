@@ -1,11 +1,11 @@
-import { useEffect } from "react";
 import { createFileRoute, redirect, Outlet } from "@tanstack/react-router";
+import { useEffect } from "react";
 
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useSessionRotation } from "@/hooks/use-session-rotation";
-import { usePreferences } from "@/hooks/use-preferences";
-import { useAuth } from "@/hooks/use-auth";
 import { AppSidebar } from "@/components/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/use-auth";
+import { usePreferences } from "@/hooks/use-preferences";
+import { useSessionRotation } from "@/hooks/use-session-rotation";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ context, location }) => {

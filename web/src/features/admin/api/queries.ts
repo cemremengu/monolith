@@ -1,9 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  queryOptions,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 import type { CreateUserRequest, InviteUsersRequest } from "@/types/api";
 
@@ -17,10 +12,7 @@ export const userKeys = {
   detail: (id: string) => [...userKeys.details(), id] as const,
 };
 
-export const usersQueryOptions = (opts: {
-  filterBy?: string;
-  sortBy?: "name" | "email";
-}) =>
+export const usersQueryOptions = (opts: { filterBy?: string; sortBy?: "name" | "email" }) =>
   queryOptions({
     queryKey: userKeys.lists(),
     queryFn: () => usersApi.getAll(opts),
@@ -33,10 +25,7 @@ export const userQueryOptions = (userId: string) =>
     enabled: !!userId,
   });
 
-export const useUsers = (opts: {
-  filterBy?: string;
-  sortBy?: "name" | "email";
-}) => {
+export const useUsers = (opts: { filterBy?: string; sortBy?: "name" | "email" }) => {
   return useSuspenseQuery(usersQueryOptions(opts));
 };
 

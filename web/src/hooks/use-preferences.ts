@@ -1,6 +1,6 @@
+import { changeLanguage } from "i18next";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { changeLanguage } from "i18next";
 
 export type Theme = "dark" | "light" | "system";
 
@@ -41,11 +41,7 @@ export const usePreferences = create<PreferencesStore>()(
 
       syncPreferences: (prefs: Preferences) => {
         const { theme, language, timezone } = usePreferences.getState();
-        if (
-          theme === prefs.theme &&
-          language === prefs.language &&
-          timezone === prefs.timezone
-        )
+        if (theme === prefs.theme && language === prefs.language && timezone === prefs.timezone)
           return;
         changeLanguage(prefs.language);
         set(prefs);

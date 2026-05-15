@@ -55,9 +55,7 @@ function Password({
 
   const currentValue = value !== undefined ? String(value) : internalValue;
 
-  const strength = showStrengthIndicator
-    ? calculatePasswordStrength(currentValue)
-    : null;
+  const strength = showStrengthIndicator ? calculatePasswordStrength(currentValue) : null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (value === undefined) {
@@ -97,11 +95,7 @@ function Password({
             size="icon-xs"
             onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showPassword ? (
-              <EyeOffIcon className="size-5" />
-            ) : (
-              <EyeIcon className="size-5" />
-            )}
+            {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
@@ -120,12 +114,7 @@ function Password({
               />
             ))}
           </div>
-          <p
-            className={cn(
-              "text-xs font-medium",
-              strengthTextColors[strength.score],
-            )}
-          >
+          <p className={cn("text-xs font-medium", strengthTextColors[strength.score])}>
             {strength.label}
           </p>
         </div>

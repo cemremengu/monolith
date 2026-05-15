@@ -1,7 +1,7 @@
-import * as React from "react";
 import { HomeIcon } from "lucide-react";
+import * as React from "react";
 
-import { useAuth } from "@/hooks/use-auth";
+import { Logo } from "@/components/logo";
 import { Menu } from "@/components/sidebar/menu";
 import { NavUser } from "@/components/sidebar/user";
 import {
@@ -11,7 +11,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Logo } from "@/components/logo";
+import { useAuth } from "@/hooks/use-auth";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
