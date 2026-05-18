@@ -25,7 +25,6 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
 });
 
-// oxlint-disable-next-line react/only-export-components
 function AuthenticatedLayout() {
   useSessionRotation();
   const { user } = useAuth();
