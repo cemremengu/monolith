@@ -15,15 +15,11 @@ type RouterContext = {
   };
 };
 
-function Root() {
-  return (
+export const Route = createRootRouteWithContext<RouterContext>()({
+  component: () => (
     <>
       <Outlet />
       <Toaster />
     </>
-  );
-}
-
-export const Route = createRootRouteWithContext<RouterContext>()({
-  component: Root,
+  ),
 });

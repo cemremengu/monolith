@@ -1,7 +1,7 @@
 import type { VariantProps } from "class-variance-authority";
 
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { User } from "@/types/api";
@@ -14,6 +14,19 @@ import { useDeleteUser, useDisableUser, useEnableUser, useUsers } from "./api/qu
 import { CreateUserDialog } from "./create-user-dialog";
 import { UserActionsDropdown } from "./user-actions-dropdown";
 
+function getStatusVariant(
+  status: string,
+): NonNullable<VariantProps<typeof badgeVariants>["variant"]> {
+  switch (status) {
+    case "active":
+      return "default";
+    case "pending":
+      return "secondary";
+    default:
+      return "outline";
+  }
+}
+
 export function UsersPage() {
   const { t } = useTranslation();
   const { data: users } = useUsers({});
@@ -23,89 +36,101 @@ export function UsersPage() {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     // TODO: Implement edit functionality
-  };
+  }, []);
 
-  const handleDelete = (id: string) => {
-    deleteUser.mutate(id);
-  };
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteUser.mutate(id);
+    },
+    [deleteUser],
+  );
 
-  const handleDisable = (id: string) => {
-    disableUser.mutate(id);
-  };
+  const handleDisable = useCallback(
+    (id: string) => {
+      disableUser.mutate(id);
+    },
+    [disableUser],
+  );
 
-  const handleEnable = (id: string) => {
-    enableUser.mutate(id);
-  };
+  const handleEnable = useCallback(
+    (id: string) => {
+      enableUser.mutate(id);
+    },
+    [enableUser],
+  );
 
-  const getStatusVariant = (
-    status: string,
-  ): NonNullable<VariantProps<typeof badgeVariants>["variant"]> => {
-    switch (status) {
-      case "active":
-        return "default";
-      case "pending":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  };
+  const handleOpenCreateDialog = useCallback(() => {
+    setIsCreateDialogOpen(true);
+  }, []);
 
-  const columns: ColumnDef<User>[] = [
-    {
-      accessorKey: "username",
-      header: t("admin.users.table.username"),
-      cell: ({ row }) => <span className="font-medium">{row.original.username}</span>,
-    },
-    {
-      accessorKey: "email",
-      header: t("admin.users.table.email"),
-    },
-    {
-      id: "role",
-      accessorFn: (user) =>
-        user.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user"),
-      header: t("admin.users.table.role"),
-      cell: ({ row }) => (
-        <Badge variant="outline">
-          {row.original.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user")}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: t("admin.users.table.status"),
-      cell: ({ row }) => (
-        <Badge variant={getStatusVariant(row.original.status)}>
-          {t(`admin.users.status.${row.original.status}`)}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "createdAt",
-      header: t("admin.users.table.createdAt"),
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => (
-        <div className="flex justify-end">
-          <UserActionsDropdown
-            user={row.original}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onDisable={handleDisable}
-            onEnable={handleEnable}
-            isDeleting={deleteUser.isPending}
-            isDisabling={disableUser.isPending}
-            isEnabling={enableUser.isPending}
-          />
-        </div>
-      ),
-      enableHiding: false,
-    },
-  ];
+  const columns: ColumnDef<User>[] = useMemo(
+    () => [
+      {
+        accessorKey: "username",
+        header: t("admin.users.table.username"),
+        cell: ({ row }) => <span className="font-medium">{row.original.username}</span>,
+      },
+      {
+        accessorKey: "email",
+        header: t("admin.users.table.email"),
+      },
+      {
+        id: "role",
+        accessorFn: (user) =>
+          user.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user"),
+        header: t("admin.users.table.role"),
+        cell: ({ row }) => (
+          <Badge variant="outline">
+            {row.original.isAdmin ? t("admin.users.roles.admin") : t("admin.users.roles.user")}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: t("admin.users.table.status"),
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.original.status)}>
+            {t(`admin.users.status.${row.original.status}`)}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: "createdAt",
+        header: t("admin.users.table.createdAt"),
+        cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <UserActionsDropdown
+              user={row.original}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onDisable={handleDisable}
+              onEnable={handleEnable}
+              isDeleting={deleteUser.isPending}
+              isDisabling={disableUser.isPending}
+              isEnabling={enableUser.isPending}
+            />
+          </div>
+        ),
+        enableHiding: false,
+      },
+    ],
+    [
+      t,
+      handleEdit,
+      handleDelete,
+      handleDisable,
+      handleEnable,
+      deleteUser.isPending,
+      disableUser.isPending,
+      enableUser.isPending,
+    ],
+  );
 
   return (
     <div className="space-y-6">
@@ -113,7 +138,7 @@ export function UsersPage() {
         <div>
           <p className="text-sm text-muted-foreground">{t("admin.users.description")}</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={handleOpenCreateDialog}>
           <PlusIcon className="h-4 w-4" />
           {t("admin.users.newUser")}
         </Button>

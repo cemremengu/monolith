@@ -1,16 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Mail, Calendar, Shield, Clock } from "lucide-react";
-import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useCallback, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { FormInput } from "@/components/form/controlled";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 
 import { useProfile } from "./api/queries";
 
@@ -58,6 +57,8 @@ export function ProfilePage() {
       toast.error(t("profile.messages.updateError"));
     }
   };
+
+  const handleReset = useCallback(() => form.reset(), [form]);
 
   const getInitials = (name: string, username: string) => {
     if (name && name.length > 0) {
@@ -120,69 +121,35 @@ export function ProfilePage() {
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Controller
-                  name="name"
+                <FormInput
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        {t("profile.information.fullName")}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder={t("profile.information.fullNamePlaceholder")}
-                        autoComplete="name"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
+                  name="name"
+                  label={t("profile.information.fullName")}
+                  placeholder={t("profile.information.fullNamePlaceholder")}
+                  autoComplete="name"
                 />
 
-                <Controller
-                  name="username"
+                <FormInput
                   control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        {t("profile.information.username")}
-                      </FieldLabel>
-                      <Input
-                        {...field}
-                        id={field.name}
-                        aria-invalid={fieldState.invalid}
-                        placeholder={t("profile.information.usernamePlaceholder")}
-                        autoComplete="username"
-                      />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                    </Field>
-                  )}
+                  name="username"
+                  label={t("profile.information.username")}
+                  placeholder={t("profile.information.usernamePlaceholder")}
+                  autoComplete="username"
                 />
               </div>
 
-              <Controller
-                name="email"
+              <FormInput
                 control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>{t("profile.information.email")}</FieldLabel>
-                    <Input
-                      {...field}
-                      id={field.name}
-                      type="email"
-                      aria-invalid={fieldState.invalid}
-                      placeholder={t("profile.information.emailPlaceholder")}
-                      autoComplete="email"
-                    />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                  </Field>
-                )}
+                name="email"
+                type="email"
+                label={t("profile.information.email")}
+                placeholder={t("profile.information.emailPlaceholder")}
+                autoComplete="email"
               />
 
               <div className="flex space-x-2">
                 <Button type="submit">{t("profile.actions.saveChanges")}</Button>
-                <Button type="button" variant="outline" onClick={() => form.reset()}>
+                <Button type="button" variant="outline" onClick={handleReset}>
                   {t("profile.actions.cancel")}
                 </Button>
               </div>

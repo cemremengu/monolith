@@ -8,7 +8,7 @@ import { render } from "@/test/test-utils";
 import { LoginForm } from "./login-form";
 
 describe("LoginForm", () => {
-  const mockOnSuccess = vi.fn();
+  const mockOnSuccess = vi.fn<() => void>();
 
   beforeEach(() => {
     vi.clearAllMocks();

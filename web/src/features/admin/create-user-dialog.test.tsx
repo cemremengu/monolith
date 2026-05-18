@@ -9,7 +9,7 @@ import { CreateUserDialog } from "./create-user-dialog";
 describe("CreateUserDialog", () => {
   const defaultProps = {
     open: true,
-    onOpenChange: vi.fn(),
+    onOpenChange: vi.fn<(open: boolean) => void>(),
   };
 
   it("should render dialog with title and description", () => {
@@ -126,13 +126,13 @@ describe("CreateUserDialog", () => {
   });
 
   it("should not render when open is false", () => {
-    render(<CreateUserDialog open={false} onOpenChange={vi.fn()} />);
+    render(<CreateUserDialog open={false} onOpenChange={vi.fn<(open: boolean) => void>()} />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("should call onOpenChange when closing", async () => {
-    const onOpenChange = vi.fn();
+    const onOpenChange = vi.fn<(open: boolean) => void>();
     const user = userEvent.setup();
     render(<CreateUserDialog open={true} onOpenChange={onOpenChange} />);
 

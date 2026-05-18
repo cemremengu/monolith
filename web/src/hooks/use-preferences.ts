@@ -31,7 +31,7 @@ export const usePreferences = create<PreferencesStore>()(
       },
 
       setLanguage: (language: string) => {
-        changeLanguage(language);
+        void changeLanguage(language);
         set({ language });
       },
 
@@ -43,7 +43,7 @@ export const usePreferences = create<PreferencesStore>()(
         const { theme, language, timezone } = usePreferences.getState();
         if (theme === prefs.theme && language === prefs.language && timezone === prefs.timezone)
           return;
-        changeLanguage(prefs.language);
+        void changeLanguage(prefs.language);
         set(prefs);
       },
     }),

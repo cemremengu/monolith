@@ -1,4 +1,5 @@
 import { Ban, CheckCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { User } from "@/types/api";
@@ -37,6 +38,11 @@ export function UserActionsDropdown({
   const isActive = user.status === "active";
   const isPending = user.status === "pending";
 
+  const handleEdit = useCallback(() => onEdit(user), [onEdit, user]);
+  const handleDelete = useCallback(() => onDelete(user.id), [onDelete, user.id]);
+  const handleDisable = useCallback(() => onDisable(user.id), [onDisable, user.id]);
+  const handleEnable = useCallback(() => onEnable(user.id), [onEnable, user.id]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,37 +53,29 @@ export function UserActionsDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {isPending ? (
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => onDelete(user.id)}
-            disabled={isDeleting}
-          >
+          <DropdownMenuItem variant="destructive" onClick={handleDelete} disabled={isDeleting}>
             <Trash2 className="mr-2 h-4 w-4" />
             {t("admin.users.actions.delete")}
           </DropdownMenuItem>
         ) : (
           <>
-            <DropdownMenuItem onClick={() => onEdit(user)}>
+            <DropdownMenuItem onClick={handleEdit}>
               <Pencil className="mr-2 h-4 w-4" />
               {t("admin.users.actions.edit")}
             </DropdownMenuItem>
             {isActive ? (
-              <DropdownMenuItem onClick={() => onDisable(user.id)} disabled={isDisabling}>
+              <DropdownMenuItem onClick={handleDisable} disabled={isDisabling}>
                 <Ban className="mr-2 h-4 w-4" />
                 {t("admin.users.actions.disable")}
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem onClick={() => onEnable(user.id)} disabled={isEnabling}>
+              <DropdownMenuItem onClick={handleEnable} disabled={isEnabling}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 {t("admin.users.actions.enable")}
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDelete(user.id)}
-              disabled={isDeleting}
-            >
+            <DropdownMenuItem variant="destructive" onClick={handleDelete} disabled={isDeleting}>
               <Trash2 className="mr-2 h-4 w-4" />
               {t("admin.users.actions.delete")}
             </DropdownMenuItem>

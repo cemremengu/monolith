@@ -24,7 +24,6 @@ tasks:
     cmds:
       - npm run format
       - npm run lint:fix
-      - npm run check-types
 
   router:generate:
     desc: "Generate tanstack router file"

@@ -24,7 +24,7 @@ type AllProvidersProps = {
   children: ReactNode;
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
+// oxlint-disable-next-line react-refresh/only-export-components
 function AllProviders({ children }: AllProvidersProps) {
   const queryClient = createTestQueryClient();
 

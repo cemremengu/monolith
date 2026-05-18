@@ -23,8 +23,7 @@ try {
   // ignore parse errors
 }
 
-// eslint-disable-next-line import-x/no-named-as-default-member
-i18next.use(initReactI18next).init({
+void i18next.use(initReactI18next).init({
   resources,
   lng: persistedLanguage,
   fallbackLng: "en-US",

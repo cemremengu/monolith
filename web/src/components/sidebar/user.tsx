@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BadgeCheck, ChevronsUpDown, Info, LogOut, Settings, Shield } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,6 +21,10 @@ import {
 import { AboutDialog } from "@/features/about/about-dialog";
 import { useAuth } from "@/hooks/use-auth";
 
+function preventDefault(e: Event) {
+  e.preventDefault();
+}
+
 export function NavUser({
   user,
 }: {
@@ -34,10 +39,20 @@ export function NavUser({
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
-    navigate({ to: "/login" });
-  };
+    void navigate({ to: "/login" });
+  }, [logout, navigate]);
+
+  const aboutTrigger = useMemo(
+    () => (
+      <DropdownMenuItem onSelect={preventDefault}>
+        <Info />
+        About
+      </DropdownMenuItem>
+    ),
+    [],
+  );
 
   const getInitials = (name: string) => {
     return name
@@ -109,14 +124,7 @@ export function NavUser({
                   </Link>
                 </DropdownMenuItem>
               )}
-              <AboutDialog
-                trigger={
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    <Info />
-                    About
-                  </DropdownMenuItem>
-                }
-              />
+              <AboutDialog trigger={aboutTrigger} />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

@@ -23,7 +23,7 @@ export const useUpdatePreferences = () => {
   return useMutation({
     mutationFn: accountApi.updatePreferences,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountKeys.profile() });
+      void queryClient.invalidateQueries({ queryKey: accountKeys.profile() });
     },
   });
 };
@@ -34,7 +34,7 @@ export const useRevokeSession = () => {
   return useMutation({
     mutationFn: accountApi.revokeSession,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountKeys.sessions() });
+      void queryClient.invalidateQueries({ queryKey: accountKeys.sessions() });
     },
   });
 };
@@ -45,7 +45,7 @@ export const useRevokeAllOtherSessions = () => {
   return useMutation({
     mutationFn: accountApi.revokeAllOtherSessions,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: accountKeys.sessions() });
+      void queryClient.invalidateQueries({ queryKey: accountKeys.sessions() });
     },
   });
 };

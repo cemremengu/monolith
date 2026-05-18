@@ -3,11 +3,11 @@ import { Home, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-export function NotFound() {
-  const handleGoBack = () => {
-    window.history.back();
-  };
+function handleGoBack() {
+  window.history.back();
+}
 
+export function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8 text-center">

@@ -18,6 +18,22 @@ type PasswordStrength = {
   label: string;
 };
 
+const strengthColors = [
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-yellow-500",
+  "bg-lime-500",
+  "bg-green-500",
+];
+
+const strengthTextColors = [
+  "text-red-600",
+  "text-orange-600",
+  "text-yellow-600",
+  "text-lime-600",
+  "text-green-600",
+];
+
 function calculatePasswordStrength(password: string): PasswordStrength {
   if (!password) {
     return { score: 0, label: "Very Weak" };
@@ -57,28 +73,19 @@ function Password({
 
   const strength = showStrengthIndicator ? calculatePasswordStrength(currentValue) : null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (value === undefined) {
-      setInternalValue(e.target.value);
-    }
-    onChange?.(e);
-  };
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (value === undefined) {
+        setInternalValue(e.target.value);
+      }
+      onChange?.(e);
+    },
+    [value, onChange],
+  );
 
-  const strengthColors = [
-    "bg-red-500",
-    "bg-orange-500",
-    "bg-yellow-500",
-    "bg-lime-500",
-    "bg-green-500",
-  ];
-
-  const strengthTextColors = [
-    "text-red-600",
-    "text-orange-600",
-    "text-yellow-600",
-    "text-lime-600",
-    "text-green-600",
-  ];
+  const toggleShowPassword = React.useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
 
   return (
     <div className="flex flex-col gap-2">
@@ -93,7 +100,7 @@ function Password({
           <InputGroupButton
             title="Toggle password visibility"
             size="icon-xs"
-            onClick={() => setShowPassword((prev) => !prev)}
+            onClick={toggleShowPassword}
           >
             {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
           </InputGroupButton>

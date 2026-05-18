@@ -2,6 +2,8 @@ import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
+import type { User } from "@/types/api";
+
 import { mockUser } from "@/test/mocks/handlers";
 import { render } from "@/test/test-utils";
 
@@ -10,10 +12,10 @@ import { UserActionsDropdown } from "./user-actions-dropdown";
 describe("UserActionsDropdown", () => {
   const defaultProps = {
     user: mockUser,
-    onEdit: vi.fn(),
-    onDelete: vi.fn(),
-    onDisable: vi.fn(),
-    onEnable: vi.fn(),
+    onEdit: vi.fn<(user: User) => void>(),
+    onDelete: vi.fn<(id: string) => void>(),
+    onDisable: vi.fn<(id: string) => void>(),
+    onEnable: vi.fn<(id: string) => void>(),
     isDeleting: false,
     isDisabling: false,
     isEnabling: false,
@@ -54,7 +56,7 @@ describe("UserActionsDropdown", () => {
 
     it("should call onEdit when edit is clicked", async () => {
       const user = userEvent.setup();
-      const onEdit = vi.fn();
+      const onEdit = vi.fn<(user: User) => void>();
       render(<UserActionsDropdown {...defaultProps} onEdit={onEdit} />);
 
       const trigger = screen.getByRole("button");
@@ -71,7 +73,7 @@ describe("UserActionsDropdown", () => {
 
     it("should call onDisable when disable is clicked", async () => {
       const user = userEvent.setup();
-      const onDisable = vi.fn();
+      const onDisable = vi.fn<(id: string) => void>();
       render(<UserActionsDropdown {...defaultProps} onDisable={onDisable} />);
 
       const trigger = screen.getByRole("button");
@@ -88,7 +90,7 @@ describe("UserActionsDropdown", () => {
 
     it("should call onDelete when delete is clicked", async () => {
       const user = userEvent.setup();
-      const onDelete = vi.fn();
+      const onDelete = vi.fn<(id: string) => void>();
       render(<UserActionsDropdown {...defaultProps} onDelete={onDelete} />);
 
       const trigger = screen.getByRole("button");
@@ -122,7 +124,7 @@ describe("UserActionsDropdown", () => {
 
     it("should call onEnable when enable is clicked", async () => {
       const user = userEvent.setup();
-      const onEnable = vi.fn();
+      const onEnable = vi.fn<(id: string) => void>();
       render(<UserActionsDropdown {...defaultProps} user={disabledUser} onEnable={onEnable} />);
 
       const trigger = screen.getByRole("button");

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 import { NotFound } from "@/components/not-found";
 import { Spinner } from "@/components/ui/spinner";
@@ -49,11 +50,14 @@ declare module "@tanstack/react-router" {
 }
 
 export function App() {
+  const auth = useAuth();
+  const routerContext = useMemo(() => ({ auth }), [auth]);
+
   return (
     <ThemeProvider>
       <TooltipProvider>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} context={{ auth: useAuth() }} />
+          <RouterProvider router={router} context={routerContext} />
         </QueryClientProvider>
       </TooltipProvider>
     </ThemeProvider>

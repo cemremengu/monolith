@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useCallback } from "react";
 import { z } from "zod";
 
 import { LoginPage } from "@/features/auth/login-page";
@@ -23,9 +24,9 @@ function LoginRouteComponent() {
   const navigate = Route.useNavigate();
   const search = Route.useSearch();
 
-  const handleLoginSuccess = () => {
-    navigate({ to: search.redirect || "/dashboard" });
-  };
+  const handleLoginSuccess = useCallback(() => {
+    void navigate({ to: search.redirect || "/dashboard" });
+  }, [navigate, search.redirect]);
 
   return <LoginPage onSuccess={handleLoginSuccess} />;
 }

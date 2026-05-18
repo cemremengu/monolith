@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -63,10 +64,29 @@ const TIMEZONES = [
   { value: "Pacific/Kiritimati", label: "(UTC+14:00) Line Islands Time" },
 ];
 
+type Timezone = (typeof TIMEZONES)[number];
+
 type TimezoneSelectorProps = {
   value?: string;
   onChange: (value: string) => void;
 };
+
+function TimezoneItem({
+  timezone,
+  onSelect,
+}: {
+  timezone: Timezone;
+  onSelect: (value: string) => void;
+}) {
+  const handleClick = useCallback(() => onSelect(timezone.value), [onSelect, timezone.value]);
+
+  return (
+    <DropdownMenuItem onClick={handleClick}>
+      <Clock className="mr-2 h-4 w-4" />
+      <span>{timezone.label}</span>
+    </DropdownMenuItem>
+  );
+}
 
 export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
   const getTimezoneLabel = () => {
@@ -83,10 +103,7 @@ export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
         {TIMEZONES.map((timezone) => (
-          <DropdownMenuItem key={timezone.value} onClick={() => onChange(timezone.value)}>
-            <Clock className="mr-2 h-4 w-4" />
-            <span>{timezone.label}</span>
-          </DropdownMenuItem>
+          <TimezoneItem key={timezone.value} timezone={timezone} onSelect={onChange} />
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

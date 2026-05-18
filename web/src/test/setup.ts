@@ -6,6 +6,10 @@ import { server } from "./mocks/server";
 // Set up base URL for relative URL resolution
 const TEST_BASE_URL = "http://localhost:3000";
 
+// Exported so tests can assert against the same mock instance without
+// referencing it as an unbound method off `window.location`.
+export const locationReplaceMock = vi.fn<(url: string | URL) => void>();
+
 // Mock window.location with proper origin for URL resolution
 Object.defineProperty(window, "location", {
   writable: true,
@@ -19,9 +23,9 @@ Object.defineProperty(window, "location", {
     pathname: "/",
     search: "",
     hash: "",
-    replace: vi.fn(),
-    assign: vi.fn(),
-    reload: vi.fn(),
+    replace: locationReplaceMock,
+    assign: vi.fn<(url: string | URL) => void>(),
+    reload: vi.fn<() => void>(),
   },
 });
 
@@ -33,23 +37,23 @@ document.head.appendChild(baseElement);
 // Mock window.matchMedia
 Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: vi.fn().mockImplementation((query: string) => ({
+  value: vi.fn<(query: string) => MediaQueryList>().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
+    addListener: vi.fn<(listener: () => void) => void>(),
+    removeListener: vi.fn<(listener: () => void) => void>(),
+    addEventListener: vi.fn<(type: string, listener: () => void) => void>(),
+    removeEventListener: vi.fn<(type: string, listener: () => void) => void>(),
+    dispatchEvent: vi.fn<(event: Event) => boolean>(),
   })),
 });
 
 // Mock ResizeObserver
 class ResizeObserverMock {
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
+  observe = vi.fn<(target: Element) => void>();
+  unobserve = vi.fn<(target: Element) => void>();
+  disconnect = vi.fn<() => void>();
 }
 window.ResizeObserver = ResizeObserverMock;
 
@@ -59,10 +63,10 @@ class IntersectionObserverMock {
   readonly rootMargin: string = "";
   readonly scrollMargin: string = "";
   readonly thresholds: ReadonlyArray<number> = [];
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-  takeRecords = vi.fn().mockReturnValue([]);
+  observe = vi.fn<(target: Element) => void>();
+  unobserve = vi.fn<(target: Element) => void>();
+  disconnect = vi.fn<() => void>();
+  takeRecords = vi.fn<() => IntersectionObserverEntry[]>().mockReturnValue([]);
 }
 window.IntersectionObserver = IntersectionObserverMock;
 
@@ -70,7 +74,7 @@ window.IntersectionObserver = IntersectionObserverMock;
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 beforeEach(() => {
   // Reset location.replace mock before each test
-  vi.mocked(window.location.replace).mockClear();
+  locationReplaceMock.mockClear();
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

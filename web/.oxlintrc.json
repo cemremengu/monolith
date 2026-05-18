@@ -1,12 +1,28 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["dist/**", "src/routeTree.gen.ts"],
-  "plugins": ["react", "typescript", "import", "unicorn", "oxc"],
+  "ignorePatterns": ["dist/**", "src/routeTree.gen.ts", "src/components/ui"],
+  "plugins": [
+    "eslint",
+    "react",
+    "react-perf",
+    "promise",
+    "vitest",
+    "typescript",
+    "import",
+    "unicorn",
+    "oxc"
+  ],
   "categories": {
-    "correctness": "error"
+    "correctness": "error",
+    "perf": "warn"
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
   },
   "env": {
-    "browser": true
+    "browser": true,
+    "builtin": true
   },
   "jsPlugins": [
     {
@@ -16,15 +32,28 @@
   ],
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
-    "require-await": "error",
-    "react/rules-of-hooks": "error",
-    "react/exhaustive-deps": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
-    "import/no-dynamic-require": "warn",
-    "import/no-nodejs-modules": "off",
-    "react-hooks-js/rules-of-hooks": "error",
+    "react/rules-of-hooks": "error",
+    "typescript/require-await": "error",
     "react-hooks-js/set-state-in-effect": "error",
-    "react-hooks-js/set-state-in-render": "error",
-    "react-hooks-js/exhaustive-deps": "warn"
-  }
+    "react-hooks-js/set-state-in-render": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "src/test/**"],
+      "rules": {
+        "react-perf/jsx-no-new-function-as-prop": "off",
+        "react-perf/jsx-no-new-array-as-prop": "off",
+        "react-perf/jsx-no-new-object-as-prop": "off",
+        "react-perf/jsx-no-jsx-as-prop": "off",
+        "oxc/no-map-spread": "off"
+      }
+    },
+    {
+      "files": ["src/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
+    }
+  ]
 }

@@ -1,3 +1,5 @@
+const customWeightStyle = { fontWeight: 450 };
+
 export function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col px-2 py-4">
@@ -16,9 +18,7 @@ export function DashboardPage() {
             Whereas recognition of the inherent dignity. SemiBold (600)
           </p>
           <p className="font-bold">Whereas recognition of the inherent dignity. Bold (700)</p>
-          <p style={{ fontWeight: 450 }}>
-            Whereas recognition of the inherent dignity. Custom (450)
-          </p>
+          <p style={customWeightStyle}>Whereas recognition of the inherent dignity. Custom (450)</p>
           <p className="font-extrabold">
             Whereas recognition of the inherent dignity. ExtraBold (800)
           </p>
@@ -38,7 +38,7 @@ export function DashboardPage() {
           <p className="font-bold italic">
             Whereas recognition of the inherent dignity. Bold Italic (700)
           </p>
-          <p className="italic" style={{ fontWeight: 450 }}>
+          <p className="italic" style={customWeightStyle}>
             Whereas recognition of the inherent dignity. Custom Italic (450)
           </p>
           <p className="font-extrabold italic">

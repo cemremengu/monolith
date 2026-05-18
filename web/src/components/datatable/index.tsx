@@ -1,4 +1,5 @@
 import {
+  type Column,
   type ColumnDef,
   type ColumnFiltersState,
   type SortingState,
@@ -46,6 +47,23 @@ export type DataTableProps<TData, TValue> = {
   className?: string;
 };
 
+function ColumnVisibilityToggle<TData>({ column }: { column: Column<TData, unknown> }) {
+  const handleCheckedChange = React.useCallback(
+    (value: boolean) => column.toggleVisibility(!!value),
+    [column],
+  );
+
+  return (
+    <DropdownMenuCheckboxItem
+      className="capitalize"
+      checked={column.getIsVisible()}
+      onCheckedChange={handleCheckedChange}
+    >
+      {column.id}
+    </DropdownMenuCheckboxItem>
+  );
+}
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -86,6 +104,20 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const handleFilterChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (filterColumn) {
+        table.getColumn(filterColumn)?.setFilterValue(event.target.value);
+      } else {
+        setGlobalFilter(event.target.value);
+      }
+    },
+    [filterColumn, table],
+  );
+
+  const handlePreviousPage = React.useCallback(() => table.previousPage(), [table]);
+  const handleNextPage = React.useCallback(() => table.nextPage(), [table]);
+
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex items-center gap-2">
@@ -96,13 +128,7 @@ export function DataTable<TData, TValue>({
               ? ((table.getColumn(filterColumn)?.getFilterValue() as string) ?? "")
               : globalFilter
           }
-          onChange={(event) => {
-            if (filterColumn) {
-              table.getColumn(filterColumn)?.setFilterValue(event.target.value);
-            } else {
-              setGlobalFilter(event.target.value);
-            }
-          }}
+          onChange={handleFilterChange}
           className="max-w-sm"
           aria-label="Filter table"
         />
@@ -121,14 +147,7 @@ export function DataTable<TData, TValue>({
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
                 .map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
+                  <ColumnVisibilityToggle key={column.id} column={column} />
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -178,7 +197,7 @@ export function DataTable<TData, TValue>({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
+            onClick={handlePreviousPage}
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
           >
@@ -192,7 +211,7 @@ export function DataTable<TData, TValue>({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
+            onClick={handleNextPage}
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
           >

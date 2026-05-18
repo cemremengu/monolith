@@ -1,4 +1,5 @@
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun, type LucideIcon } from "lucide-react";
+import { useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +15,41 @@ type ThemeSwitcherProps = {
   onChange?: (theme: string) => void;
 };
 
+function ThemeOption({
+  value,
+  icon: Icon,
+  label,
+  onSelect,
+}: {
+  value: string;
+  icon: LucideIcon;
+  label: string;
+  onSelect: (theme: string) => void;
+}) {
+  const handleClick = useCallback(() => onSelect(value), [onSelect, value]);
+
+  return (
+    <DropdownMenuItem onClick={handleClick}>
+      <Icon className="mr-2 h-4 w-4" />
+      <span>{label}</span>
+    </DropdownMenuItem>
+  );
+}
+
 export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
   const { theme: contextTheme, setTheme } = useTheme();
   const theme = value ?? contextTheme;
+
+  const handleSelect = useCallback(
+    (selected: string) => {
+      if (onChange) {
+        onChange(selected);
+      } else {
+        setTheme(selected as "light" | "dark" | "system");
+      }
+    },
+    [onChange, setTheme],
+  );
 
   const getThemeIcon = () => {
     switch (theme) {
@@ -53,42 +86,9 @@ export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => {
-            if (onChange) {
-              onChange("light");
-            } else {
-              setTheme("light");
-            }
-          }}
-        >
-          <Sun className="mr-2 h-4 w-4" />
-          <span>Light</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => {
-            if (onChange) {
-              onChange("dark");
-            } else {
-              setTheme("dark");
-            }
-          }}
-        >
-          <Moon className="mr-2 h-4 w-4" />
-          <span>Dark</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => {
-            if (onChange) {
-              onChange("system");
-            } else {
-              setTheme("system");
-            }
-          }}
-        >
-          <Monitor className="mr-2 h-4 w-4" />
-          <span>System</span>
-        </DropdownMenuItem>
+        <ThemeOption value="light" icon={Sun} label="Light" onSelect={handleSelect} />
+        <ThemeOption value="dark" icon={Moon} label="Dark" onSelect={handleSelect} />
+        <ThemeOption value="system" icon={Monitor} label="System" onSelect={handleSelect} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -2,6 +2,7 @@ import { waitFor } from "@testing-library/react";
 import { describe, it, expect, beforeEach } from "vitest";
 
 import { mockUser } from "@/test/mocks/handlers";
+import { locationReplaceMock } from "@/test/setup";
 
 import { useAuth } from "./use-auth";
 
@@ -37,7 +38,7 @@ describe("useAuth", () => {
           login: "wronguser",
           password: "wrongpassword",
         }),
-      ).rejects.toThrow();
+      ).rejects.toThrow(Error);
 
       expect(useAuth.getState().isLoggedIn).toBe(false);
     });
@@ -77,7 +78,7 @@ describe("useAuth", () => {
       await useAuth.getState().logout({ redirectToLogin: true });
 
       await waitFor(() => {
-        expect(window.location.replace).toHaveBeenCalledWith("/login");
+        expect(locationReplaceMock).toHaveBeenCalledWith("/login");
       });
     });
   });

@@ -35,7 +35,7 @@ export const useCreateUser = () => {
   return useMutation({
     mutationFn: usersApi.create,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });
 };
@@ -47,8 +47,8 @@ export const useUpdateUser = () => {
     mutationFn: ({ id, data }: { id: string; data: CreateUserRequest }) =>
       usersApi.update(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({
         queryKey: userKeys.detail(variables.id),
       });
     },
@@ -61,7 +61,7 @@ export const useDisableUser = () => {
   return useMutation({
     mutationFn: usersApi.disable,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });
 };
@@ -72,7 +72,7 @@ export const useEnableUser = () => {
   return useMutation({
     mutationFn: usersApi.enable,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });
 };
@@ -83,7 +83,7 @@ export const useDeleteUser = () => {
   return useMutation({
     mutationFn: usersApi.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });
 };
@@ -94,7 +94,7 @@ export const useInviteUsers = () => {
   return useMutation({
     mutationFn: (data: InviteUsersRequest) => usersApi.invite(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
     },
   });
 };

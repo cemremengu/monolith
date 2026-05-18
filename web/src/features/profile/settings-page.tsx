@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Globe, Palette, Clock } from "lucide-react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -16,49 +17,58 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const updatePreferences = useUpdatePreferences();
 
-  const handleLanguageChange = async (language: string) => {
-    try {
-      await updatePreferences.mutateAsync({
-        language,
-        theme: user?.theme || "system",
-        timezone: user?.timezone || "UTC",
-      });
-      toast.success(t("profile.messages.updateSuccess"));
-    } catch (error) {
-      console.error("Failed to update language preference:", error);
-      toast.error(t("profile.messages.updateError"));
-    }
-  };
+  const handleLanguageChange = useCallback(
+    async (language: string) => {
+      try {
+        await updatePreferences.mutateAsync({
+          language,
+          theme: user?.theme || "system",
+          timezone: user?.timezone || "UTC",
+        });
+        toast.success(t("profile.messages.updateSuccess"));
+      } catch (error) {
+        console.error("Failed to update language preference:", error);
+        toast.error(t("profile.messages.updateError"));
+      }
+    },
+    [updatePreferences, user?.theme, user?.timezone, t],
+  );
 
-  const handleThemeChange = async (theme: string) => {
-    try {
-      usePreferences.getState().setTheme(theme as "light" | "dark" | "system");
-      await updatePreferences.mutateAsync({
-        language: user?.language || "en-US",
-        theme,
-        timezone: user?.timezone || "UTC",
-      });
-      toast.success(t("profile.messages.updateSuccess"));
-    } catch (error) {
-      console.error("Failed to update theme preference:", error);
-      toast.error(t("profile.messages.updateError"));
-    }
-  };
+  const handleThemeChange = useCallback(
+    async (theme: string) => {
+      try {
+        usePreferences.getState().setTheme(theme as "light" | "dark" | "system");
+        await updatePreferences.mutateAsync({
+          language: user?.language || "en-US",
+          theme,
+          timezone: user?.timezone || "UTC",
+        });
+        toast.success(t("profile.messages.updateSuccess"));
+      } catch (error) {
+        console.error("Failed to update theme preference:", error);
+        toast.error(t("profile.messages.updateError"));
+      }
+    },
+    [updatePreferences, user?.language, user?.timezone, t],
+  );
 
-  const handleTimezoneChange = async (timezone: string) => {
-    try {
-      usePreferences.getState().setTimezone(timezone);
-      await updatePreferences.mutateAsync({
-        language: user?.language || "en-US",
-        theme: user?.theme || "system",
-        timezone,
-      });
-      toast.success(t("profile.messages.updateSuccess"));
-    } catch (error) {
-      console.error("Failed to update timezone preference:", error);
-      toast.error(t("profile.messages.updateError"));
-    }
-  };
+  const handleTimezoneChange = useCallback(
+    async (timezone: string) => {
+      try {
+        usePreferences.getState().setTimezone(timezone);
+        await updatePreferences.mutateAsync({
+          language: user?.language || "en-US",
+          theme: user?.theme || "system",
+          timezone,
+        });
+        toast.success(t("profile.messages.updateSuccess"));
+      } catch (error) {
+        console.error("Failed to update timezone preference:", error);
+        toast.error(t("profile.messages.updateError"));
+      }
+    },
+    [updatePreferences, user?.language, user?.theme, t],
+  );
 
   return (
     <div className="px-6 py-3">

@@ -58,7 +58,7 @@ describe("LanguageSwitcher", () => {
 
   it("should call onChange when language is selected", async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = vi.fn<(language: string) => void>();
     render(<LanguageSwitcher onChange={onChange} />);
 
     const trigger = screen.getByRole("button");
