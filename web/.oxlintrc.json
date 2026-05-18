@@ -33,6 +33,7 @@
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
     "react/rules-of-hooks": "error",
     "typescript/require-await": "error",
     "react-hooks-js/set-state-in-effect": "error",
