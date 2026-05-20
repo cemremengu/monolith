@@ -35,6 +35,7 @@
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "typescript/require-await": "error",
+    "typescript/no-explicit-any": "error",
     "react/rules-of-hooks": "error",
     "react-hooks-js/set-state-in-effect": "error",
     "react-hooks-js/set-state-in-render": "error"
