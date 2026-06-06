@@ -11,18 +11,27 @@ tasks:
     cmds:
       - cd web && npm run dev
 
-  lint:go:
-    desc: "Run Go linting and formatting"
+  fmt:go:
+    desc: "Run Go formatting"
     cmds:
       - golangci-lint fmt
       - go fix ./...
+
+  lint:go:
+    desc: "Run Go linting"
+    cmds:
       - golangci-lint run
 
-  lint:web:
-    desc: "Run web linting and formatting"
+  fmt:web:
+    desc: "Run web formatting"
     dir: web
     cmds:
       - npm run format
+
+  lint:web:
+    desc: "Run web linting"
+    dir: web
+    cmds:
       - npm run lint:fix
 
   router:generate:

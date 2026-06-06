@@ -39,8 +39,14 @@ tasks:
     cmds:
       - task: dev:shadcn:update
 
+  fmt:
+    desc: "Run formatting for both Go and web code"
+    deps:
+      - dev:fmt:go
+      - dev:fmt:web
+
   lint:
-    desc: "Run linting and formatting for both Go and web code"
+    desc: "Run linting for both Go and web code"
     deps:
       - dev:lint:go
       - dev:lint:web
