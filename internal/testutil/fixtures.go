@@ -3,8 +3,8 @@ package testutil
 import (
 	"time"
 
-	"monolith/internal/service/account"
-	"monolith/internal/service/auth"
+	"monolith/internal/account"
+	"monolith/internal/auth"
 
 	"github.com/google/uuid"
 )

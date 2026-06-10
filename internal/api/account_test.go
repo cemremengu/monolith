@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"monolith/internal/account"
+	"monolith/internal/auth"
 	"monolith/internal/database"
-	"monolith/internal/service/account"
-	"monolith/internal/service/auth"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"

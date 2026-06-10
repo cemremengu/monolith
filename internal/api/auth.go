@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	authService "monolith/internal/service/auth"
-	loginService "monolith/internal/service/login"
+	authService "monolith/internal/auth"
+	loginService "monolith/internal/login"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"

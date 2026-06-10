@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"monolith/internal/account"
 	"monolith/internal/database"
-	"monolith/internal/service/account"
 
 	"github.com/google/uuid"
 	"github.com/pashagolub/pgxmock/v4"

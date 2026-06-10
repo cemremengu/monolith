@@ -116,12 +116,12 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 # Architecture Overview
 
-## Service Layer Pattern
+## Architecture Pattern
 
-The backend follows a service-oriented architecture with clear separation:
+The backend follows a flat, service-oriented structure with clear separation:
 
 - **Handlers** (`internal/api/*.go`) - HTTP request/response handling, validation
-- **Services** (`internal/service/*/`) - Business logic and data operations
+- **Services** (`internal/{account,auth,login}/`) - Business logic and data operations
 - **Database** (`internal/database/`) - Connection pooling and utilities
 
 ## Dependency Injection
@@ -129,10 +129,9 @@ The backend follows a service-oriented architecture with clear separation:
 Services are instantiated in `cmd/monolith/main.go` and injected into handlers:
 
 ```go
-userService := user.NewService(db)
 accountService := account.NewService(db)
-authService := auth.NewService(db)
-sessionService := session.NewService(db)
+loginService := login.NewService(db, accountService)
+authService := auth.NewService(db, cfg.Security)
 ```
 
 ## Frontend Architecture

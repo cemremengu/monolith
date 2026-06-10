@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"monolith/internal/service/auth"
+	"monolith/internal/auth"
 
 	"github.com/labstack/echo/v5"
 )

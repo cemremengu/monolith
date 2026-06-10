@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"monolith/internal/service/auth"
+	"monolith/internal/auth"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"

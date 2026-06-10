@@ -3,8 +3,8 @@ package login
 import (
 	"context"
 
+	"monolith/internal/account"
 	"monolith/internal/database"
-	"monolith/internal/service/account"
 )
 
 type Service struct {

@@ -9,13 +9,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"monolith/internal/account"
 	"monolith/internal/api"
+	"monolith/internal/auth"
 	"monolith/internal/config"
 	"monolith/internal/database"
 	"monolith/internal/logger"
-	"monolith/internal/service/account"
-	"monolith/internal/service/auth"
-	"monolith/internal/service/login"
+	"monolith/internal/login"
 	"monolith/migrations"
 
 	"github.com/jackc/pgx/v5/stdlib"

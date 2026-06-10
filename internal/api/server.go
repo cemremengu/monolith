@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"strings"
 
+	"monolith/internal/account"
+	"monolith/internal/auth"
 	"monolith/internal/config"
 	"monolith/internal/database"
 	mw "monolith/internal/middleware"
-	"monolith/internal/service/account"
-	"monolith/internal/service/auth"
-	"monolith/internal/service/login"
+	"monolith/internal/login"
 	"monolith/web"
 
 	"github.com/go-playground/validator/v10"
