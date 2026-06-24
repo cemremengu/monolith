@@ -1,4 +1,4 @@
-FROM golang:1.26.1-alpine AS builder
+FROM golang:1.26.3-alpine AS builder
 
 RUN apk add --no-cache git nodejs npm
 RUN GOBIN=/usr/local/bin go install github.com/go-task/task/v3/cmd/task@v3.49.1
