@@ -455,6 +455,103 @@ func TestService_RevokeSession(t *testing.T) {
 	}
 }
 
+func TestService_RevokeSessionByToken(t *testing.T) {
+	cfg := newTestSecurityConfig()
+	hashedToken := hashToken("valid_token", cfg.SecretKey)
+
+	tests := []struct {
+		name      string
+		setupMock func(mock pgxmock.PgxPoolIface)
+		wantErr   bool
+	}{
+		{
+			name: "successful token revocation",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`UPDATE auth_session SET revoked_at = NOW\(\) WHERE \(token = \$1 OR prev_token = \$2\) AND revoked_at IS NULL`).
+					WithArgs(hashedToken, hashedToken).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			},
+			wantErr: false,
+		},
+		{
+			name: "database error",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`UPDATE auth_session SET revoked_at = NOW\(\) WHERE \(token = \$1 OR prev_token = \$2\) AND revoked_at IS NULL`).
+					WithArgs(hashedToken, hashedToken).
+					WillReturnError(assert.AnError)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock, _ := pgxmock.NewPool()
+			defer mock.Close()
+
+			tt.setupMock(mock)
+
+			s := newTestService(mock)
+
+			err := s.RevokeSessionByToken(context.Background(), "valid_token")
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.NoError(t, mock.ExpectationsWereMet())
+		})
+	}
+}
+
+func TestService_CleanupSessions(t *testing.T) {
+	tests := []struct {
+		name      string
+		setupMock func(mock pgxmock.PgxPoolIface)
+		wantErr   bool
+	}{
+		{
+			name: "successful cleanup",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`DELETE FROM auth_session WHERE revoked_at IS NOT NULL OR created_at < \$1 OR rotated_at < \$2`).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("DELETE", 3))
+			},
+			wantErr: false,
+		},
+		{
+			name: "database error",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`DELETE FROM auth_session WHERE revoked_at IS NOT NULL OR created_at < \$1 OR rotated_at < \$2`).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(assert.AnError)
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock, _ := pgxmock.NewPool()
+			defer mock.Close()
+
+			tt.setupMock(mock)
+
+			s := newTestService(mock)
+
+			err := s.CleanupSessions(context.Background())
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.NoError(t, mock.ExpectationsWereMet())
+		})
+	}
+}
+
 func TestService_GetUserSessions(t *testing.T) {
 	userID := uuid.New()
 	sessionID := uuid.New()

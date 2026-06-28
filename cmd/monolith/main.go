@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"monolith/internal/account"
 	"monolith/internal/api"
@@ -47,7 +48,31 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	startSessionCleanup(ctx, authService, time.Hour)
+
 	if startErr := srv.Start(ctx); startErr != nil && !errors.Is(startErr, http.ErrServerClosed) {
 		slog.Error("Server failed to start", "error", startErr)
 	}
+}
+
+func startSessionCleanup(ctx context.Context, authService *auth.Service, interval time.Duration) {
+	go func() {
+		if err := authService.CleanupSessions(ctx); err != nil {
+			slog.Warn("Failed to cleanup sessions", "error", err)
+		}
+
+		ticker := time.NewTicker(interval)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if err := authService.CleanupSessions(ctx); err != nil {
+					slog.Warn("Failed to cleanup sessions", "error", err)
+				}
+			}
+		}
+	}()
 }

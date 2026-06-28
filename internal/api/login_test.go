@@ -187,14 +187,40 @@ func TestAuthHandler_Login(t *testing.T) {
 
 func TestAuthHandler_Logout(t *testing.T) {
 	cfg := newTestSecurityConfig()
+	hashedToken := auth.HashTokenForTest("valid_token", cfg.SecretKey)
 
 	tests := []struct {
-		name       string
-		wantStatus int
+		name        string
+		cookieValue string
+		setupMock   func(mock pgxmock.PgxPoolIface)
+		wantStatus  int
+		wantErr     bool
 	}{
 		{
-			name:       "successful logout",
+			name:        "revokes session and clears cookies",
+			cookieValue: "valid_token",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`UPDATE auth_session SET revoked_at = NOW\(\) WHERE \(token = \$1 OR prev_token = \$2\) AND revoked_at IS NULL`).
+					WithArgs(hashedToken, hashedToken).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			},
 			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "clears cookies when session cookie is missing",
+			setupMock:  func(mock pgxmock.PgxPoolIface) {},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:        "returns error when revocation fails",
+			cookieValue: "valid_token",
+			setupMock: func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(`UPDATE auth_session SET revoked_at = NOW\(\) WHERE \(token = \$1 OR prev_token = \$2\) AND revoked_at IS NULL`).
+					WithArgs(hashedToken, hashedToken).
+					WillReturnError(assert.AnError)
+			},
+			wantStatus: http.StatusInternalServerError,
+			wantErr:    true,
 		},
 	}
 
@@ -203,6 +229,8 @@ func TestAuthHandler_Logout(t *testing.T) {
 			mock, _ := pgxmock.NewPool()
 			defer mock.Close()
 
+			tt.setupMock(mock)
+
 			db := &database.DB{Pool: mock}
 			accountService := account.NewService(db)
 			loginService := login.NewService(db, accountService)
@@ -210,20 +238,35 @@ func TestAuthHandler_Logout(t *testing.T) {
 			handler := NewAuthHandler(loginService, authService)
 
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
+			req := httptest.NewRequest(http.MethodPost, "/api/logout", nil)
+			if tt.cookieValue != "" {
+				req.AddCookie(&http.Cookie{Name: cfg.LoginCookieName, Value: tt.cookieValue})
+			}
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 
 			err := handler.Logout(c)
-			require.NoError(t, err)
-			assert.Equal(t, tt.wantStatus, rec.Code)
+			if tt.wantErr {
+				require.Error(t, err)
+				httpErr := &echo.HTTPError{}
+				ok := errors.As(err, &httpErr)
+				require.True(t, ok)
+				assert.Equal(t, tt.wantStatus, httpErr.Code)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.wantStatus, rec.Code)
+			}
 
 			cookies := rec.Result().Cookies()
+			var hasClearedSessionCookie bool
 			for _, cookie := range cookies {
 				if cookie.Name == cfg.LoginCookieName {
+					hasClearedSessionCookie = true
 					assert.Equal(t, -1, cookie.MaxAge, "session cookie should be cleared")
 				}
 			}
+			assert.True(t, hasClearedSessionCookie, "session cookie should be cleared")
+			assert.NoError(t, mock.ExpectationsWereMet())
 		})
 	}
 }

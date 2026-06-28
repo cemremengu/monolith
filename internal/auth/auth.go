@@ -135,6 +135,15 @@ func (s *Service) ClearAuthCookies(c *echo.Context) {
 	})
 }
 
+func (s *Service) RevokeSessionFromCookie(c *echo.Context) error {
+	sessionTokenCookie, err := c.Cookie(s.securityConfig.LoginCookieName)
+	if err != nil {
+		return nil
+	}
+
+	return s.RevokeSessionByToken(c.Request().Context(), sessionTokenCookie.Value)
+}
+
 func (s *Service) GetUserSessions(ctx context.Context, userID uuid.UUID) ([]UserSession, error) {
 	sessions, err := s.GetSessionsByAccountID(ctx, userID)
 	if err != nil {
@@ -162,6 +171,18 @@ func (s *Service) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID
 		WHERE id = $1 and account_id = $2
 	`
 	_, err := s.db.Pool.Exec(ctx, query, sessionID, userID)
+	return err
+}
+
+func (s *Service) RevokeSessionByToken(ctx context.Context, unhashedToken string) error {
+	hashedToken := hashToken(unhashedToken, s.securityConfig.SecretKey)
+
+	query := `
+		UPDATE auth_session
+		SET revoked_at = NOW()
+		WHERE (token = $1 OR prev_token = $2) AND revoked_at IS NULL
+	`
+	_, err := s.db.Pool.Exec(ctx, query, hashedToken, hashedToken)
 	return err
 }
 
@@ -292,7 +313,9 @@ func (s *Service) CleanupSessions(ctx context.Context) error {
 	query := `
 		DELETE FROM auth_session
 		WHERE revoked_at IS NOT NULL
+		   OR created_at < $1
+		   OR rotated_at < $2
 	`
-	_, err := s.db.Pool.Exec(ctx, query)
+	_, err := s.db.Pool.Exec(ctx, query, s.createdAfterThreshold(), s.rotatedAfterThreshold())
 	return err
 }

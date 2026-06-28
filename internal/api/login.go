@@ -55,11 +55,13 @@ func (h *AuthHandler) Login(c *echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-// Logout revokes the current session and clears authentication cookies.
-// Ignore any errors and act as a no-op on failure.
+// Logout revokes the current session when present and clears authentication cookies.
 func (h *AuthHandler) Logout(c *echo.Context) error {
-	// For logout, just clear the cookie
-	// The session will eventually be cleaned up by the cleanup process
+	revokeErr := h.authService.RevokeSessionFromCookie(c)
 	h.authService.ClearAuthCookies(c)
+	if revokeErr != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to logout").Wrap(revokeErr)
+	}
+
 	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out successfully"})
 }
