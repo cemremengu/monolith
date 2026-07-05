@@ -2,8 +2,6 @@ import { Ban, CheckCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { User } from "@/types/api";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { User } from "@/types/api";
 
 type UserActionsDropdownProps = {
   user: User;

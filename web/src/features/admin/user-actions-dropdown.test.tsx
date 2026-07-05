@@ -2,10 +2,9 @@ import { screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 
-import type { User } from "@/types/api";
-
 import { mockUser } from "@/test/mocks/handlers";
 import { render } from "@/test/test-utils";
+import type { User } from "@/types/api";
 
 import { UserActionsDropdown } from "./user-actions-dropdown";
 

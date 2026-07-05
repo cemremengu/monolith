@@ -10,8 +10,8 @@ import (
 	"monolith/internal/auth"
 	"monolith/internal/config"
 	"monolith/internal/database"
-	mw "monolith/internal/middleware"
 	"monolith/internal/login"
+	mw "monolith/internal/middleware"
 	"monolith/web"
 
 	"github.com/go-playground/validator/v10"

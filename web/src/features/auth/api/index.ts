@@ -1,6 +1,5 @@
-import type { LoginRequest } from "@/types/api";
-
 import { httpClient } from "@/lib/http-client";
+import type { LoginRequest } from "@/types/api";
 
 export const authApi = {
   login: (data: LoginRequest): Promise<{ message: string }> => {

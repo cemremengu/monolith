@@ -1,14 +1,12 @@
 import type { VariantProps } from "class-variance-authority";
-
 import { PlusIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { User } from "@/types/api";
-
 import { DataTable, type ColumnDef } from "@/components/datatable";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import type { User } from "@/types/api";
 
 import { useDeleteUser, useDisableUser, useEnableUser, useUsers } from "./api/queries";
 import { CreateUserDialog } from "./create-user-dialog";

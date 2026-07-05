@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-import type { LoginRequest } from "@/types/api";
-
 import { Password } from "@/components/password";
 // import logoImage from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
@@ -10,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
+import type { LoginRequest } from "@/types/api";
 
 interface LoginFormProps {
   onSuccess: () => void;

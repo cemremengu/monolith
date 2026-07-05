@@ -1,6 +1,5 @@
-import type { User, CreateUserRequest, InviteUsersRequest, InviteUsersResponse } from "@/types/api";
-
 import { httpClient } from "@/lib/http-client";
+import type { User, CreateUserRequest, InviteUsersRequest, InviteUsersResponse } from "@/types/api";
 
 export const usersApi = {
   getAll: (params: { filterBy?: string; sortBy?: "name" | "email" }): Promise<User[]> => {

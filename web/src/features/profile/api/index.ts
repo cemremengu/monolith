@@ -1,6 +1,5 @@
-import type { User, UpdatePreferencesRequest } from "@/types/api";
-
 import { httpClient } from "@/lib/http-client";
+import type { User, UpdatePreferencesRequest } from "@/types/api";
 
 export const accountApi = {
   profile: (): Promise<User> => {
