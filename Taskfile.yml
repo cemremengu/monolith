@@ -7,7 +7,7 @@ vars:
   COMMIT:
     sh: git rev-parse --short HEAD 2>/dev/null || echo "dev"
   BUILD_TIME: '{{now | date "2006-01-02T15:04:05Z"}}'
-  GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -tags "{{.TAGS}}" -ldflags "-s -w -X {{.PACKAGE}}.Version={{.VERSION}} -X {{.PACKAGE}}.Commit={{.COMMIT}} -X {{.PACKAGE}}.BuildTime={{.BUILD_TIME}}"
+  GO_BUILD_CMD: CGO_ENABLED=0 go build {{.GO_FLAGS}} -trimpath -tags "{{.TAGS}}" -ldflags "-s -w -X {{.PACKAGE}}.Version={{.VERSION}} -X {{.PACKAGE}}.Commit={{.COMMIT}} -X {{.PACKAGE}}.BuildTime={{.BUILD_TIME}}"
   WEB_BUILD_CMD: npm run build
 
 includes:
