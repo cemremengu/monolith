@@ -236,6 +236,7 @@ order_customer_id_created_at_idx
 - Prefer named exports over default exports
 - When width and height are the same (e.g., `w-5 h-5`), use the shorthand `size-5` instead for consistency. Do not apply this to components under `components/ui` as they follow shadcn/ui conventions.
 - For forms, the convention is to use react-hook-form + Controller with Field/FieldLabel/FieldError from components/ui/field
+- If a component needs to be used in multiple places put it in a separate file. If a component is only going to be used in that file, then keep it in that file.
 
 ### Core UI Components
 
