@@ -3,7 +3,13 @@ import { type Control, type FieldPath, type FieldValues, useController } from "r
 
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 type ControlledFieldProps<T extends FieldValues> = {
@@ -57,10 +63,10 @@ export function FormSelect<T extends FieldValues>({
   label,
   id,
   placeholder,
-  children,
+  items,
 }: ControlledFieldProps<T> & {
   placeholder?: string;
-  children: React.ReactNode;
+  items: { value: string; label: string }[];
 }) {
   const { field, fieldState } = useController({ control, name });
   const fieldId = id ?? field.name;
@@ -68,11 +74,17 @@ export function FormSelect<T extends FieldValues>({
   return (
     <Field data-invalid={fieldState.invalid}>
       <FieldLabel htmlFor={fieldId}>{label}</FieldLabel>
-      <Select name={field.name} value={field.value} onValueChange={field.onChange}>
+      <Select name={field.name} items={items} value={field.value} onValueChange={field.onChange}>
         <SelectTrigger id={fieldId} aria-invalid={fieldState.invalid}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>{children}</SelectContent>
+        <SelectContent>
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
       {fieldState.invalid && <FieldError>{fieldState.error?.message}</FieldError>}
     </Field>

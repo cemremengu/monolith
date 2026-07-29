@@ -17,6 +17,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@base-ui/react": "^1.6.0",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@hookform/resolvers": "^5.4.0",
@@ -32,7 +33,6 @@
     "ky": "^2.0.2",
     "lucide-react": "^1.21.0",
     "next-themes": "^0.4.6",
-    "radix-ui": "^1.6.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.80.0",

@@ -21,10 +21,6 @@ import {
 import { AboutDialog } from "@/features/about/about-dialog";
 import { useAuth } from "@/hooks/use-auth";
 
-function preventDefault(e: Event) {
-  e.preventDefault();
-}
-
 export function NavUser({
   user,
 }: {
@@ -46,7 +42,7 @@ export function NavUser({
 
   const aboutTrigger = useMemo(
     () => (
-      <DropdownMenuItem onSelect={preventDefault}>
+      <DropdownMenuItem closeOnClick={false}>
         <Info />
         About
       </DropdownMenuItem>
@@ -68,24 +64,26 @@ export function NavUser({
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="hover:cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="size-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="hover:cursor-pointer data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
+              />
+            }
+          >
+            <Avatar className="size-8">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs">{user.email}</span>
+            </div>
+            <ChevronsUpDown className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--anchor-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -104,24 +102,18 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link to="/profile">
-                  <UserRoundIcon />
-                  Profile
-                </Link>
+              <DropdownMenuItem render={<Link to="/profile" />}>
+                <UserRoundIcon />
+                Profile
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/settings">
-                  <Settings />
-                  Settings
-                </Link>
+              <DropdownMenuItem render={<Link to="/settings" />}>
+                <Settings />
+                Settings
               </DropdownMenuItem>
               {user.isAdmin && (
-                <DropdownMenuItem asChild>
-                  <Link to="/admin">
-                    <Shield />
-                    Admin Panel
-                  </Link>
+                <DropdownMenuItem render={<Link to="/admin" />}>
+                  <Shield />
+                  Admin Panel
                 </DropdownMenuItem>
               )}
               <AboutDialog trigger={aboutTrigger} />

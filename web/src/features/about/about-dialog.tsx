@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getVersionInfo } from "./api";
 
 type AboutDialogProps = {
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
 };
 
 export function AboutDialog({ trigger }: AboutDialogProps) {
@@ -36,7 +36,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
+      <DialogTrigger render={trigger || defaultTrigger} />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>About</DialogTitle>

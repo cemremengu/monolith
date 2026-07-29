@@ -134,11 +134,11 @@ export function DataTable<TData, TValue>({
         />
         {enableColumnVisibility && (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="ml-auto">
-                <Settings2 className="size-4" />
-                Columns
-              </Button>
+            <DropdownMenuTrigger
+              render={<Button variant="outline" size="sm" className="ml-auto" />}
+            >
+              <Settings2 className="size-4" />
+              Columns
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>

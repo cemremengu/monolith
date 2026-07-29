@@ -8,7 +8,7 @@ const manualChunks = {
   vendor: ["react", "react-dom"],
   router: ["@tanstack/react-router"],
   query: ["@tanstack/react-query"],
-  ui: ["radix-ui"],
+  ui: ["@base-ui/react"],
   forms: ["react-hook-form", "@hookform/resolvers", "zod"],
   icons: ["lucide-react"],
 };
