@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SelectItem } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useCreateUser, useInviteUsers } from "./api/queries";
@@ -175,6 +174,14 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
     [createUserForm, inviteUsersForm, onOpenChange],
   );
 
+  const roleItems = useMemo(
+    () => [
+      { value: "user", label: t("admin.users.roles.user") },
+      { value: "admin", label: t("admin.users.roles.admin") },
+    ],
+    [t],
+  );
+
   const handleTabChange = useCallback((v: string) => {
     setActiveTab(v as "invite" | "create");
   }, []);
@@ -208,10 +215,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 id="invite-role"
                 label={t("admin.users.form.role")}
                 placeholder={t("admin.users.form.selectRole")}
-              >
-                <SelectItem value="user">{t("admin.users.roles.user")}</SelectItem>
-                <SelectItem value="admin">{t("admin.users.roles.admin")}</SelectItem>
-              </FormSelect>
+                items={roleItems}
+              />
               <Button type="submit" className="w-full" disabled={inviteUsersMutation.isPending}>
                 {inviteUsersMutation.isPending
                   ? t("admin.users.form.inviting")
@@ -250,10 +255,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 id="create-role"
                 label={t("admin.users.form.role")}
                 placeholder={t("admin.users.form.selectRole")}
-              >
-                <SelectItem value="user">{t("admin.users.roles.user")}</SelectItem>
-                <SelectItem value="admin">{t("admin.users.roles.admin")}</SelectItem>
-              </FormSelect>
+                items={roleItems}
+              />
               <FormInput
                 control={createUserForm.control}
                 name="password"

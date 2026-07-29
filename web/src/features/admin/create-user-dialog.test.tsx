@@ -29,7 +29,7 @@ describe("CreateUserDialog", () => {
     render(<CreateUserDialog {...defaultProps} />);
 
     const inviteTab = screen.getByRole("tab", { name: /invite/i });
-    expect(inviteTab).toHaveAttribute("data-state", "active");
+    expect(inviteTab).toHaveAttribute("aria-selected", "true");
   });
 
   it("should switch to create tab when clicked", async () => {
@@ -39,7 +39,7 @@ describe("CreateUserDialog", () => {
     const createTab = screen.getByRole("tab", { name: /create/i });
     await user.click(createTab);
 
-    expect(createTab).toHaveAttribute("data-state", "active");
+    expect(createTab).toHaveAttribute("aria-selected", "true");
   });
 
   describe("Invite tab", () => {

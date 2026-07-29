@@ -79,11 +79,11 @@ export function ThemeSwitcher({ value, onChange }: ThemeSwitcherProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-          {getThemeIcon()}
-          {getThemeLabel()}
-        </Button>
+      <DropdownMenuTrigger
+        render={<Button variant="outline" size="sm" className="w-full justify-start gap-2" />}
+      >
+        {getThemeIcon()}
+        {getThemeLabel()}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <ThemeOption value="light" icon={Sun} label="Light" onSelect={handleSelect} />
