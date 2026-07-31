@@ -11,8 +11,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, Settings2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  ChevronUp,
+  ChevronDown,
+  Settings2,
+} from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +53,48 @@ export type DataTableProps<TData, TValue> = {
   pageSize?: number;
   emptyText?: React.ReactNode;
   className?: string;
+  borderless?: boolean;
+  initialSorting?: SortingState;
 };
+
+export function DataTableColumnHeader<TData, TValue>({
+  column,
+  title,
+  className,
+}: {
+  column: Column<TData, TValue>;
+  title: string;
+  className?: string;
+}) {
+  if (!column.getCanSort()) {
+    return <div className={cn("text-muted-foreground", className)}>{title}</div>;
+  }
+
+  const sorted = column.getIsSorted();
+  const active = sorted !== false || column.getIsFiltered();
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className={cn(
+        "group -ml-2 h-8 group-hover:text-foreground",
+        !active && "text-muted-foreground",
+        className,
+      )}
+      onClick={() => column.toggleSorting(sorted === "asc")}
+    >
+      {title}
+      {sorted === "asc" ? (
+        <ChevronUp className="size-3.5" />
+      ) : sorted === "desc" ? (
+        <ChevronDown className="size-3.5" />
+      ) : (
+        <ChevronsUpDown className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+      )}
+    </Button>
+  );
+}
 
 function ColumnVisibilityToggle<TData>({ column }: { column: Column<TData, unknown> }) {
   const handleCheckedChange = React.useCallback(
@@ -68,13 +117,16 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   filterColumn,
-  filterPlaceholder = "Filter...",
+  filterPlaceholder,
   enableColumnVisibility = false,
   pageSize = 10,
-  emptyText = "No results.",
+  emptyText,
   className,
+  borderless = false,
+  initialSorting = [],
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const { t } = useTranslation();
+  const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -122,7 +174,7 @@ export function DataTable<TData, TValue>({
     <div className={cn("space-y-4", className)}>
       <div className="flex items-center gap-2">
         <Input
-          placeholder={filterPlaceholder}
+          placeholder={filterPlaceholder ?? t("common.table.filter")}
           value={
             filterColumn
               ? ((table.getColumn(filterColumn)?.getFilterValue() as string) ?? "")
@@ -130,7 +182,7 @@ export function DataTable<TData, TValue>({
           }
           onChange={handleFilterChange}
           className="max-w-sm"
-          aria-label="Filter table"
+          aria-label={t("common.table.filterLabel")}
         />
         {enableColumnVisibility && (
           <DropdownMenu>
@@ -138,10 +190,10 @@ export function DataTable<TData, TValue>({
               render={<Button variant="outline" size="sm" className="ml-auto" />}
             >
               <Settings2 className="size-4" />
-              Columns
+              {t("common.table.columns")}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("common.table.toggleColumns")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {table
                 .getAllColumns()
@@ -154,11 +206,14 @@ export function DataTable<TData, TValue>({
         )}
       </div>
 
-      <div className="rounded-md border">
+      <div className={cn("rounded-md", !borderless && "border")}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow
+                key={headerGroup.id}
+                className={cn("hover:bg-transparent", borderless && "border-0")}
+              >
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -172,7 +227,7 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className={cn(borderless && "border-0")}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -183,7 +238,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {emptyText}
+                  {emptyText ?? t("common.table.noResults")}
                 </TableCell>
               </TableRow>
             )}
@@ -191,35 +246,40 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handlePreviousPage}
-            disabled={!table.getCanPreviousPage()}
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="size-4" />
-            Previous
-          </Button>
-          <span className="text-sm">
-            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleNextPage}
-            disabled={!table.getCanNextPage()}
-            aria-label="Next page"
-          >
-            Next
-            <ChevronRight className="size-4" />
-          </Button>
+      {table.getPageCount() > 1 && (
+        <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePreviousPage}
+              disabled={!table.getCanPreviousPage()}
+              aria-label={t("common.table.previousLabel")}
+            >
+              <ChevronLeft className="size-4" />
+              {t("common.table.previous")}
+            </Button>
+            <span className="text-sm">
+              {t("common.table.page", {
+                page: table.getState().pagination.pageIndex + 1,
+                total: table.getPageCount(),
+              })}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={!table.getCanNextPage()}
+              aria-label={t("common.table.nextLabel")}
+            >
+              {t("common.table.next")}
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

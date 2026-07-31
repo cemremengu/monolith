@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DataTable, type ColumnDef } from "@/components/datatable";
+import { PageHeader } from "@/components/page-header";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/api";
@@ -132,17 +133,23 @@ export function UsersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">{t("admin.users.description")}</p>
-        </div>
-        <Button onClick={handleOpenCreateDialog}>
-          <PlusIcon className="h-4 w-4" />
-          {t("admin.users.newUser")}
-        </Button>
-      </div>
+      <PageHeader
+        title={t("admin.users.title")}
+        description={t("admin.users.description")}
+        actions={
+          <Button onClick={handleOpenCreateDialog}>
+            <PlusIcon className="h-4 w-4" />
+            {t("admin.users.newUser")}
+          </Button>
+        }
+      />
 
-      <DataTable data={users} columns={columns} emptyText={t("admin.users.messages.noUsers")} />
+      <DataTable
+        data={users}
+        columns={columns}
+        borderless
+        emptyText={t("admin.users.messages.noUsers")}
+      />
 
       <CreateUserDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
     </div>

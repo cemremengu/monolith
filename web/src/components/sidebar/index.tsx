@@ -1,8 +1,10 @@
+import { useLocation } from "@tanstack/react-router";
 import { HomeIcon } from "lucide-react";
 import * as React from "react";
 
 import { Logo } from "@/components/logo";
 import { Menu } from "@/components/sidebar/menu";
+import { SettingsNav } from "@/components/sidebar/settings-nav";
 import { NavUser } from "@/components/sidebar/user";
 import {
   Sidebar,
@@ -24,6 +26,8 @@ const navMain = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
+  const { pathname } = useLocation();
+  const inSettings = pathname.startsWith("/settings");
 
   const userData = React.useMemo(
     () => ({
@@ -40,9 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="gap-3.5">
         <Logo />
       </SidebarHeader>
-      <SidebarContent>
-        <Menu items={navMain} />
-      </SidebarContent>
+      <SidebarContent>{inSettings ? <SettingsNav /> : <Menu items={navMain} />}</SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />
       </SidebarFooter>

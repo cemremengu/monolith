@@ -1,13 +1,12 @@
-import { Clock } from "lucide-react";
 import { useCallback } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const TIMEZONES = [
   { value: "Pacific/Midway", label: "(UTC-11:00) Midway Island" },
@@ -64,48 +63,33 @@ const TIMEZONES = [
   { value: "Pacific/Kiritimati", label: "(UTC+14:00) Line Islands Time" },
 ];
 
-type Timezone = (typeof TIMEZONES)[number];
-
 type TimezoneSelectorProps = {
   value?: string;
   onChange: (value: string) => void;
 };
 
-function TimezoneItem({
-  timezone,
-  onSelect,
-}: {
-  timezone: Timezone;
-  onSelect: (value: string) => void;
-}) {
-  const handleClick = useCallback(() => onSelect(timezone.value), [onSelect, timezone.value]);
-
-  return (
-    <DropdownMenuItem onClick={handleClick}>
-      <Clock className="mr-2 h-4 w-4" />
-      <span>{timezone.label}</span>
-    </DropdownMenuItem>
-  );
-}
-
 export function TimezoneSelector({ value, onChange }: TimezoneSelectorProps) {
-  const getTimezoneLabel = () => {
-    const timezone = TIMEZONES.find((tz) => tz.value === value);
-    return timezone ? timezone.label : "UTC";
-  };
+  const handleValueChange = useCallback(
+    (selected: string | null) => {
+      if (selected) {
+        onChange(selected);
+      }
+    },
+    [onChange],
+  );
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={<Button variant="outline" size="sm" className="w-full justify-start gap-2" />}
-      >
-        <span className="truncate">{getTimezoneLabel()}</span>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
+    <Select items={TIMEZONES} value={value ?? "UTC"} onValueChange={handleValueChange}>
+      <SelectTrigger className="w-72">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent align="end">
         {TIMEZONES.map((timezone) => (
-          <TimezoneItem key={timezone.value} timezone={timezone} onSelect={onChange} />
+          <SelectItem key={timezone.value} value={timezone.value}>
+            {timezone.label}
+          </SelectItem>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SelectContent>
+    </Select>
   );
 }

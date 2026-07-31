@@ -14,9 +14,13 @@
     },
     "preferences": {
       "title": "Tercihler",
+      "interfaceAndTheme": "Arayüz ve Tema",
       "language": "Dil",
+      "languageDescription": "Tercih ettiğiniz dili seçin",
       "theme": "Tema",
+      "themeDescription": "Tercih ettiğiniz renk şemasını seçin",
       "timezone": "Saat Dilimi",
+      "timezoneDescription": "Tarih ve saatler bu saat diliminde gösterilir",
       "languagePlaceholder": "Türkçe",
       "timezonePlaceholder": "UTC"
     },
@@ -68,8 +72,7 @@
     "saving": "Kaydediliyor..."
   },
   "admin": {
-    "title": "Yönetici Paneli",
-    "subtitle": "Kullanıcıları ve sistem ayarlarını yönetin",
+    "title": "Yönetim",
     "stats": {
       "totalUsers": "Toplam Kullanıcı",
       "totalUsersDesc": "Tüm kayıtlı kullanıcılar",
@@ -167,8 +170,84 @@
       }
     }
   },
+  "sidebar": {
+    "user": {
+      "profile": "Profil",
+      "about": "Hakkında",
+      "signOut": "Çıkış Yap"
+    }
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "account": "Hesap"
+  },
+  "aiProviders": {
+    "title": "Yapay Zekâ Sağlayıcıları",
+    "description": "Model sağlayıcılarını yapılandırın ve asistanın kullanacağı modeli seçin.",
+    "addProvider": "Sağlayıcı ekle",
+    "configuredTitle": "Yapılandırılmış Sağlayıcılar",
+    "configuredSubtitle": "API erişimiyle kurduğunuz sağlayıcılar.",
+    "availableTitle": "Kullanılabilir Sağlayıcılar",
+    "availableSubtitle": "Bağlamak için bir sağlayıcıya tıklayın.",
+    "customSubtitle": "Kendi OpenAI uyumlu uç noktanızı ekleyin",
+    "defaultBadge": "Varsayılan",
+    "modelCount_one": "{{count}} model",
+    "modelCount_other": "{{count}} model",
+    "activeModel": {
+      "title": "Sistem varsayılan modeli",
+      "current": "{{model}} · {{provider}}",
+      "placeholder": "Bir model seçin"
+    }
+  },
+  "license": {
+    "title": "Lisans",
+    "description": "Kaç proje yayınlayabileceğinizi belirleyen lisans dosyasını yönetin.",
+    "states": {
+      "valid": "Etkin",
+      "missing": "Lisans yok",
+      "expired": "Süresi dolmuş",
+      "invalid": "Geçersiz"
+    },
+    "status": {
+      "title": "Mevcut lisans",
+      "licensee": "{{name}} adına lisanslı",
+      "projectLimit": "Proje sınırı",
+      "issuedAt": "Verildi",
+      "expiresAt": "Sona eriyor"
+    },
+    "usage": {
+      "title": "Yayınlanan projeler",
+      "ofLimit": "{{limit}} / {{used}}"
+    },
+    "install": {
+      "title": "Lisans yükle",
+      "subtitle": "Lisansınızı etkinleştirmek veya güncellemek için aldığınız lisans anahtarını yapıştırın.",
+      "placeholder": "Lisans anahtarınızı buraya yapıştırın",
+      "action": "Yükle"
+    }
+  },
+  "about": {
+    "title": "Hakkında",
+    "version": "Sürüm",
+    "commit": "Commit",
+    "built": "Derlenme",
+    "unknown": "Bilinmiyor"
+  },
   "common": {
+    "table": {
+      "filter": "Filtrele...",
+      "filterLabel": "Tabloyu filtrele",
+      "columns": "Sütunlar",
+      "toggleColumns": "Sütunları göster/gizle",
+      "noResults": "Sonuç yok.",
+      "previous": "Önceki",
+      "previousLabel": "Önceki sayfa",
+      "next": "Sonraki",
+      "nextLabel": "Sonraki sayfa",
+      "page": "Sayfa {{page}} / {{total}}"
+    },
     "english": "English",
-    "turkish": "Türkçe"
+    "turkish": "Türkçe",
+    "previewNotice": "Yalnızca önizleme — bu bölüm örnek içerik gösterir ve henüz bir arka uca bağlı değildir."
   }
 }

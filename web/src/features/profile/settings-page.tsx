@@ -1,125 +1,34 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Globe, Palette, Clock } from "lucide-react";
-import { useCallback } from "react";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { Suspense } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { usePreferences } from "@/hooks/use-preferences";
+import { Spinner } from "@/components/ui/spinner";
+import { UsersPage } from "@/features/admin/users-page";
+import { AIProvidersPage } from "@/features/ai-providers/ai-providers-page";
+import { LicensePage } from "@/features/license/license-page";
 
-import { profileQueryOptions, useUpdatePreferences } from "./api/queries";
-import { LanguageSwitcher } from "./language-switcher";
-import { ThemeSwitcher } from "./theme-switcher";
-import { TimezoneSelector } from "./timezone-selector";
+import { PreferencesSection } from "./preferences-section";
 
-export function SettingsPage() {
-  const { data: user } = useSuspenseQuery(profileQueryOptions);
-  const { t } = useTranslation();
-  const updatePreferences = useUpdatePreferences();
+export type SettingsSection = "preferences" | "users" | "providers" | "license";
 
-  const handleLanguageChange = useCallback(
-    async (language: string) => {
-      try {
-        await updatePreferences.mutateAsync({
-          language,
-          theme: user?.theme || "system",
-          timezone: user?.timezone || "UTC",
-        });
-        toast.success(t("profile.messages.updateSuccess"));
-      } catch (error) {
-        console.error("Failed to update language preference:", error);
-        toast.error(t("profile.messages.updateError"));
-      }
-    },
-    [updatePreferences, user?.theme, user?.timezone, t],
-  );
-
-  const handleThemeChange = useCallback(
-    async (theme: string) => {
-      try {
-        usePreferences.getState().setTheme(theme as "light" | "dark" | "system");
-        await updatePreferences.mutateAsync({
-          language: user?.language || "en-US",
-          theme,
-          timezone: user?.timezone || "UTC",
-        });
-        toast.success(t("profile.messages.updateSuccess"));
-      } catch (error) {
-        console.error("Failed to update theme preference:", error);
-        toast.error(t("profile.messages.updateError"));
-      }
-    },
-    [updatePreferences, user?.language, user?.timezone, t],
-  );
-
-  const handleTimezoneChange = useCallback(
-    async (timezone: string) => {
-      try {
-        usePreferences.getState().setTimezone(timezone);
-        await updatePreferences.mutateAsync({
-          language: user?.language || "en-US",
-          theme: user?.theme || "system",
-          timezone,
-        });
-        toast.success(t("profile.messages.updateSuccess"));
-      } catch (error) {
-        console.error("Failed to update timezone preference:", error);
-        toast.error(t("profile.messages.updateError"));
-      }
-    },
-    [updatePreferences, user?.language, user?.theme, t],
-  );
-
+export function SettingsPage({ section = "preferences" }: { section?: SettingsSection }) {
   return (
-    <div className="px-6 py-3">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{t("settings.title", "Settings")}</h1>
-          <p className="text-muted-foreground">
-            {t("settings.subtitle", "Manage your preferences and settings")}
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("profile.preferences.title")}</CardTitle>
-            <CardDescription>
-              {t(
-                "settings.preferences.subtitle",
-                "Customize your language, theme, and timezone preferences",
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Globe className="h-4 w-4" />
-                  <label className="text-sm font-medium">{t("profile.preferences.language")}</label>
-                </div>
-                <LanguageSwitcher
-                  value={user?.language || "en-US"}
-                  onChange={handleLanguageChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Palette className="h-4 w-4" />
-                  <label className="text-sm font-medium">{t("profile.preferences.theme")}</label>
-                </div>
-                <ThemeSwitcher value={user?.theme || "system"} onChange={handleThemeChange} />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4" />
-                  <label className="text-sm font-medium">{t("profile.preferences.timezone")}</label>
-                </div>
-                <TimezoneSelector value={user?.timezone || "UTC"} onChange={handleTimezoneChange} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div className="mx-auto max-w-5xl px-8 py-8">
+      <Suspense
+        fallback={
+          <div className="flex justify-center py-8">
+            <Spinner className="size-5" />
+          </div>
+        }
+      >
+        {section === "users" ? (
+          <UsersPage />
+        ) : section === "providers" ? (
+          <AIProvidersPage />
+        ) : section === "license" ? (
+          <LicensePage />
+        ) : (
+          <PreferencesSection />
+        )}
+      </Suspense>
     </div>
   );
 }

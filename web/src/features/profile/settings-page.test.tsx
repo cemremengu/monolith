@@ -11,7 +11,7 @@ function renderWithSuspense(ui: React.ReactElement) {
 }
 
 describe("SettingsPage", () => {
-  it("should render settings title", async () => {
+  it("should render the preferences heading by default", async () => {
     renderWithSuspense(<SettingsPage />);
 
     await waitFor(() => {
@@ -19,33 +19,31 @@ describe("SettingsPage", () => {
     });
   });
 
-  it("should render language switcher component", async () => {
+  it("should render a row for each preference", async () => {
     renderWithSuspense(<SettingsPage />);
 
     await waitFor(() => {
-      // The language switcher shows the current language (English by default)
-      expect(screen.getByText(/english/i)).toBeInTheDocument();
+      expect(screen.getByText("Theme")).toBeInTheDocument();
+      expect(screen.getByText("Language")).toBeInTheDocument();
+      expect(screen.getByText("Timezone")).toBeInTheDocument();
     });
   });
 
-  it("should render preferences card with sections", async () => {
+  it("should render the theme options", async () => {
     renderWithSuspense(<SettingsPage />);
 
     await waitFor(() => {
-      // Look for the icons that indicate each section (Globe, Palette, Clock)
-      // The settings page has a grid with 3 sections
-      const buttons = screen.getAllByRole("button");
-      // Should have at least the language, theme, and timezone selectors
-      expect(buttons.length).toBeGreaterThanOrEqual(3);
+      expect(screen.getByRole("button", { name: "system" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "light" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "dark" })).toBeInTheDocument();
     });
   });
 
-  it("should render language flag emoji", async () => {
+  it("should render the current language", async () => {
     renderWithSuspense(<SettingsPage />);
 
     await waitFor(() => {
-      // The English flag emoji should be displayed
-      expect(screen.getByText("🇺🇸")).toBeInTheDocument();
+      expect(screen.getByText("English")).toBeInTheDocument();
     });
   });
 });

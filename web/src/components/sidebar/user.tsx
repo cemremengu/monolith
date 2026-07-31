@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { UserRoundIcon, ChevronsUpDown, Info, LogOut, Settings, Shield } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { Info, LogOut, Settings, UserRoundIcon } from "lucide-react";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -8,17 +9,12 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { AboutDialog } from "@/features/about/about-dialog";
+import { PreferencesMenu } from "@/features/profile/preferences-menu";
 import { useAuth } from "@/hooks/use-auth";
 
 export function NavUser({
@@ -31,24 +27,17 @@ export function NavUser({
     isAdmin: boolean;
   };
 }) {
-  const { isMobile } = useSidebar();
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   const handleLogout = useCallback(async () => {
     await logout();
     void navigate({ to: "/login" });
   }, [logout, navigate]);
 
-  const aboutTrigger = useMemo(
-    () => (
-      <DropdownMenuItem closeOnClick={false}>
-        <Info />
-        About
-      </DropdownMenuItem>
-    ),
-    [],
-  );
+  const handleAboutOpen = useCallback(() => setAboutOpen(true), []);
 
   const getInitials = (name: string) => {
     return name
@@ -59,7 +48,6 @@ export function NavUser({
       .slice(0, 2);
   };
 
-  // https://github.com/shadcn-ui/ui/issues/2497
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -68,63 +56,56 @@ export function NavUser({
             render={
               <SidebarMenuButton
                 size="lg"
-                className="hover:cursor-pointer data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
+                className="group-data-[collapsible=icon]:justify-center hover:cursor-pointer data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
               />
             }
           >
-            <Avatar className="size-8">
+            <Avatar>
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs">{user.email}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
             </div>
-            <ChevronsUpDown className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--anchor-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
+            side="top"
+            align="start"
+            sideOffset={8}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
+            <div className="grid px-2 py-1.5 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </div>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
+            <DropdownMenuGroup className="space-y-1">
               <DropdownMenuItem render={<Link to="/profile" />}>
                 <UserRoundIcon />
-                Profile
+                {t("sidebar.user.profile")}
               </DropdownMenuItem>
-              <DropdownMenuItem render={<Link to="/settings" />}>
+              <DropdownMenuItem
+                render={<Link to="/settings" search={{ section: "preferences" }} />}
+              >
                 <Settings />
-                Settings
+                {t("settings.title")}
               </DropdownMenuItem>
-              {user.isAdmin && (
-                <DropdownMenuItem render={<Link to="/admin" />}>
-                  <Shield />
-                  Admin Panel
-                </DropdownMenuItem>
-              )}
-              <AboutDialog trigger={aboutTrigger} />
+              <DropdownMenuItem onClick={handleAboutOpen}>
+                <Info />
+                {t("sidebar.user.about")}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <PreferencesMenu />
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
-              Log out
+              {t("sidebar.user.signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   );

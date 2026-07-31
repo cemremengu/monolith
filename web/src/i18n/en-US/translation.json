@@ -14,9 +14,13 @@
     },
     "preferences": {
       "title": "Preferences",
+      "interfaceAndTheme": "Interface and Theme",
       "language": "Language",
+      "languageDescription": "Select your preferred language",
       "theme": "Theme",
+      "themeDescription": "Choose your preferred color scheme",
       "timezone": "Timezone",
+      "timezoneDescription": "Dates and times are shown in this timezone",
       "languagePlaceholder": "English",
       "timezonePlaceholder": "UTC"
     },
@@ -68,8 +72,7 @@
     "saving": "Saving..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "subtitle": "Manage users and system settings",
+    "title": "Administration",
     "stats": {
       "totalUsers": "Total Users",
       "totalUsersDesc": "All registered users",
@@ -167,8 +170,84 @@
       }
     }
   },
+  "sidebar": {
+    "user": {
+      "profile": "Profile",
+      "about": "About",
+      "signOut": "Sign Out"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account"
+  },
+  "aiProviders": {
+    "title": "AI Providers",
+    "description": "Configure model providers and choose the model the assistant uses.",
+    "addProvider": "Add provider",
+    "configuredTitle": "Configured Providers",
+    "configuredSubtitle": "Providers you have set up with API access.",
+    "availableTitle": "Available Providers",
+    "availableSubtitle": "Click a provider to connect it.",
+    "customSubtitle": "Bring your own OpenAI-compatible endpoint",
+    "defaultBadge": "Default",
+    "modelCount_one": "{{count}} model",
+    "modelCount_other": "{{count}} models",
+    "activeModel": {
+      "title": "System default model",
+      "current": "{{model}} · {{provider}}",
+      "placeholder": "Select a model"
+    }
+  },
+  "license": {
+    "title": "License",
+    "description": "Manage the license file that governs how many projects you can publish.",
+    "states": {
+      "valid": "Active",
+      "missing": "No license",
+      "expired": "Expired",
+      "invalid": "Invalid"
+    },
+    "status": {
+      "title": "Current license",
+      "licensee": "Licensed to {{name}}",
+      "projectLimit": "Project limit",
+      "issuedAt": "Issued",
+      "expiresAt": "Expires"
+    },
+    "usage": {
+      "title": "Published projects",
+      "ofLimit": "{{used}} of {{limit}}"
+    },
+    "install": {
+      "title": "Install license",
+      "subtitle": "Paste the license key you received to activate or update your license.",
+      "placeholder": "Paste your license key here",
+      "action": "Install"
+    }
+  },
+  "about": {
+    "title": "About",
+    "version": "Version",
+    "commit": "Commit",
+    "built": "Built",
+    "unknown": "Unknown"
+  },
   "common": {
+    "table": {
+      "filter": "Filter...",
+      "filterLabel": "Filter table",
+      "columns": "Columns",
+      "toggleColumns": "Toggle columns",
+      "noResults": "No results.",
+      "previous": "Previous",
+      "previousLabel": "Previous page",
+      "next": "Next",
+      "nextLabel": "Next page",
+      "page": "Page {{page}} of {{total}}"
+    },
     "english": "English",
-    "turkish": "Turkish"
+    "turkish": "Turkish",
+    "previewNotice": "Preview only — this section shows demo content and is not connected to a backend yet."
   }
 }

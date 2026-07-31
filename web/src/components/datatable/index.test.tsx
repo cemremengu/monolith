@@ -152,6 +152,20 @@ describe("DataTable", () => {
     expect(screen.getByText("Page 2 of 3")).toBeInTheDocument();
   });
 
+  it("hides pagination when everything fits on one page", () => {
+    render(<DataTable data={createRows(3)} columns={columns} pageSize={5} />);
+
+    expect(screen.queryByRole("button", { name: /next page/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Page /)).not.toBeInTheDocument();
+  });
+
+  it("hides pagination when there are no rows", () => {
+    render(<DataTable data={[]} columns={columns} />);
+
+    expect(screen.queryByText(/^Page /)).not.toBeInTheDocument();
+    expect(screen.getByText("No results.")).toBeInTheDocument();
+  });
+
   it("supports custom cell rendering", () => {
     const customColumns: ColumnDef<TestRow>[] = [
       { accessorKey: "name", header: "Name" },

@@ -1,49 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
-import { Info } from "lucide-react";
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { getVersionInfo } from "./api";
 
 type AboutDialogProps = {
-  trigger?: React.ReactElement;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-export function AboutDialog({ trigger }: AboutDialogProps) {
-  const [open, setOpen] = useState(false);
-
+export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
+  const { t } = useTranslation();
   const { data: versionInfo, isLoading } = useQuery({
     queryKey: ["version-info"],
     queryFn: getVersionInfo,
     enabled: open,
   });
 
-  const defaultTrigger = (
-    <Button variant="ghost" size="sm" className="w-full justify-start">
-      <Info className="mr-2 h-4 w-4" />
-      About
-    </Button>
-  );
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={trigger || defaultTrigger} />
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>About</DialogTitle>
+          <DialogTitle>{t("about.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="text-sm font-medium">Version</div>
+            <div className="text-sm font-medium">{t("about.version")}</div>
             {isLoading ? (
               <Skeleton className="h-4 w-20" />
             ) : (
@@ -51,7 +35,7 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             )}
           </div>
           <div className="space-y-2">
-            <div className="text-sm font-medium">Commit</div>
+            <div className="text-sm font-medium">{t("about.commit")}</div>
             {isLoading ? (
               <Skeleton className="h-4 w-32" />
             ) : (
@@ -59,14 +43,14 @@ export function AboutDialog({ trigger }: AboutDialogProps) {
             )}
           </div>
           <div className="space-y-2">
-            <div className="text-sm font-medium">Built</div>
+            <div className="text-sm font-medium">{t("about.built")}</div>
             {isLoading ? (
               <Skeleton className="h-4 w-40" />
             ) : (
               <div className="font-mono text-sm text-muted-foreground">
                 {versionInfo?.buildTime
                   ? new Date(versionInfo.buildTime).toLocaleString()
-                  : "Unknown"}
+                  : t("about.unknown")}
               </div>
             )}
           </div>
