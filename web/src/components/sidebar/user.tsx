@@ -54,20 +54,16 @@ export function NavUser({
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton
-                size="lg"
-                className="group-data-[collapsible=icon]:justify-center hover:cursor-pointer data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
-              />
+              <SidebarMenuButton className="group-data-[collapsible=icon]:justify-center hover:cursor-pointer data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground" />
             }
           >
-            <Avatar>
+            <Avatar className="size-4">
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+              <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-            </div>
+            <span className="flex-1 truncate font-medium group-data-[collapsible=icon]:hidden">
+              {user.name}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--anchor-width) min-w-56 rounded-lg"
